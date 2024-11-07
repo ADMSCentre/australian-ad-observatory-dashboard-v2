@@ -5,11 +5,12 @@
 	import PlatformItem from './platform-item.svelte';
 	import { Circle } from 'svelte-loading-spinners';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import { base } from '$app/paths';
 	const auth = getAuthState();
 
 	onMount(() => {
 		if (!auth.loading && !auth.currentUser) {
-			location.href = '/login';
+			location.href = `${base}/login`;
 		}
 	});
 

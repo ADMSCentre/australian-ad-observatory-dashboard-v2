@@ -1,17 +1,17 @@
 <script lang="ts">
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-
+	import { base } from '$app/paths';
 	import { BookUser, Search } from 'lucide-svelte';
 
 	const items = [
 		{
 			title: 'Donors',
-			url: '/donors',
+			url: `${base}/donors`,
 			icon: BookUser
 		},
 		{
 			title: 'Query',
-			url: '/query',
+			url: `${base}/query`,
 			icon: Search
 		}
 	];
@@ -19,7 +19,7 @@
 
 <Sidebar.Root>
 	<Sidebar.Header>
-		<a href="/" class="flex flex-col items-center">
+		<a href="{base}/" class="flex flex-col items-center">
 			<img
 				src="https://australian-ad-observatory.s3.us-east-2.amazonaws.com/static/img/brand_logo_1.png"
 				alt="Australian Ad Observatory"
