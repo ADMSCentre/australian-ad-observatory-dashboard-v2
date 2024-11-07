@@ -36,7 +36,7 @@
 	}
 </script>
 
-<div class="flex h-full items-center justify-center bg-gray-100">
+<div class="flex size-full flex-1 items-center justify-center bg-gray-100">
 	<div class="w-full max-w-sm rounded bg-white p-8 shadow-md">
 		<h2 class="mb-6 text-center text-2xl font-bold">Login</h2>
 		{#if message.value}

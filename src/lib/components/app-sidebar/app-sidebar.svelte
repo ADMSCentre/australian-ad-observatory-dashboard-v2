@@ -1,5 +1,20 @@
 <script lang="ts">
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
+
+	import { BookUser, Search } from 'lucide-svelte';
+
+	const items = [
+		{
+			title: 'Donors',
+			url: '/donors',
+			icon: BookUser
+		},
+		{
+			title: 'Query',
+			url: '/query',
+			icon: Search
+		}
+	];
 </script>
 
 <Sidebar.Root>
@@ -14,8 +29,24 @@
 		</a>
 	</Sidebar.Header>
 	<Sidebar.Content>
-		<Sidebar.Group />
-		<Sidebar.Group />
+		<Sidebar.Group>
+			<Sidebar.GroupContent>
+				<Sidebar.Menu>
+					{#each items as item (item.title)}
+						<Sidebar.MenuItem>
+							<Sidebar.MenuButton>
+								{#snippet child({ props })}
+									<a href={item.url} {...props}>
+										<item.icon />
+										<span>{item.title}</span>
+									</a>
+								{/snippet}
+							</Sidebar.MenuButton>
+						</Sidebar.MenuItem>
+					{/each}
+				</Sidebar.Menu>
+			</Sidebar.GroupContent>
+		</Sidebar.Group>
 	</Sidebar.Content>
 	<Sidebar.Footer />
 </Sidebar.Root>

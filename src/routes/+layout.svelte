@@ -11,9 +11,9 @@
 
 <Sidebar.Provider class="h-screen">
 	<AppSidebar />
-	<main class="flex size-full flex-col">
+	<main class="flex h-fit min-h-full w-full flex-col">
 		<Header />
-		<div class="flex-1">
+		<div class="flex flex-1 flex-col p-4">
 			{@render children()}
 		</div>
 	</main>

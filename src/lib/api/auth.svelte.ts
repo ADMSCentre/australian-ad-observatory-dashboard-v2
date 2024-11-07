@@ -1,31 +1,10 @@
 import { getContext, setContext } from 'svelte';
-
-const DASHBOARD_API_URL =
-	'https://i7dy5tidoi.execute-api.us-east-2.amazonaws.com/default/fta-dashboard-instance';
-type ApiActionType = 'presign' | 'platform_items_v3' | 'authenticate_educational';
+import { useDashboardAPI } from './useDashboard';
 
 export type User = {
 	username: string;
 	token: string;
 };
-
-async function useDashboardAPI({ actionType, data }: { actionType: ApiActionType; data: unknown }) {
-	// The API uses base64 encoding - if we don't encode, the API will return a 500 error
-	const jsonInput = btoa(
-		JSON.stringify({
-			action: actionType,
-			data
-		})
-	);
-	const response = await fetch(DASHBOARD_API_URL, {
-		method: 'POST',
-		body: jsonInput
-	});
-	if (!response.ok) {
-		throw new Error(`Failed to fetch ${actionType} with status ${response.status}`);
-	}
-	return response.json();
-}
 
 async function fetchLoginToken({ username, password }: { username: string; password: string }) {
 	const data = {

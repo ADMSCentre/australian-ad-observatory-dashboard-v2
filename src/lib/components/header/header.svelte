@@ -11,7 +11,9 @@
 	};
 </script>
 
-<header class="sticky top-0 flex w-full items-center border-b p-2 backdrop-blur-sm">
+<header
+	class="sticky top-0 z-50 flex w-full items-center border-b bg-white bg-opacity-50 p-2 backdrop-blur-sm"
+>
 	<div class="flex w-full items-center justify-between">
 		<Sidebar.Trigger />
 		<div class="flex items-center gap-4">
@@ -34,11 +36,3 @@
 		</div>
 	</div>
 </header>
-
-<style>
-	a {
-		&:hover {
-			text-decoration: underline;
-		}
-	}
-</style>
