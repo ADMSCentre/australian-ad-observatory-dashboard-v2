@@ -8,7 +8,7 @@
 	import { base } from '$app/paths';
 	const auth = getAuthState();
 
-	onMount(() => {
+	$effect(() => {
 		if (!auth.loading && !auth.currentUser) {
 			location.href = `${base}/login`;
 		}
