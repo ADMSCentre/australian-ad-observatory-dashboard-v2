@@ -3,6 +3,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { twMerge } from 'tailwind-merge';
 	import { Circle } from 'svelte-loading-spinners';
+	import { base } from '$app/paths';
 
 	let username = $state('');
 	let password = $state('');
@@ -27,7 +28,7 @@
 			message.kind = 'success';
 			loading = false;
 			// Redirect to the home page
-			location.href = '/';
+			location.href = `${base}/`;
 		} catch (error) {
 			message.value = (error as Error).message;
 			message.kind = 'error';
