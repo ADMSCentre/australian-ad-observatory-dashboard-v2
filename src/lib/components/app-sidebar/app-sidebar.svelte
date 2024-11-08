@@ -1,16 +1,16 @@
 <script lang="ts">
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { homePath, mobileObservationsPath, webObservationsPath } from '$lib/routes.config';
-	import { BookUser, Search } from 'lucide-svelte';
+	import { Smartphone, Search } from 'lucide-svelte';
 
 	const items = [
 		{
-			title: 'Donors',
+			title: 'Mobile Observations',
 			url: mobileObservationsPath,
-			icon: BookUser
+			icon: Smartphone
 		},
 		{
-			title: 'Query',
+			title: 'Web Observations',
 			url: webObservationsPath,
 			icon: Search
 		}
