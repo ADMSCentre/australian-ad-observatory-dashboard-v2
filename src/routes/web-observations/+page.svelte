@@ -5,12 +5,12 @@
 	import PlatformItem from './platform-item.svelte';
 	import { Circle } from 'svelte-loading-spinners';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import { base } from '$app/paths';
-	const auth = getAuthState();
+	import { login } from '$lib/routes.config';
+	const auloginPathgetAuthState();
 
 	$effect(() => {
 		if (!auth.loading && !auth.currentUser) {
-			location.href = `${base}/login`;
+			location.href = login;
 		}
 	});
 
@@ -20,7 +20,7 @@
 			'0': {
 				negation: true,
 				index: [0, 0],
-				'filter-type': 'demographics',
+				'filter-type': loginPathgraphics',
 				'filter-subtype': 'gender',
 				'filter-subtype-demographic': ['Male']
 			}

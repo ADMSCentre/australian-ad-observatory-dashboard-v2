@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { base } from '$app/paths';
+	import { loginPath } from '$lib/routes.config';
 	import { getAuthState } from '$lib/api/auth.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
@@ -24,7 +24,7 @@
 				<p>Hello <span class=" font-semibold">{auth.currentUser.username}</span>!</p>
 				<Button variant="outline" type="button" onclick={onLogout}>Logout</Button>
 			{:else}
-				<Button variant="outline" href="{base}/login">Login</Button>
+				<Button variant="outline" href={loginPath}>Login</Button>
 			{/if}
 		</div>
 	</div>
