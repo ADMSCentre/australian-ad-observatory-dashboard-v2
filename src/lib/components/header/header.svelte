@@ -19,7 +19,10 @@
 		<Sidebar.Trigger />
 		<div class="flex items-center gap-4">
 			{#if auth.loading}
-				<Circle size="30" color="black" />
+				<div class="flex items-center gap-2">
+					<Circle size="30" color="black" />
+					<span> Authenticating... </span>
+				</div>
 			{:else if auth.currentUser}
 				<p>Hello <span class=" font-semibold">{auth.currentUser.username}</span>!</p>
 				<Button variant="outline" type="button" onclick={onLogout}>Logout</Button>
