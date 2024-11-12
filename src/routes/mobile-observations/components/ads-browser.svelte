@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { DateRange } from 'bits-ui';
-	import type { IndividualAdData } from '../[participantId]/types';
-	import AdCard from '../[participantId]/ad-card.svelte';
+	import type { IndividualAdData } from '../observer/types';
+	import AdCard from '../observer/ad-card.svelte';
 	import { dateToCalendarDate } from '../utils';
 
 	const {

@@ -3,7 +3,7 @@
 	import 'ag-grid-community/styles/ag-theme-alpine.css'; // Optional theme CSS
 	import type { DateRange } from 'bits-ui';
 	import { dateToCalendarDate } from './utils';
-	import type { IndividualAdData } from './[participantId]/types';
+	import type { IndividualAdData } from './observer/types';
 	import ObservationsTimeline from './components/observations-timeline.svelte';
 	import ObserversTable from './components/observers-table.svelte';
 	import Filters from './components/filters.svelte';

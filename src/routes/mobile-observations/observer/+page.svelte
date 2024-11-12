@@ -10,7 +10,7 @@
 	import type { IndividualAdData } from './types';
 	import { loginPath } from '$lib/routes.config';
 
-	const { participantId } = $page.params;
+	const participantId = $page.url.searchParams.get('observer_id') || '';
 	const auth = getAuthState();
 	$effect(() => {
 		if (!auth.loading && !auth.currentUser) {

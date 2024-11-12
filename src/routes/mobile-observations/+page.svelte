@@ -2,11 +2,11 @@
 	import { getAuthState } from '$lib/api/auth.svelte';
 	import { loginPath } from '$lib/routes.config';
 	import { Circle } from 'svelte-loading-spinners';
-	import ObserverOverview from './[participantId]/observer-overview.svelte';
+	import ObserverOverview from './observer/observer-overview.svelte';
 	import { listAllAds, type ObservationIndex } from '$lib/api/mobile-observations';
 	import MobileObservationsDashboard from './mobile-observations-dashboard.svelte';
 	import { parseAdsIndex } from './utils';
-	import type { IndividualAdData } from './[participantId]/types';
+	import type { IndividualAdData } from './observer/types';
 
 	const auth = getAuthState();
 	let loading = $state(false);

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import AgGrid from '$lib/components/ag-grid/ag-grid.svelte';
 	import type { DateRange } from 'bits-ui';
-	import type { IndividualAdData } from '../[participantId]/types';
+	import type { IndividualAdData } from '../observer/types';
 	import { dateToCalendarDate, parseTime } from '../utils';
 
 	const {
@@ -69,7 +69,7 @@
 				field: 'observer',
 				width: 110,
 				cellRenderer: (params: any) => {
-					return `<a href="/mobile-observations/${params.value}"
+					return `<a href="/mobile-observations/observer?observer_id=${params.value}"
 						class="text-blue-600 underline"
 					>
 						${params.value}
