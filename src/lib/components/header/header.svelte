@@ -10,10 +10,33 @@
 	const onLogout = () => {
 		auth.logout();
 	};
+
+	import { onMount } from 'svelte';
+	import { twMerge } from 'tailwind-merge';
+
+	let lastScrollTop = $state(0);
+	let headerVisible = $state(true);
+
+	onMount(() => {
+		const handleScroll = () => {
+			const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+			headerVisible = scrollTop < lastScrollTop || scrollTop <= 0;
+			lastScrollTop = scrollTop;
+		};
+
+		window.addEventListener('scroll', handleScroll);
+
+		return () => {
+			window.removeEventListener('scroll', handleScroll);
+		};
+	});
 </script>
 
 <header
-	class="sticky top-0 z-50 flex w-full items-center border-b bg-white bg-opacity-50 p-2 backdrop-blur-sm"
+	class={twMerge(
+		'sticky top-0 z-50 flex w-full items-center border-b bg-white bg-opacity-50 p-2 backdrop-blur-sm transition duration-300',
+		!headerVisible && ' -translate-y-full transform sm:translate-y-0'
+	)}
 >
 	<div class="flex w-full items-center justify-between">
 		<Sidebar.Trigger />

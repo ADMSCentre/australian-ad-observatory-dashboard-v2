@@ -1,5 +1,5 @@
 import { getContext, setContext } from 'svelte';
-import { useDashboardAPI } from './useDashboard';
+import { useDashboardAPI } from './use-dashboard';
 
 export type User = {
 	username: string;

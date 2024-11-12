@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import type { PlatformItemData } from './platform-item';
 	import { getAuthState } from '$lib/api/auth.svelte';
-	import { useDashboardAPI } from '$lib/api/useDashboard';
+	import { useDashboardAPI } from '$lib/api/use-dashboard';
 	import { Circle } from 'svelte-loading-spinners';
 	import * as Carousel from '$lib/components/ui/carousel/index.js';
 

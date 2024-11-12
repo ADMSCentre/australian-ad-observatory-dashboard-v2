@@ -1,4 +1,4 @@
-import { useDashboardAPI } from './useDashboard';
+import { useDashboardAPI } from './use-dashboard';
 
 export interface QueryResponse {
 	success: boolean;

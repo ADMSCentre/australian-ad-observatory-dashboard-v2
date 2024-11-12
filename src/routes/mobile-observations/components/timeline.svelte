@@ -12,27 +12,20 @@
 	} = $props();
 
 	// Convert timestamps to moment objects
+	let innerWidth = $state(window.innerWidth);
+	let indexAxis = $derived(innerWidth > 640 ? 'x' : 'y') as 'x' | 'y';
+	let valueAxis = $derived(innerWidth > 640 ? 'y' : 'x') as 'x' | 'y';
+	let aspectRatio = $derived(innerWidth > 640 ? 2 : 0.5);
+
 	const momentTimestamps = $derived(
 		timestamps.map((tsNumber) => new Date(tsNumber)).map((ts) => moment(ts))
 	);
 
-	// Create bins of 30 minutes
-	// const bins = {};
-	// momentTimestamps.forEach((ts) => {
-	// 	const bin = ts
-	// 		.startOf('hour')
-	// 		.add(Math.floor(ts.minute() / 30) * 30, 'minutes')
-	// 		.format('YYYY-MM-DD HH:mm');
-	// 	bins[bin] = (bins[bin] || 0) + 1;
-	// });
-
 	const bins = $derived.by(() => {
-		const bins = {};
+		const bins: { [key: string]: number } = {};
 		momentTimestamps.forEach((ts) => {
-			const bin = ts
-				.startOf('hour')
-				.add(Math.floor(ts.minute() / 30) * 30, 'minutes')
-				.format('YYYY-MM-DD HH:mm');
+			// Group every 2 hours
+			const bin = ts.startOf('hour').format('YYYY-MM-DD HH:mm');
 			bins[bin] = (bins[bin] || 0) + 1;
 		});
 		console.log('bins', bins);
@@ -49,8 +42,10 @@
 		if (chartStatus != undefined) {
 			chartStatus.destroy();
 		}
-		const ctx = document.getElementById('myChart').getContext('2d');
+		const canvas = document.getElementById('myChart') as HTMLCanvasElement;
+		const ctx = canvas.getContext('2d');
 		if (!ctx) return;
+
 		new Chart(ctx, {
 			type: 'bar',
 			data: {
@@ -59,21 +54,27 @@
 					{
 						label: 'Number of Ads',
 						data: data,
-						backgroundColor: 'rgba(75, 192, 192, 0.2)',
-						borderColor: 'rgba(75, 192, 192, 1)',
-						borderWidth: 1
+						borderWidth: 1,
+						barPercentage: 1,
+						categoryPercentage: 1
 					}
 				]
 			},
 			options: {
+				indexAxis: indexAxis,
+				aspectRatio: aspectRatio,
 				scales: {
-					x: {
+					[indexAxis]: {
 						type: 'time',
 						time: {
-							unit: 'hour'
+							unit: 'day'
+						},
+						title: {
+							display: true,
+							text: 'Date'
 						}
 					},
-					y: {
+					[valueAxis]: {
 						beginAtZero: true
 					}
 				}
@@ -82,10 +83,12 @@
 	});
 </script>
 
-<canvas id="myChart" width="400" height="200"></canvas>
+<svelte:window bind:innerWidth />
+<canvas id="myChart"></canvas>
 
 <style>
 	canvas {
 		max-width: 100%;
+		max-height: 80vh;
 	}
 </style>

@@ -1,14 +1,13 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { createGrid, type ColDef, type ColGroupDef } from 'ag-grid-community';
+	import { createGrid, type GridOptions } from 'ag-grid-community';
 	import 'ag-grid-community/styles/ag-grid.css';
 	import 'ag-grid-community/styles/ag-theme-alpine.css';
 
-	const { columnDefs, rowData, style } = $props<{
-		columnDefs: (ColDef | ColGroupDef)[];
-		rowData: any[];
-		style: { [key: string]: string };
-	}>();
+	const { columnDefs, rowData, style, ...options } = $props<
+		{
+			style: Record<string, string>;
+		} & GridOptions
+	>();
 
 	const styleStr = $derived.by(() => {
 		return Object.entries(style)
@@ -22,7 +21,8 @@
 		// new Grid(gridDiv, gridOptions);
 		const gridOptions = {
 			columnDefs,
-			rowData
+			rowData,
+			...options
 		};
 		// Clear the gridDiv before creating a new grid
 		gridDiv.innerHTML = '';
