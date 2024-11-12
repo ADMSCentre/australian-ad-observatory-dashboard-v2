@@ -6,6 +6,7 @@
 	import { getAdFrameUrls } from '$lib/api/mobile-observations';
 	import { getAuthState } from '$lib/api/auth.svelte';
 	import IntersectionObserverSvelte from 'svelte-intersection-observer/IntersectionObserver.svelte';
+	import { individualMobileObserverPath } from '$lib/routes.config';
 
 	const {
 		adData,
@@ -48,7 +49,7 @@
 				<div class="flex items-center gap-2">
 					<span class="inline-block text-xs font-extralight">Seen by</span>
 					<a
-						href="/mobile-observations/observer?observer_id={adData.observer}"
+						href="{individualMobileObserverPath}?observer_id={adData.observer}"
 						class="inline-block w-[12ch] overflow-hidden text-ellipsis text-nowrap rounded-full bg-gray-300 px-1 text-xs font-light hover:underline"
 					>
 						{adData.observer}
