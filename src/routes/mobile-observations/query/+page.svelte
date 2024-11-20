@@ -2,13 +2,15 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Play } from 'lucide-svelte';
 	import QueryBuilder from './components/query-builder.svelte';
-	import treeToString from './utils/query-builder';
+	import treeToString, { buildTree } from './utils/query-builder';
 	import { Circle } from 'svelte-loading-spinners';
 	import QueryTextEditor from './components/query-text-editor.svelte';
 	import CodeMirror from 'svelte-codemirror-editor';
 	import { json } from '@codemirror/lang-json';
+	import { onMount } from 'svelte';
+	import { type Query } from './const';
 
-	let queryObj = $state({
+	let queryObj = $state<Query>({
 		method: 'MATCH',
 		args: ['cats']
 	});
@@ -18,6 +20,19 @@
 	const queryStr = $derived.by(() => {
 		const str = treeToString(queryObj).replace(/^\((.*)\)$/, '$1');
 		return str;
+	});
+
+	onMount(() => {
+		// Parse the query from the URL when the component mounts
+		const urlParams = new URLSearchParams(window.location.search);
+		const query = urlParams.get('q');
+		if (query) {
+			queryObj = buildTree(query);
+		}
+	});
+
+	$effect(() => {
+		window.history.replaceState(null, '', `?q=${encodeURIComponent(queryStr)}`);
 	});
 
 	const queryJson = $derived.by(() => {
