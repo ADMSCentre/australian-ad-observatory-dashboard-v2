@@ -30,7 +30,7 @@
 	$effect(() => {
 		if (!queryObj) return;
 		// Remove the query from the URL before navigating away
-		const queryStr = treeToString(queryObj);
+		const queryStr = treeToString(queryObj).replace(/^\((.*)\)$/, '$1');
 		window.history.replaceState(null, '', `?q=${encodeURIComponent(queryStr)}`);
 	});
 

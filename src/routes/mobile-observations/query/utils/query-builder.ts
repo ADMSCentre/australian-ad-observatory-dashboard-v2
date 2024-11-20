@@ -144,12 +144,52 @@ export function buildTree(queryStr: string): Query {
 	const outputQueue = shuntingYard(queryStr);
 	// console.log(outputQueue);
 	const stack: (Query | string)[] = [];
+	console.log(outputQueue);
 	while (outputQueue.length > 0) {
 		// console.log(stack, outputQueue);
 		const token = outputQueue.shift();
 		if (!token) break;
 		if (isFunction(token) || isBinaryOp(token) || isUnaryOp(token)) {
-			console.log(stack, token);
+			// console.log(stack, token);
+			console.log(structuredClone(stack), structuredClone(token));
+		}
+		if (isUnaryOp(token)) {
+			let arg = stack.pop()!;
+			let numParentheses = 0;
+			while (isRightParenthesis(arg as string)) {
+				arg = stack.pop()!;
+				numParentheses++;
+			}
+			for (let i = 0; i < numParentheses; i++) {
+				const left = stack.pop();
+				if (left !== '(' && left !== undefined) {
+					stack.push(left!);
+				}
+			}
+			if (!arg) throw new Error('Expected argument after unary operator');
+			if (typeof arg !== 'object') throw new Error('Expected argument to be a query');
+			stack.push({
+				method: token,
+				args: [arg]
+			});
+		}
+		if (isBinaryOp(token)) {
+			let right = stack.pop()!;
+			while (isRightParenthesis(right as string)) {
+				right = stack.pop()!;
+			}
+			let left = stack.pop()!;
+			while (left === '(' && left !== undefined) {
+				left = stack.pop()!;
+			}
+			if (!left || !right) throw new Error('Expected two arguments for binary operator');
+			if (typeof left !== 'object' || typeof right !== 'object') {
+				throw new Error('Expected arguments to be queries');
+			}
+			stack.push({
+				method: token,
+				args: [left, right]
+			});
 		}
 		if (isValue(token)) {
 			stack.push(parseString(token));
@@ -164,28 +204,6 @@ export function buildTree(queryStr: string): Query {
 			stack.push({
 				method: token,
 				args: args
-			});
-		}
-		if (isUnaryOp(token)) {
-			const arg = stack.pop()!;
-			stack.push({
-				method: token,
-				args: [arg]
-			});
-		}
-		if (isBinaryOp(token)) {
-			let right = stack.pop()!;
-			if (isRightParenthesis(right as string)) {
-				right = stack.pop()!;
-			}
-			const left = stack.pop()!;
-			const nextLeft = stack.pop();
-			if (nextLeft !== '(' && nextLeft !== undefined) {
-				stack.push(nextLeft!);
-			}
-			stack.push({
-				method: token,
-				args: [left, right]
 			});
 		}
 	}
