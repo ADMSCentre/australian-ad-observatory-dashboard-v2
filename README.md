@@ -153,6 +153,10 @@ def NOT(args: list[Query], value):
 def MATCH(args: list[str], value):
   return args[0] in value
 
+@register("EXACT MATCH", limit_args=1)
+def EXACT_MATCH(args: list[str], value):
+  return args[0] == value
+
 if __name__ == "__main__":
   json_query = {
     "method": "AND",
