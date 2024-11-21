@@ -45,7 +45,7 @@
 				kind: 'success'
 			};
 			loading = false;
-			goto(withBase(redirect));
+			goto(redirect);
 		} catch (error) {
 			message = {
 				value: (error as Error).message,
