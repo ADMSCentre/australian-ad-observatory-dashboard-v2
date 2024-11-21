@@ -10,6 +10,7 @@
 	import type { IndividualAdData } from './types';
 	import AdsBrowser from '../components/ads-browser.svelte';
 	import ObservationsTimeline from '../components/observations-timeline.svelte';
+	import { withBase } from '$lib/utils';
 
 	const participantId = $page.url.searchParams.get('observer_id') || '';
 	const auth = getAuthState();
@@ -30,7 +31,7 @@
 
 <div class="flex flex-col gap-4">
 	<div>
-		<Button href="/mobile-observations">
+		<Button href={withBase('/mobile-observations')}>
 			<ArrowLeft />
 			Back
 		</Button>
