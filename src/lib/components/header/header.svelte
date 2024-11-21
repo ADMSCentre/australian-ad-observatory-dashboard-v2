@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { loginPath } from '$lib/routes.config';
 	import { getAuthState } from '$lib/api/auth.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
@@ -13,6 +12,7 @@
 
 	import { onMount } from 'svelte';
 	import { twMerge } from 'tailwind-merge';
+	import { withBase } from '$lib/utils';
 
 	let lastScrollTop = $state(0);
 	let headerVisible = $state(true);
@@ -50,7 +50,7 @@
 				<p>Hello <span class=" font-semibold">{auth.currentUser.username}</span>!</p>
 				<Button variant="outline" type="button" onclick={onLogout}>Logout</Button>
 			{:else}
-				<Button variant="outline" href={loginPath}>Login</Button>
+				<Button variant="outline" href={withBase('login')}>Login</Button>
 			{/if}
 		</div>
 	</div>

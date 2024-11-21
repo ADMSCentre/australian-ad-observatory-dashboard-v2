@@ -3,7 +3,10 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { twMerge } from 'tailwind-merge';
 	import { Circle } from 'svelte-loading-spinners';
-	import { homePath } from '$lib/routes.config';
+	import { withBase } from '$lib/utils';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
+	import { Markdown } from 'svelte-exmarkdown';
 
 	let username = $state('');
 	let password = $state('');
@@ -14,24 +17,40 @@
 	let loading = $state(false);
 	const auth = getAuthState();
 
-	async function handleSubmit() {
+	const redirect = $page.url.searchParams.get('redirect') || '/';
+	$effect(() => {
+		if (redirect !== '/') {
+			message = {
+				value: `Please login to access [${redirect}](${redirect})`,
+				kind: 'info'
+			};
+		}
+	});
+
+	async function handleSubmit(e: Event) {
+		e.preventDefault(); // No page reload (to keep params)
 		loading = true;
 		if (username === '' || password === '') {
-			message.value = 'Username and password are required.';
-			message.kind = 'error';
+			message = {
+				value: 'Username and password are required.',
+				kind: 'error'
+			};
 			loading = false;
 			return;
 		}
 		try {
 			await auth.login({ username, password });
-			message.value = `Successfully logged in as ${username}`;
-			message.kind = 'success';
+			message = {
+				value: `Successfully logged in as ${username}`,
+				kind: 'success'
+			};
 			loading = false;
-			// Redirect to the home page
-			location.href = homePath;
+			goto(withBase(redirect));
 		} catch (error) {
-			message.value = (error as Error).message;
-			message.kind = 'error';
+			message = {
+				value: (error as Error).message,
+				kind: 'error'
+			};
 			loading = false;
 		}
 	}
@@ -41,16 +60,9 @@
 	<div class="w-full max-w-sm rounded bg-white p-8 shadow-md">
 		<h2 class="mb-6 text-center text-2xl font-bold">Login</h2>
 		{#if message.value}
-			<div
-				class={twMerge(
-					'relative mb-4 rounded border px-4 py-3',
-					message.kind === 'error'
-						? 'border-red-400 bg-red-100 text-red-700'
-						: 'border-green-400 bg-green-100 text-green-700'
-				)}
-				role="alert"
-			>
-				<span class="block sm:inline">{message.value}</span>
+			<div class={twMerge('relative mb-4 rounded border px-4 py-3', message.kind)} role="alert">
+				<!-- <span class="block sm:inline">{message.value}</span> -->
+				<Markdown md={message.value} />
 			</div>
 		{/if}
 		<form onsubmit={handleSubmit}>
@@ -84,3 +96,18 @@
 		</form>
 	</div>
 </div>
+
+<style>
+	.error {
+		@apply border-red-400 bg-red-100 text-red-700;
+	}
+	.success {
+		@apply border-green-400 bg-green-100 text-green-700;
+	}
+	.info {
+		@apply border-blue-400 bg-blue-100 text-blue-700;
+	}
+	a {
+		@apply underline;
+	}
+</style>

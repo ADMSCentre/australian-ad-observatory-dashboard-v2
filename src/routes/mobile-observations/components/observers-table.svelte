@@ -3,7 +3,7 @@
 	import type { DateRange } from 'bits-ui';
 	import type { IndividualAdData } from '../observer/types';
 	import { dateToCalendarDate, parseTime } from '../utils';
-	import { individualMobileObserverPath } from '$lib/routes.config';
+	import { withBase } from '$lib/utils';
 
 	const {
 		ads,
@@ -70,7 +70,8 @@
 				field: 'observer',
 				width: 110,
 				cellRenderer: (params: any) => {
-					return `<a href="${individualMobileObserverPath}?observer_id=${params.value}"
+					const path = withBase(`mobile-observations/observer?observer_id=${params.value}`);
+					return `<a href="${path}"
 						class="text-blue-600 underline"
 					>
 						${params.value}

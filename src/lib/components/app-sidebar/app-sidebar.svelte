@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
-	import { homePath, mobileObservationsPath, webObservationsPath } from '$lib/routes.config';
+	import { withBase } from '$lib/utils';
 	import {
 		Smartphone,
 		Search,
@@ -25,18 +25,18 @@
 				{
 					title: 'Monitor',
 					icon: HeartPulse,
-					url: mobileObservationsPath
+					url: withBase(`mobile-observations`)
 				},
 				{
 					title: 'Query',
 					icon: Search,
-					url: `${mobileObservationsPath}/query`
+					url: withBase(`mobile-observations/query`)
 				}
 			]
 		},
 		{
 			title: 'Web Observations',
-			url: webObservationsPath,
+			url: withBase('web-observations'),
 			icon: Globe
 		}
 	];
@@ -68,7 +68,7 @@
 
 <Sidebar.Root>
 	<Sidebar.Header>
-		<a href={homePath} class="flex flex-col items-center">
+		<a href={withBase('/')} class="flex flex-col items-center">
 			<img
 				src="https://australian-ad-observatory.s3.us-east-2.amazonaws.com/static/img/brand_logo_1.png"
 				alt="Australian Ad Observatory"

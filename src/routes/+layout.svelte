@@ -1,12 +1,24 @@
 <script lang="ts">
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import AppSidebar from '$lib/components/app-sidebar/app-sidebar.svelte';
-	import { setAuthState } from '$lib/api/auth.svelte';
+	import { getAuthState, setAuthState } from '$lib/api/auth.svelte';
 	import '../app.css';
 	import Header from '../lib/components/header/header.svelte';
+	import { isRouteProtected } from './protected.config';
+	import { goto } from '$app/navigation';
+	import { withBase } from '$lib/utils';
+	import { page } from '$app/stores';
 	let { children } = $props();
 
 	setAuthState();
+
+	const auth = getAuthState();
+	$effect.pre(() => {
+		if (!isRouteProtected($page.url.pathname)) return;
+		if (!auth.loading && !auth.currentUser) {
+			goto(withBase(`/login?redirect=${$page.url.pathname}${$page.url.search}`));
+		}
+	});
 </script>
 
 <Sidebar.Provider class="h-screen">

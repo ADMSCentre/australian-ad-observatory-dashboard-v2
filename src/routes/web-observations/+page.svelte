@@ -1,18 +1,11 @@
 <script lang="ts">
 	import { getAuthState } from '$lib/api/auth.svelte';
 	import { useQueryApi, type QueryData } from '$lib/api/query.svelte';
-	import { onMount } from 'svelte';
 	import PlatformItem from './platform-item.svelte';
 	import { Circle } from 'svelte-loading-spinners';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import { loginPath } from '$lib/routes.config';
-	const auth = getAuthState();
 
-	$effect(() => {
-		if (!auth.loading && !auth.currentUser) {
-			location.href = loginPath;
-		}
-	});
+	const auth = getAuthState();
 
 	// TODO: Implement boolean filter
 	let filters = $state({
@@ -27,13 +20,10 @@
 		}
 	});
 	let paginationId = $state(0);
-
-	let data = $state<QueryData | null>(null);
-	// let presignedUrls = $derived(Object.entries(data?.presigned_urls || {}));
 	let presignedUrls = $state<[string, string][]>([]);
 	let loading = $state(false);
 
-	$effect(() => {
+	$effect.pre(() => {
 		const executeQuery = async () => {
 			if (!auth.currentUser) return;
 			loading = true;
@@ -42,17 +32,13 @@
 				paginationId: paginationId,
 				booleanFilterDataStructure: filters
 			});
-			data = res.data;
+			const data = res.data;
 			presignedUrls = [...Object.entries(data?.presigned_urls || {}), ...presignedUrls];
 			loading = false;
 		};
 		executeQuery();
 	});
 </script>
-
-<!-- {#if presignedUrls.length > 0}
-<PlatformItem itemId={presignedUrls[0][0]} presignedUrl={presignedUrls[0][1]} />
-{/if} -->
 
 <h1>Query</h1>
 

@@ -10,8 +10,8 @@
 	import { type Query } from './const';
 
 	let queryObj = $state<Query | null>(null);
-	let queryResult = $state<unknown | null>(null);
-	let isLoading = $state(false);
+	let promise = $state<Promise<unknown>>();
+	let loading = $state(false);
 
 	$effect(() => {
 		// Parse the query from the URL when the component mounts
@@ -34,12 +34,17 @@
 		window.history.replaceState(null, '', `?q=${encodeURIComponent(queryStr)}`);
 	});
 
-	const executeQuery = async () => {
-		isLoading = true;
-		// This is where the fetch request will be made...
+	const fetchData = async () => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
-		queryResult = JSON.stringify(queryObj, null, 2);
-		isLoading = false;
+		return JSON.stringify(queryObj, null, 2);
+	};
+
+	const executeQuery = () => {
+		loading = true;
+		promise = fetchData().then((res) => {
+			loading = false;
+			return res;
+		});
 	};
 </script>
 
@@ -62,15 +67,15 @@
 				lang={json()}
 			/>
 		</div>
-		<Button class="w-24" onclick={executeQuery} disabled={isLoading}>
-			{#if isLoading}
+		<Button class="w-24" onclick={executeQuery} disabled={loading}>
+			{#if loading}
 				<Circle size={20} color="white" />
 			{:else}
 				<Play />
 			{/if}
 			<span>Run</span>
 		</Button>
-		{#if queryResult}
+		{#await promise then queryResult}
 			<div class="flex flex-col gap-2">
 				<strong>Results:</strong>
 				<CodeMirror
@@ -82,6 +87,6 @@
 					useTab={false}
 				/>
 			</div>
-		{/if}
+		{/await}
 	</div>
 {/if}

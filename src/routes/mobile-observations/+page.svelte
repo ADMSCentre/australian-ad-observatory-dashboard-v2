@@ -1,34 +1,18 @@
 <script lang="ts">
 	import { getAuthState } from '$lib/api/auth.svelte';
-	import { loginPath } from '$lib/routes.config';
 	import { Circle } from 'svelte-loading-spinners';
-	import ObserverOverview from './observer/observer-overview.svelte';
-	import { listAllAds, type ObservationIndex } from '$lib/api/mobile-observations';
+	import { listAllAds } from '$lib/api/mobile-observations';
 	import MobileObservationsDashboard from './mobile-observations-dashboard.svelte';
 	import { parseAdsIndex } from './utils';
-	import type { IndividualAdData } from './observer/types';
-
+	import { goto } from '$app/navigation';
+	import { withBase } from '$lib/utils';
+	import { page } from '$app/stores';
 	const auth = getAuthState();
-	let loading = $state(false);
-	let data = $state<IndividualAdData[]>([]);
 
 	const fetchAdsIndex = async () => {
 		if (!auth.currentUser) return;
-
-		loading = true;
-		data = parseAdsIndex(await listAllAds(auth.currentUser.token));
-		loading = false;
+		return parseAdsIndex(await listAllAds(auth.currentUser.token));
 	};
-
-	$effect(() => {
-		if (!auth.loading && !auth.currentUser) {
-			location.href = loginPath;
-		}
-	});
-
-	$effect(() => {
-		fetchAdsIndex();
-	});
 </script>
 
 <div class="flex flex-col gap-8 p-4 pb-0">
@@ -44,13 +28,17 @@
 		app.
 	</div>
 
-	{#if loading}
+	{#await fetchAdsIndex()}
 		<div class="flex size-full items-center justify-center">
 			<Circle size="200" color="black" />
 		</div>
-	{/if}
-
-	{#if data.length}
-		<MobileObservationsDashboard ads={data} />
-	{/if}
+	{:then data}
+		{#if !data || data.length === 0}
+			<div>No data available.</div>
+		{:else}
+			<MobileObservationsDashboard ads={data} />
+		{/if}
+	{:catch error}
+		<div class="text-red-500">{error.message}</div>
+	{/await}
 </div>

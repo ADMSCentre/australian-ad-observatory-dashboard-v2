@@ -8,15 +8,9 @@
 	import { getAuthState } from '$lib/api/auth.svelte';
 	import { Circle } from 'svelte-loading-spinners';
 	import type { IndividualAdData } from './types';
-	import { loginPath } from '$lib/routes.config';
 
 	const participantId = $page.url.searchParams.get('observer_id') || '';
 	const auth = getAuthState();
-	$effect(() => {
-		if (!auth.loading && !auth.currentUser) {
-			location.href = loginPath;
-		}
-	});
 
 	let ads = $state<null | [string, IndividualAdData[]][]>(null);
 
