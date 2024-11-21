@@ -70,6 +70,12 @@ const config: Config = {
 			dropShadow: {
 				strong: '1px 1px 1px black'
 			},
+			columns: {
+				'4xs': '14rem',
+				'5xs': '12rem',
+				'6xs': '10rem',
+				'7xs': '8rem'
+			},
 			fontFamily: {
 				sans: [...fontFamily.sans]
 			},

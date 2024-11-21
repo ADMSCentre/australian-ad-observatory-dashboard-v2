@@ -58,7 +58,7 @@
 				{date} ({adData.length} ad{adData.length > 1 ? 's' : ''})
 			</summary>
 			<div
-				class="columns-1 break-inside-avoid-page items-start gap-4 gap-x-4 gap-y-4 p-2 sm:p-8 md:gap-8 lg:columns-2 xl:columns-3 2xl:columns-3"
+				class="columns-3xs break-inside-avoid-page items-start gap-4 p-2 transition-all sm:p-8 md:gap-8"
 			>
 				{#each adData as adData}
 					<AdCard {adData} {...cardOptions} />
