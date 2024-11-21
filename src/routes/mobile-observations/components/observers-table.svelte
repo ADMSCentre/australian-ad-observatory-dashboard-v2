@@ -78,6 +78,11 @@
 					</a>`;
 				}
 			},
+			{
+				headerName: 'Total',
+				field: 'total',
+				width: 100
+			},
 			...[...timeRange].map((time) => ({
 				headerName: time,
 				field: time,
@@ -91,18 +96,16 @@
 	const rowData = $derived.by(() => {
 		return Object.entries(adsByObserverAndTime).map(([observer, ads]) => {
 			const row: { observer: string; [key: string]: any } = { observer };
+			let total = 0;
 			timeRange.forEach((time) => {
 				row[time] = ads[time].length;
+				total += ads[time].length;
 			});
+			row.total = total;
 			return row;
 		});
 	});
 </script>
-
-<h1>Observers</h1>
-
-The table below shows the number of ads each observer has seen on each day. Click on the observer's
-ID to view all the ads collected by that observer.
 
 <AgGrid
 	{columnDefs}

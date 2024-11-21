@@ -79,14 +79,14 @@
 			<!-- Actions pane on the right -->
 
 			<div
-				class="absolute bottom-0 flex h-fit w-full flex-col items-end justify-between text-white"
+				class="absolute bottom-0 flex h-fit w-full flex-col items-end justify-between bg-inherit text-white"
 			>
-				<div class="mr-1 flex w-fit flex-col">
-					<Button variant="ghost" disabled>
-						<Star />
+				<div class="mr-1 flex flex-col">
+					<Button variant="ghost" size="sm" class="size-full p-2" disabled>
+						<Star class="drop-shadow-strong !size-5" />
 					</Button>
-					<Button variant="ghost" disabled>
-						<Eye />
+					<Button variant="ghost" size="sm" class="size-full p-2" disabled>
+						<Eye class="drop-shadow-strong !size-5" />
 					</Button>
 				</div>
 				<!-- <div class="mt-auto w-full bg-gradient-to-t from-black/25 p-4">

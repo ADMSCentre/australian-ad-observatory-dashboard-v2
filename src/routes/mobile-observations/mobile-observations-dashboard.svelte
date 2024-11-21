@@ -39,9 +39,22 @@
 	let dateRange: DateRange = $state(computeDateRange());
 </script>
 
+<h1>Observations Timeline</h1>
+
+The timeline below shows the number of observations identified as ads over time.
+
 <ObservationsTimeline {ads} {dateRange} />
 
+<h1>Observers</h1>
+
+The table below shows the number of ads each observer has seen on each day. Click on the observer's
+ID to view all the ads collected by that observer.
+
 <ObserversTable {ads} {dateRange} />
+
+<h1>Ads Browser</h1>
+
+Expand each date to see the ads that were observed on that day by all observers.
 
 <AdsBrowser {ads} {dateRange} />
 

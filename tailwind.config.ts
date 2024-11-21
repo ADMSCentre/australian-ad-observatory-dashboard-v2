@@ -67,6 +67,9 @@ const config: Config = {
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
 			},
+			dropShadow: {
+				strong: '1px 1px 1px black'
+			},
 			fontFamily: {
 				sans: [...fontFamily.sans]
 			},

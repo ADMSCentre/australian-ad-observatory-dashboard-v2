@@ -9,12 +9,13 @@
 		dateRange
 	}: {
 		ads: IndividualAdData[];
-		dateRange: DateRange;
+		dateRange?: DateRange;
 	} = $props();
 
 	const timestamps = $derived(
 		ads
 			.filter((ad) => {
+				if (!dateRange) return true; // Load all ads if no date range is provided
 				if (!dateRange.start || !dateRange.end) return false;
 				// Ensure the timestamp is between the start and end date
 				const date = new Date(ad.timestamp);
@@ -24,9 +25,5 @@
 			.map((ad) => ad.timestamp)
 	);
 </script>
-
-<h1>Observations Timeline</h1>
-
-The timeline below shows the number of observations identified as ads over time.
 
 <Timeline {timestamps} />

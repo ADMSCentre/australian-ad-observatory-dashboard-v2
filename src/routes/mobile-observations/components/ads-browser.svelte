@@ -9,12 +9,13 @@
 		dateRange
 	}: {
 		ads: IndividualAdData[];
-		dateRange: DateRange;
+		dateRange?: DateRange;
 	} = $props();
 
 	const groupedAds = $derived.by(() => {
 		// Filter ads by date range
 		const filteredAds = ads.filter((ad) => {
+			if (!dateRange) return true; // Load all ads if no date range is provided
 			if (!dateRange.start || !dateRange.end) return false;
 			const date = new Date(ad.timestamp);
 			const calendarDate = dateToCalendarDate(date);
@@ -41,10 +42,6 @@
 		return adsEntries;
 	});
 </script>
-
-<h1>Ads Browser</h1>
-
-Expand each date to see the ads that were observed on that day by all observers.
 
 <div class="relative flex flex-col gap-8">
 	{#each groupedAds as [date, adData]}

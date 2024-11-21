@@ -3,15 +3,12 @@
 	import { Circle } from 'svelte-loading-spinners';
 	import { listAllAds } from '$lib/api/mobile-observations';
 	import MobileObservationsDashboard from './mobile-observations-dashboard.svelte';
-	import { parseAdsIndex } from './utils';
-	import { goto } from '$app/navigation';
-	import { withBase } from '$lib/utils';
-	import { page } from '$app/stores';
+	// import { parseAdsIndex } from './utils';
 	const auth = getAuthState();
 
 	const fetchAdsIndex = async () => {
 		if (!auth.currentUser) return;
-		return parseAdsIndex(await listAllAds(auth.currentUser.token));
+		return await listAllAds(auth.currentUser.token);
 	};
 </script>
 

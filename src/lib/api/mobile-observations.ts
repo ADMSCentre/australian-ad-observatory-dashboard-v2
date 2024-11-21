@@ -1,3 +1,5 @@
+import { parseAdsIndex } from '../../routes/mobile-observations/utils';
+
 const MOBILE_OBSERVATIONS_API_URL =
 	'https://f06kj1k332.execute-api.ap-southeast-2.amazonaws.com/dev/';
 
@@ -60,7 +62,8 @@ export const listAllAds = async (token: string) => {
 		acc[category] = raw[category].map((path: string) => parseAdPath(path));
 		return acc;
 	}, {} as ObservationIndex);
-	return data;
+	// return data;
+	return parseAdsIndex(data);
 };
 
 export interface QuickAccessCacheResponse {
@@ -90,7 +93,7 @@ export const listAdsForObserver = async (token: string, observer: string) => {
 		acc[category] = raw[category].map((path: string) => parseAdPath(path));
 		return acc;
 	}, {} as ObservationIndex);
-	return data;
+	return parseAdsIndex(data);
 };
 
 export const getAdFrameUrls = async (token: string, framePath: string) => {
