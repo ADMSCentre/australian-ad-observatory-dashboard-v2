@@ -1,16 +1,22 @@
 <script lang="ts">
 	import type { DateRange } from 'bits-ui';
 	import type { IndividualAdData } from '../observer/types';
-	import AdCard from '../observer/ad-card.svelte';
+	import AdCard, { type Props as AdCardProps } from '../observer/ad-card.svelte';
 	import { dateToCalendarDate } from '../utils';
+
+	type Props = {
+		ads: IndividualAdData[];
+		dateRange?: DateRange;
+		cardOptions?: Omit<AdCardProps, 'adData'>;
+	};
 
 	const {
 		ads,
-		dateRange
-	}: {
-		ads: IndividualAdData[];
-		dateRange?: DateRange;
-	} = $props();
+		dateRange,
+		cardOptions = {
+			showObserver: true
+		}
+	}: Props = $props();
 
 	const groupedAds = $derived.by(() => {
 		// Filter ads by date range
@@ -51,11 +57,18 @@
 			>
 				{date} ({adData.length} ad{adData.length > 1 ? 's' : ''})
 			</summary>
-			<div class="grid grid-cols-1 gap-4 p-2 sm:flex sm:flex-wrap sm:p-8 md:gap-8">
+			<div
+				class="columns-1 break-inside-avoid-page items-start gap-4 gap-x-4 gap-y-4 p-2 sm:p-8 md:gap-8 lg:columns-2 xl:columns-3 2xl:columns-3"
+			>
 				{#each adData as adData}
-					<AdCard {adData} showObserver />
+					<AdCard {adData} {...cardOptions} />
 				{/each}
 			</div>
 		</details>
 	{/each}
 </div>
+
+<!-- 
+
+				class="grid grid-cols-1 items-start gap-4 p-2 sm:p-8 md:gap-8 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+-->

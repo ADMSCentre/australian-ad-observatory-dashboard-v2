@@ -39,7 +39,12 @@
 	<!-- <ObserverOverview observerId={participantId} /> -->
 	{#if ads}
 		<ObservationsTimeline {ads} />
-		<AdsBrowser {ads} />
+		<AdsBrowser
+			{ads}
+			cardOptions={{
+				showObserver: false
+			}}
+		/>
 	{:else}
 		<div class="flex size-full items-center justify-center">
 			<Circle size="200" color="black" />

@@ -10,16 +10,19 @@
 	let {
 		images,
 		interval = 200,
-		completed = $bindable()
+		completed = $bindable(),
+		currentIndex = $bindable(0),
+		autoPlay = $bindable(true)
 	}: {
 		images: string[];
 		interval?: number;
 		completed: boolean;
+		currentIndex: number;
+		autoPlay: boolean;
 	} = $props();
 
 	let intersectOnce = $state(false);
 	let element = $state<HTMLElement | null>(null);
-	let currentIndex = $state(0);
 	let repeat = $state(0);
 	let imageLoadings = $state(images.map(() => true));
 
@@ -35,6 +38,20 @@
 		}
 		currentIndex = (currentIndex + 1) % images.length;
 	}
+
+	// function handleSliderChange(event: Event) {
+	// 	clearInterval(repeat);
+	// 	completed = true;
+	// 	currentIndex = parseInt((event.target as HTMLInputElement).value, 10);
+	// }
+
+	$effect(() => {
+		if (autoPlay) {
+			repeat = setInterval(nextImage, interval);
+		} else {
+			clearInterval(repeat);
+		}
+	});
 
 	onDestroy(() => {
 		clearInterval(repeat);
@@ -60,7 +77,7 @@
 				src={image}
 				alt="GIF frame"
 				class={twMerge(
-					'content-visibility-auto h-full w-full object-cover',
+					'h-full w-full object-cover content-visibility-auto',
 					index !== currentIndex && 'absolute opacity-0'
 				)}
 				onload={(e: any) => {

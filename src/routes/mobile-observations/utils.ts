@@ -18,7 +18,7 @@ export const parseTime = (timestamp: string | number) => {
 };
 
 export const parseAdsIndex = (index: ObservationIndex) => {
-	const adsIndex = index['ads']
+	const adsIndex = index['ads_passed_mass_download']
 		.map((ad) => {
 			// Convert timestamp to date (DD/MM/YYYY) and time (HH:MM:SS.SSS)
 			const date = new Date(+ad.timestamp).toLocaleDateString('en-US', {
