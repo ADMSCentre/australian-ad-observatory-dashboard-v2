@@ -9,12 +9,13 @@
 	}: {
 		observerId: string;
 	} = $props();
-	let data = $state<ObservationIndex | null>(null);
+
+	let data = $state<Awaited<ReturnType<typeof listAdsForObserver>> | null>(null);
 
 	$effect(() => {
 		const fetchData = async () => {
-			if (!auth.currentUser) return;
-			data = await listAdsForObserver(auth.currentUser.token, observerId);
+			if (!auth.token) return;
+			data = await listAdsForObserver(auth.token, observerId);
 			console.log(data);
 		};
 		fetchData();
@@ -27,7 +28,7 @@
 		<div class="flex flex-col gap-2">
 			<ul class="list-disc pl-4">
 				{#each Object.entries(data) as [key, value]}
-					<li class="text-sm">{key}: {value.length}</li>
+					<li class="text-sm">{key}: {data.length}</li>
 				{/each}
 			</ul>
 		</div>

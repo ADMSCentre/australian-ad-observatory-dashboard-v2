@@ -18,8 +18,8 @@
 	let ads = $state<IndividualAdData[]>([]);
 
 	const fetchAdsIndex = async () => {
-		if (!auth.currentUser) return;
-		ads = await listAdsForObserver(auth.currentUser.token, participantId);
+		if (!auth.token) return;
+		ads = await listAdsForObserver(auth.token, participantId);
 	};
 
 	$effect(() => {

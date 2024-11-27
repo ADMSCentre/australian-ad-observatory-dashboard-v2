@@ -25,10 +25,10 @@
 
 	$effect.pre(() => {
 		const executeQuery = async () => {
-			if (!auth.currentUser) return;
+			if (!auth.token) return;
 			loading = true;
 			const res = await useQueryApi({
-				token: auth.currentUser.token,
+				token: auth.token,
 				paginationId: paginationId,
 				booleanFilterDataStructure: filters
 			});

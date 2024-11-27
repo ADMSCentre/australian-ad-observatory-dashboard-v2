@@ -7,8 +7,8 @@
 	const auth = getAuthState();
 
 	const fetchAdsIndex = async () => {
-		if (!auth.currentUser) return;
-		return await listAllAds(auth.currentUser.token);
+		if (!auth.token) return;
+		return await listAllAds(auth.token);
 	};
 </script>
 

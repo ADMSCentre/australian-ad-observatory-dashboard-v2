@@ -47,7 +47,7 @@
 					<span> Authenticating... </span>
 				</div>
 			{:else if auth.currentUser}
-				<p>Hello <span class=" font-semibold">{auth.currentUser.username}</span>!</p>
+				<p>Hello <span class=" font-semibold">{auth.currentUser.full_name}</span>!</p>
 				<Button variant="outline" type="button" onclick={onLogout}>Logout</Button>
 			{:else}
 				<Button variant="outline" href={withBase('login')}>Login</Button>

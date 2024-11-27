@@ -1,6 +1,6 @@
 import { parseAdsIndex } from '../../routes/mobile-observations/utils';
 
-const MOBILE_OBSERVATIONS_API_URL =
+export const MOBILE_OBSERVATIONS_API_URL =
 	'https://f06kj1k332.execute-api.ap-southeast-2.amazonaws.com/dev/';
 
 export const fetchMobileObservationsApi = async (

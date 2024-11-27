@@ -1,9 +1,13 @@
 import { getContext, setContext } from 'svelte';
-import { useDashboardAPI } from './use-dashboard';
+import { MOBILE_OBSERVATIONS_API_URL } from './mobile-observations';
 
 export type User = {
-	username: string;
 	token: string;
+	payload: {
+		username: string;
+		full_name: string;
+		exp: number;
+	};
 };
 
 async function fetchLoginToken({ username, password }: { username: string; password: string }) {
@@ -11,61 +15,91 @@ async function fetchLoginToken({ username, password }: { username: string; passw
 		username,
 		password
 	};
-
 	const response: {
-		session_token: string;
+		token: string;
 		success: boolean;
-	} = await useDashboardAPI({ actionType: 'authenticate_educational', data });
+	} = await fetch(MOBILE_OBSERVATIONS_API_URL + 'auth/login', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(data)
+	}).then((res) => res.json());
 
 	return response;
 }
 
-async function presignToken(token: string) {
-	const data = {
-		session_token: token,
-		json: []
-	};
-
+async function validateToken(token: string) {
 	const response: {
 		success: boolean;
-		presigned_urls: string[];
 		comment: string;
-	} = await useDashboardAPI({ actionType: 'presign', data });
+	} = await fetch(MOBILE_OBSERVATIONS_API_URL + 'auth/verify', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({ token })
+	}).then((res) => res.json());
 
 	return response;
 }
+
+async function invalidateToken(token: string) {
+	const response: {
+		success: boolean;
+		comment: string;
+	} = await fetch(MOBILE_OBSERVATIONS_API_URL + 'auth/logout', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({ token })
+	}).then((res) => res.json());
+
+	return response;
+}
+
 export class Authentication {
-	currentUser = $state<User | null>(null);
+	token = $state<string | null>(null);
 	loading = $state(false);
+
+	currentUser = $derived.by<User['payload'] | null>(() => {
+		if (!this.token) {
+			return null;
+		}
+		const payload = JSON.parse(atob(this.token.split('.')[1]));
+		return payload;
+	});
 
 	login = async ({ username, password }: { username: string; password: string }) => {
 		const result = await fetchLoginToken({ username, password });
 		if (!result.success) {
 			throw new Error('Invalid credentials');
 		}
-		const { session_token: token } = result;
-		this.currentUser = { username, token };
-		// Save the token to local storage
-		localStorage.setItem('user', JSON.stringify(this.currentUser));
+		const { token } = result;
+		this.token = token;
+		localStorage.setItem('jwt', token);
 	};
 
-	presign = async () => {
+	logout = () => {
+		invalidateToken(this.token!);
+		this.token = null;
+		localStorage.removeItem('jwt');
+	};
+
+	validate = async () => {
 		this.loading = true;
-		const savedUser: User = JSON.parse(localStorage.getItem('user') || 'null');
-		if (!savedUser) {
+		// const savedUser: User = JSON.parse(localStorage.getItem('user') || 'null');
+		const savedToken = localStorage.getItem('jwt');
+		if (!savedToken) {
 			this.loading = false;
 			return;
 		}
-		const { token } = savedUser;
+		this.token = savedToken;
 		// Check if the token is still valid
 		try {
-			const status = await presignToken(token);
-			if (status.comment === 'SESSION_TOKEN_EXPIRED') {
-				// Remove the token from local storage
-				localStorage.removeItem('user');
-			} else {
-				this.currentUser = savedUser;
-			}
+			const { success } = await validateToken(savedToken);
+			if (!success) this.logout();
 		} catch (e) {
 			console.error(e);
 		} finally {
@@ -73,13 +107,8 @@ export class Authentication {
 		}
 	};
 
-	logout = () => {
-		this.currentUser = null;
-		localStorage.removeItem('user');
-	};
-
 	constructor() {
-		this.presign();
+		this.validate();
 	}
 }
 

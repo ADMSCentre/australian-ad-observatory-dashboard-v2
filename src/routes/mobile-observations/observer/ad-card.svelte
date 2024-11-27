@@ -36,8 +36,8 @@
 
 	$effect(() => {
 		const fetchImages = async () => {
-			if (!auth.currentUser) return;
-			images = await getAdFrameUrls(auth.currentUser.token, adData.path);
+			if (!auth.token) return;
+			images = await getAdFrameUrls(auth.token, adData.path);
 		};
 		// Only fetch images when the ad card is in view (intersecting)
 		if (!intersecting) return;
@@ -116,7 +116,7 @@
 						<Dialog.Root>
 							<Dialog.Trigger>
 								<Button variant="ghost" size="sm" class="size-full p-2">
-									<Braces class="drop-shadow-strong !size-5" />
+									<Braces class="!size-5 drop-shadow-strong" />
 								</Button>
 							</Dialog.Trigger>
 							<Dialog.Content class="max-w-2xl">
@@ -144,10 +144,10 @@
 					</div>
 					<div class="mr-1 flex flex-col">
 						<Button variant="ghost" size="sm" class="size-full p-2" disabled>
-							<Star class="drop-shadow-strong !size-5" />
+							<Star class="!size-5 drop-shadow-strong" />
 						</Button>
 						<Button variant="ghost" size="sm" class="size-full p-2" disabled>
-							<Eye class="drop-shadow-strong !size-5" />
+							<Eye class="!size-5 drop-shadow-strong" />
 						</Button>
 					</div>
 				</div>
