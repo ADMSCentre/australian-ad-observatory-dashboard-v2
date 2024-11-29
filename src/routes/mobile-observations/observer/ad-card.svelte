@@ -118,7 +118,7 @@
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
-		const filename = `${adData.observer}_{adData.adId}.json`;
+		const filename = `${adData.observer}_${adData.adId}.json`;
 		a.download = filename;
 		a.click();
 		URL.revokeObjectURL(url);
@@ -142,7 +142,7 @@
 				<div class="flex items-center gap-2">
 					<span class="inline-block text-xs font-extralight">Seen by</span>
 					<a
-						href={withBase('mobile-observations/observer?observer_id={adData.observer}')}
+						href={withBase(`mobile-observations/observer?observer_id=${adData.observer}`)}
 						class="inline-block w-[12ch] overflow-hidden text-ellipsis text-nowrap rounded-full bg-gray-300 px-1 text-xs font-light hover:underline"
 					>
 						{adData.observer}
