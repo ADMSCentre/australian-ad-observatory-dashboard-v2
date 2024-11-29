@@ -35,7 +35,7 @@
 <header
 	class={twMerge(
 		'sticky top-0 z-50 flex w-full items-center border-b bg-white bg-opacity-50 p-2 backdrop-blur-sm transition duration-300',
-		!headerVisible && ' -translate-y-full transform sm:translate-y-0'
+		!headerVisible && ' -translate-y-full transform'
 	)}
 >
 	<div class="flex w-full items-center justify-between">

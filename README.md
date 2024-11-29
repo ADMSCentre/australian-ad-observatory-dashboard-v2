@@ -26,6 +26,16 @@ npm install -g serve
 serve build
 ```
 
+## Generate Types from OpenAPI
+
+Run the following command:
+
+```bash
+npx openapi-typescript https://admscentre.github.io/australian-ad-observatory-api/swagger.yaml -o ./src/lib/api/openapi-paths.ts
+```
+
+Which will create an `openapi-paths.ts` file in the `src/lib/api` directory with types for the OpenAPI paths.
+
 # Notes
 
 ## Boolean Query

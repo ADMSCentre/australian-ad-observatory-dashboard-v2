@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { type DateRange } from 'bits-ui';
 	import DateRangePicker from '$lib/components/ui/date-range-picker/date-range-picker.svelte';
-	import type { IndividualAdData } from '../observer/types';
+	import type { BasicAdData } from '../observer/types';
 	import { dateToCalendarDate } from '../utils';
 	import { Button } from '$lib/components/ui/button';
 
@@ -9,7 +9,7 @@
 		ads,
 		dateRange = $bindable()
 	}: {
-		ads: IndividualAdData[];
+		ads: BasicAdData[];
 		dateRange: DateRange;
 	} = $props();
 

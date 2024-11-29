@@ -1,34 +1,45 @@
-import { parseAdsIndex } from '../../routes/mobile-observations/utils';
+import {
+	enrichAllAds,
+	parseAdsIndex,
+	type ExpandType
+} from '../../routes/mobile-observations/utils';
+import { client } from '$lib/api/client';
+import type { BasicAdData, RichAdData } from '../../routes/mobile-observations/observer/types';
 
-export const MOBILE_OBSERVATIONS_API_URL =
-	'https://f06kj1k332.execute-api.ap-southeast-2.amazonaws.com/dev/';
+// export const fetchMobileObservationsApi = async (
+// 	endpoint: string,
+// 	{
+// 		method = 'GET',
+// 		token = '',
+// 		headers = {},
+// 		body = {}
+// 	}: {
+// 		method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'HEAD';
+// 		token?: string;
+// 		headers?: Record<string, string>;
+// 		body?: unknown;
+// 	}
+// ) => {
+// 	const { data } = await client.GET('/ads', {
+// 		headers: {
+// 			Authorization: `Bearer ${token}`,
+// 			...headers
+// 		},
+// 		requestBody: body
+// 	});
 
-export const fetchMobileObservationsApi = async (
-	endpoint: string,
-	{
-		method = 'GET',
-		token = '',
-		headers = {},
-		body = {}
-	}: {
-		method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'HEAD';
-		token?: string;
-		headers?: Record<string, string>;
-		body?: unknown;
-	}
-) => {
-	const url = `${MOBILE_OBSERVATIONS_API_URL}${endpoint}`;
-	const res = await fetch(url, {
-		method,
-		headers: {
-			Authorization: `Bearer ${token}`,
-			...headers
-		},
-		mode: 'cors',
-		...(method !== 'GET' && method !== 'HEAD' ? { body: JSON.stringify(body) } : {})
-	});
-	return await res.json();
-};
+// 	// const res = await fetch(url, {
+// 	// 	method,
+// 	// 	headers: {
+// 	// 		Authorization: `Bearer ${token}`,
+// 	// 		...headers
+// 	// 	},
+// 	// 	mode: 'cors',
+// 	// 	...(method !== 'GET' && method !== 'HEAD' ? { body: JSON.stringify(body) } : {})
+// 	// });
+// 	// return await res.json();
+// 	return data;
+// };
 
 export type ObservationIndex = {
 	[key: string]: { observer: string; timestamp: string; adId: string; path: string }[];
@@ -42,12 +53,20 @@ const parseAdPath = (path: string) => {
 	return { observer, timestamp, adId, path };
 };
 
-export const listAllAds = async (token: string) => {
-	const responseJson = await fetchMobileObservationsApi('list-ads', {
-		token,
-		method: 'GET'
+export const listAllAds = async (
+	token: string,
+	expand: ExpandType[] = [],
+	filters: ((ad: RichAdData) => boolean)[] = []
+) => {
+	const { data, error } = await client.GET('/ads', {
+		headers: {
+			Authorization: `Bearer ${token}`
+		}
 	});
-	const presignedUrl = responseJson.presigned_url;
+	if (!data?.success || !data?.presigned_url || error) {
+		return [];
+	}
+	const { presigned_url: presignedUrl } = data;
 	// Get the data from the presigned URL
 	const presignedRes = await fetch(presignedUrl);
 	// value structure: fda7681c-d7f1-4420-8499-46b4695d224a/temp/1729261457039.c979d19c-0546-412b-a2d9-63a247d7c250/
@@ -57,13 +76,17 @@ export const listAllAds = async (token: string) => {
 	const raw = await presignedRes.json();
 
 	const observationTypes = Object.keys(raw);
-	const data: ObservationIndex = observationTypes.reduce((acc, category) => {
+	const index: ObservationIndex = observationTypes.reduce((acc, category) => {
 		if (!acc) acc = {};
 		acc[category] = raw[category].map((path: string) => parseAdPath(path));
 		return acc;
 	}, {} as ObservationIndex);
-	// return data;
-	return parseAdsIndex(data);
+
+	let ads = parseAdsIndex(index) as RichAdData[];
+	if (expand.length > 0) {
+		ads = await enrichAllAds(ads, token, expand);
+	}
+	return ads.filter((ad) => filters.every((filter) => filter(ad)));
 };
 
 export interface QuickAccessCacheResponse {
@@ -71,39 +94,65 @@ export interface QuickAccessCacheResponse {
 	data: ObservationIndex;
 }
 
-export const listAdsForObserver = async (token: string, observer: string) => {
-	const responseJson: {
-		success: boolean;
-		data: {
-			[key: string]: string[];
-		};
-	} = await fetchMobileObservationsApi(`get-access-cache?observer_id=${observer}`, {
-		token,
-		method: 'GET',
+export const listAdsForObserver = async (
+	token: string,
+	observer: string,
+	expand: ExpandType[] = [],
+	filters: ((ad: RichAdData) => boolean)[] = []
+) => {
+	const { data, error } = await client.GET('/ads/{observer_id}', {
 		headers: {
-			'Content-Type': 'application/json'
+			Authorization: `Bearer ${token}`
+		},
+		params: {
+			path: {
+				observer_id: observer
+			}
 		}
 	});
+	if (!data?.success || !data.data || error) {
+		return [];
+	}
 	const raw: {
 		[key: string]: string[];
-	} = responseJson.data;
+	} = data.data;
 	const observationTypes = Object.keys(raw);
-	const data: ObservationIndex = observationTypes.reduce((acc, category) => {
+	const index: ObservationIndex = observationTypes.reduce((acc, category) => {
 		if (!acc) acc = {};
 		acc[category] = raw[category].map((path: string) => parseAdPath(path));
 		return acc;
 	}, {} as ObservationIndex);
-	return parseAdsIndex(data);
+	let ads = parseAdsIndex(index) as RichAdData[];
+	if (expand.length > 0) {
+		ads = await enrichAllAds(ads, token, expand);
+	}
+	return ads.filter((ad) => filters.every((filter) => filter(ad)));
 };
 
-export const getAdFrameUrls = async (token: string, framePath: string) => {
-	const presignedRes: {
-		success: boolean;
-		presigned_urls: string[];
-	} = await fetchMobileObservationsApi(`get-frames-presigned?path=${framePath}`, {
-		token,
-		method: 'GET'
+export const getAdFrameUrls = async (token: string, adData: BasicAdData) => {
+	// const presignedRes: {
+	// 	success: boolean;
+	// 	presigned_urls: string[];
+	// } = await fetchMobileObservationsApi(`get-frames-presigned?path=${framePath}`, {
+	// 	token,
+	// 	method: 'GET'
+	// });
+	console.log('getAdFrameUrls', adData);
+	const { data, error } = await client.GET('/ads/{observer_id}/{timestamp}.{ad_id}/frames', {
+		headers: {
+			Authorization: `Bearer ${token}`
+		},
+		params: {
+			path: {
+				observer_id: adData.observer,
+				timestamp: adData.timestamp.toString(),
+				ad_id: adData.adId
+			}
+		}
 	});
-	const presignedUrls = presignedRes.presigned_urls;
-	return presignedUrls;
+	console.log('getAdFrameUrls', data, error);
+	if (!data?.success || !data.presigned_urls || error) {
+		return [];
+	}
+	return data.presigned_urls;
 };

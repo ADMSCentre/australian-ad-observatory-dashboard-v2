@@ -2,7 +2,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { RotateCcw, Eye, EyeOff, Star, Braces, Download } from 'lucide-svelte/icons';
 	import ImagesGif from './images-gif.svelte';
-	import type { IndividualAdData } from './types';
+	import type { BasicAdData, RichAdData } from './types';
 	import { getAdFrameUrls } from '$lib/api/mobile-observations';
 	import { getAuthState } from '$lib/api/auth.svelte';
 	import IntersectionObserverSvelte from 'svelte-intersection-observer/IntersectionObserver.svelte';
@@ -11,14 +11,15 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import Codemirror from 'svelte-codemirror-editor';
 	import { json } from '@codemirror/lang-json';
-	import { Close } from '$lib/components/ui/popover';
+	import { client } from '$lib/api/client';
+	import { twMerge } from 'tailwind-merge';
 
 	export type Props = {
-		adData: IndividualAdData;
+		adData: RichAdData;
 		showObserver?: boolean;
 	};
 
-	const { adData, showObserver = false }: Props = $props();
+	let { adData = $bindable(), showObserver = false }: Props = $props();
 
 	let element = $state<HTMLElement | null>(null);
 	let intersecting = $state(false);
@@ -26,6 +27,31 @@
 	let autoPlay = $state(true);
 
 	let images = $state<string[]>([]);
+	let isUpdatingAttributes = $state(false);
+
+	const fetchAttributes = async () => {
+		isUpdatingAttributes = true;
+		const { data, error } = await client.GET('/ads/{observer_id}/{timestamp}.{ad_id}/attributes', {
+			headers: {
+				Authorization: `Bearer ${auth.token}`
+			},
+			params: {
+				path: {
+					observer_id: adData.observer,
+					timestamp: adData.timestamp.toString(),
+					ad_id: adData.adId
+				}
+			}
+		});
+		isUpdatingAttributes = false;
+		if (error) {
+			console.error(error);
+			return;
+		}
+		return data.attributes;
+	};
+	// let attributes = $state<Awaited<ReturnType<typeof fetchAttributes>>>();
+
 	const auth = getAuthState();
 
 	let fullJson = $derived.by(() => {
@@ -37,12 +63,46 @@
 	$effect(() => {
 		const fetchImages = async () => {
 			if (!auth.token) return;
-			images = await getAdFrameUrls(auth.token, adData.path);
+			images = await getAdFrameUrls(auth.token, adData);
 		};
 		// Only fetch images when the ad card is in view (intersecting)
 		if (!intersecting) return;
 		fetchImages();
+		(async () => {
+			adData.attributes = await fetchAttributes();
+		})();
 	});
+
+	const setAttribute = async (key: string, value: any) => {
+		// Optimistically update the attributes state
+		adData.attributes = { ...adData.attributes, [key]: { value } };
+		isUpdatingAttributes = true;
+		const { data, error } = await client.PUT('/ads/{observer_id}/{timestamp}.{ad_id}/attributes', {
+			headers: {
+				Authorization: `Bearer ${auth.token}`
+			},
+			params: {
+				path: {
+					observer_id: adData.observer,
+					timestamp: adData.timestamp.toString(),
+					ad_id: adData.adId
+				}
+			},
+			body: {
+				attribute: {
+					key,
+					value
+				}
+			}
+		});
+		isUpdatingAttributes = false;
+		if (error) {
+			console.error(error);
+			return;
+		}
+		// Update the attributes state with the true value
+		adData.attributes = await fetchAttributes();
+	};
 
 	let completed = $state(false);
 	const replay = () => {
@@ -67,7 +127,10 @@
 
 <IntersectionObserverSvelte {element} threshold={0.25} once bind:intersecting>
 	<div
-		class="mb-4 flex w-fit break-inside-avoid flex-col gap-2 rounded border bg-gray-50 p-4"
+		class={twMerge(
+			'mb-4 flex w-fit break-inside-avoid flex-col gap-2 rounded border bg-gray-50 p-4',
+			adData.attributes?.hidden?.value && 'opacity-35'
+		)}
 		bind:this={element}
 	>
 		<div class="flex items-center justify-between gap-2">
@@ -89,7 +152,9 @@
 		</div>
 
 		<div
-			class="group flex min-h-40 min-w-64 max-w-full flex-auto transform flex-col gap-2 overflow-hidden rounded border-4 border-transparent shadow-lg transition-transform hover:border-inherit sm:max-w-64"
+			class={twMerge(
+				'group flex min-h-40 min-w-64 max-w-full flex-auto transform flex-col gap-2 overflow-hidden rounded border-4 border-transparent shadow-lg transition-transform hover:border-inherit sm:max-w-64'
+			)}
 		>
 			<!-- <img class="h-fit object-cover" src="https://placehold.co/400x600" alt="Ad image" /> -->
 			{#if images && images.length && images.length > 0}
@@ -143,11 +208,36 @@
 						</Dialog.Root>
 					</div>
 					<div class="mr-1 flex flex-col">
-						<Button variant="ghost" size="sm" class="size-full p-2" disabled>
-							<Star class="!size-5 drop-shadow-strong" />
+						<Button
+							variant="ghost"
+							size="sm"
+							class="size-full p-2"
+							disabled={!adData.attributes || isUpdatingAttributes}
+							onclick={() => {
+								setAttribute('starred', !adData.attributes?.starred?.value);
+							}}
+						>
+							<!-- <Star class="!size-5 drop-shadow-strong" /> -->
+							{#if adData.attributes?.starred?.value}
+								<Star class="!size-5 drop-shadow-strong" fill="gold" stroke="gold" />
+							{:else}
+								<Star class="!size-5 drop-shadow-strong" />
+							{/if}
 						</Button>
-						<Button variant="ghost" size="sm" class="size-full p-2" disabled>
-							<Eye class="!size-5 drop-shadow-strong" />
+						<Button
+							variant="ghost"
+							size="sm"
+							class="size-full p-2"
+							onclick={() => {
+								setAttribute('hidden', !adData.attributes?.hidden?.value);
+							}}
+							disabled={!adData.attributes || isUpdatingAttributes}
+						>
+							{#if adData.attributes?.hidden?.value}
+								<EyeOff class="!size-5 drop-shadow-strong" />
+							{:else}
+								<Eye class="!size-5 drop-shadow-strong" />
+							{/if}
 						</Button>
 					</div>
 				</div>

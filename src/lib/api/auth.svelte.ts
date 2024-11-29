@@ -1,5 +1,5 @@
 import { getContext, setContext } from 'svelte';
-import { MOBILE_OBSERVATIONS_API_URL } from './mobile-observations';
+import { client } from './client';
 
 export type User = {
 	token: string;
@@ -11,52 +11,23 @@ export type User = {
 };
 
 async function fetchLoginToken({ username, password }: { username: string; password: string }) {
-	const data = {
-		username,
-		password
-	};
-	const response: {
-		token: string;
-		success: boolean;
-	} = await fetch(MOBILE_OBSERVATIONS_API_URL + 'auth/login', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(data)
-	}).then((res) => res.json());
-
-	return response;
+	const { data } = await client.POST('/auth/login', {
+		body: {
+			username,
+			password
+		}
+	});
+	return data;
 }
 
 async function validateToken(token: string) {
-	const response: {
-		success: boolean;
-		comment: string;
-	} = await fetch(MOBILE_OBSERVATIONS_API_URL + 'auth/verify', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({ token })
-	}).then((res) => res.json());
-
-	return response;
+	const { data } = await client.POST('/auth/verify', { body: { token } });
+	return data;
 }
 
 async function invalidateToken(token: string) {
-	const response: {
-		success: boolean;
-		comment: string;
-	} = await fetch(MOBILE_OBSERVATIONS_API_URL + 'auth/logout', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({ token })
-	}).then((res) => res.json());
-
-	return response;
+	const { data } = await client.POST('/auth/logout', { body: { token } });
+	return data;
 }
 
 export class Authentication {
@@ -73,7 +44,7 @@ export class Authentication {
 
 	login = async ({ username, password }: { username: string; password: string }) => {
 		const result = await fetchLoginToken({ username, password });
-		if (!result.success) {
+		if (!result || !result.token) {
 			throw new Error('Invalid credentials');
 		}
 		const { token } = result;
@@ -98,8 +69,12 @@ export class Authentication {
 		this.token = savedToken;
 		// Check if the token is still valid
 		try {
-			const { success } = await validateToken(savedToken);
-			if (!success) this.logout();
+			const result = await validateToken(savedToken);
+			// If the token is invalid, log out
+			if (!result || !result.success) {
+				this.logout();
+				return;
+			}
 		} catch (e) {
 			console.error(e);
 		} finally {

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { DateRange } from 'bits-ui';
-	import type { IndividualAdData } from '../observer/types';
+	import type { BasicAdData } from '../observer/types';
 	import { dateToCalendarDate } from '../utils';
 	import Timeline from './timeline.svelte';
 
@@ -8,7 +8,7 @@
 		ads,
 		dateRange
 	}: {
-		ads: IndividualAdData[];
+		ads: BasicAdData[];
 		dateRange?: DateRange;
 	} = $props();
 

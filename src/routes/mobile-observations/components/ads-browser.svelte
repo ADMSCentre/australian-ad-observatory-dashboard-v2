@@ -1,37 +1,43 @@
 <script lang="ts">
 	import type { DateRange } from 'bits-ui';
-	import type { IndividualAdData } from '../observer/types';
+	import type { BasicAdData, RichAdData } from '../observer/types';
 	import AdCard, { type Props as AdCardProps } from '../observer/ad-card.svelte';
 	import { dateToCalendarDate } from '../utils';
 
 	type Props = {
-		ads: IndividualAdData[];
+		ads: RichAdData[];
 		dateRange?: DateRange;
+		open?: boolean;
 		cardOptions?: Omit<AdCardProps, 'adData'>;
+		filters?: ((ad: RichAdData) => boolean)[];
 	};
 
 	const {
-		ads,
+		ads = $bindable(),
 		dateRange,
+		open,
 		cardOptions = {
 			showObserver: true
-		}
+		},
+		filters = []
 	}: Props = $props();
 
 	const groupedAds = $derived.by(() => {
 		// Filter ads by date range
-		const filteredAds = ads.filter((ad) => {
-			if (!dateRange) return true; // Load all ads if no date range is provided
-			if (!dateRange.start || !dateRange.end) return false;
-			const date = new Date(ad.timestamp);
-			const calendarDate = dateToCalendarDate(date);
-			return calendarDate >= dateRange.start && calendarDate <= dateRange.end;
-		});
+		const filteredAds = ads
+			.filter((ad) => {
+				if (!dateRange) return true; // Load all ads if no date range is provided
+				if (!dateRange.start || !dateRange.end) return false;
+				const date = new Date(ad.timestamp);
+				const calendarDate = dateToCalendarDate(date);
+				return calendarDate >= dateRange.start && calendarDate <= dateRange.end;
+			})
+			.filter((ad) => filters.every((filter) => filter(ad)));
 
 		const groupedAds = filteredAds.reduce(
 			(
 				acc: {
-					[key: string]: IndividualAdData[];
+					[key: string]: BasicAdData[];
 				},
 				ad
 			) => {
@@ -47,19 +53,21 @@
 		);
 		return adsEntries;
 	});
+
+	const getIndex = (ad: RichAdData) => ads.findIndex((a) => a.adId === ad.adId);
 </script>
 
 <div class="relative flex flex-col gap-8">
 	{#each groupedAds as [date, adData]}
-		<details class="border-l-4">
+		<details {open} class="border-l-4">
 			<summary
-				class="sticky top-0 z-10 w-full cursor-pointer border bg-white bg-opacity-50 p-2 text-lg font-semibold backdrop-blur-sm sm:top-14"
+				class="sticky top-0 z-10 w-full cursor-pointer border bg-white bg-opacity-50 p-2 text-lg font-semibold backdrop-blur-sm"
 			>
 				{date} ({adData.length} ad{adData.length > 1 ? 's' : ''})
 			</summary>
 			<div class="columns-3xs break-inside-avoid-page items-start gap-10 p-2 transition-all sm:p-8">
-				{#each adData as adData}
-					<AdCard {adData} {...cardOptions} />
+				{#each adData as adData, i}
+					<AdCard bind:adData={ads[getIndex(adData)]} {...cardOptions} />
 				{/each}
 			</div>
 		</details>
