@@ -17,7 +17,7 @@
 	let loading = $state(false);
 	const auth = getAuthState();
 
-	const redirect = $page.url.searchParams.get('redirect') || '/';
+	const redirect = $page.url.searchParams.get('redirect') || withBase('/');
 	$effect(() => {
 		if (redirect !== '/') {
 			message = {
