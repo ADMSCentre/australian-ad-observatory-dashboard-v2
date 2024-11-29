@@ -9,8 +9,8 @@
 	import Filters from './components/filters.svelte';
 	import AdsBrowser from './components/ads-browser.svelte';
 
-	const {
-		ads
+	let {
+		ads = $bindable()
 	}: {
 		ads: BasicAdData[];
 	} = $props();
@@ -56,6 +56,6 @@ ID to view all the ads collected by that observer.
 
 Expand each date to see the ads that were observed on that day by all observers.
 
-<AdsBrowser {ads} {dateRange} />
+<AdsBrowser bind:ads {dateRange} />
 
 <Filters {ads} bind:dateRange />

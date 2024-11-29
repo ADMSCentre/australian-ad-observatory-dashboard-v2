@@ -3,13 +3,23 @@
 	import { Circle } from 'svelte-loading-spinners';
 	import { listAllAds } from '$lib/api/mobile-observations';
 	import MobileObservationsDashboard from './mobile-observations-dashboard.svelte';
+	import type { RichAdData } from './observer/types';
 	// import { parseAdsIndex } from './utils';
 	const auth = getAuthState();
+	let ads = $state<RichAdData[]>([]);
+	let isLoading = $state(true);
 
 	const fetchAdsIndex = async () => {
-		if (!auth.token) return;
+		if (!auth.token) return [];
 		return await listAllAds(auth.token);
 	};
+
+	$effect(() => {
+		(async () => {
+			ads = await fetchAdsIndex();
+			isLoading = false;
+		})();
+	});
 </script>
 
 <div class="flex flex-col gap-8 p-4 pb-0">
@@ -25,17 +35,13 @@
 		app.
 	</div>
 
-	{#await fetchAdsIndex()}
+	{#if isLoading}
 		<div class="flex size-full items-center justify-center">
 			<Circle size="200" color="black" />
 		</div>
-	{:then data}
-		{#if !data || data.length === 0}
-			<div>No data available.</div>
-		{:else}
-			<MobileObservationsDashboard ads={data} />
-		{/if}
-	{:catch error}
-		<div class="text-red-500">{error.message}</div>
-	{/await}
+	{:else if !ads || ads.length === 0}
+		<div>No data available.</div>
+	{:else}
+		<MobileObservationsDashboard bind:ads />
+	{/if}
 </div>
