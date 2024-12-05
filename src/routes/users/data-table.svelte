@@ -149,10 +149,11 @@
 		</Table.Root>
 	</div>
 	<!-- Pagination controls -->
-	<div class="flex items-center justify-end gap-4">
+	<div class="sm: flex flex-col items-center justify-end gap-1 sm:flex-row sm:gap-4">
 		<div>
 			Rows per page:
 			<Dropdown
+				triggerClass="w-20"
 				options={[
 					{
 						value: 10,
@@ -177,42 +178,44 @@
 				}}
 			/>
 		</div>
-		<span class="text-sm font-medium">
-			Page {pagination.pageIndex + 1} of {table.getPageCount()}
-		</span>
-		<div class="flex items-center justify-end space-x-2 py-4">
-			<Button
-				variant="outline"
-				size="icon"
-				onclick={() => table.firstPage()}
-				disabled={!table.getCanPreviousPage()}
-			>
-				<ChevronFirst />
-			</Button>
-			<Button
-				variant="outline"
-				size="icon"
-				onclick={() => table.previousPage()}
-				disabled={!table.getCanPreviousPage()}
-			>
-				<ChevronLeft />
-			</Button>
-			<Button
-				variant="outline"
-				size="icon"
-				onclick={() => table.nextPage()}
-				disabled={!table.getCanNextPage()}
-			>
-				<ChevronRight />
-			</Button>
-			<Button
-				variant="outline"
-				size="icon"
-				onclick={() => table.lastPage()}
-				disabled={!table.getCanNextPage()}
-			>
-				<ChevronLast />
-			</Button>
+		<div class="flex flex-1 items-center">
+			<span class="p-2 text-sm font-medium">
+				Page {pagination.pageIndex + 1} of {table.getPageCount()}
+			</span>
+			<div class="flex items-center justify-end space-x-2 p-2">
+				<Button
+					variant="outline"
+					size="icon"
+					onclick={() => table.firstPage()}
+					disabled={!table.getCanPreviousPage()}
+				>
+					<ChevronFirst />
+				</Button>
+				<Button
+					variant="outline"
+					size="icon"
+					onclick={() => table.previousPage()}
+					disabled={!table.getCanPreviousPage()}
+				>
+					<ChevronLeft />
+				</Button>
+				<Button
+					variant="outline"
+					size="icon"
+					onclick={() => table.nextPage()}
+					disabled={!table.getCanNextPage()}
+				>
+					<ChevronRight />
+				</Button>
+				<Button
+					variant="outline"
+					size="icon"
+					onclick={() => table.lastPage()}
+					disabled={!table.getCanNextPage()}
+				>
+					<ChevronLast />
+				</Button>
+			</div>
 		</div>
 	</div>
 </div>

@@ -4,6 +4,7 @@
 	import type { BasicAdData } from '../observer/types';
 	import { dateToCalendarDate } from '../utils';
 	import { Button } from '$lib/components/ui/button';
+	import Dropdown from '$lib/components/dropdown/dropdown.svelte';
 
 	let {
 		ads,
@@ -36,39 +37,36 @@
 </script>
 
 <div
-	class="sticky bottom-0 z-10 flex w-full items-center gap-4 border-t bg-white bg-opacity-50 py-2 backdrop-blur"
+	class="sticky bottom-0 z-10 flex w-full flex-col items-start gap-2 border-t bg-white bg-opacity-50 py-2 text-sm backdrop-blur sm:flex-row sm:items-center sm:gap-4"
 >
-	<span class="font-medium"> Show between: </span>
-	<DateRangePicker bind:value={dateRange} />
-	<span class="font-medium"> Quick select: </span>
-	<div class="flex gap-2">
-		<Button
-			variant="outline"
-			onclick={() => {
-				quickSelectDateRange(7);
+	<div class="flex items-center gap-2">
+		<span> Show between: </span>
+		<DateRangePicker bind:value={dateRange} />
+	</div>
+	<div class="flex items-center gap-2">
+		<span> Quick select: </span>
+		<Dropdown
+			options={[
+				{
+					value: 7,
+					label: 'Last 7 days'
+				},
+				{
+					value: 14,
+					label: 'Last 14 days'
+				},
+				{
+					value: 30,
+					label: 'Last 30 days'
+				},
+				{
+					value: -1,
+					label: 'All time'
+				}
+			]}
+			onSelected={(value) => {
+				quickSelectDateRange(value);
 			}}
-			>Last 7 days
-		</Button>
-		<Button
-			variant="outline"
-			onclick={() => {
-				quickSelectDateRange(14);
-			}}
-			>Last 14 days
-		</Button>
-		<Button
-			variant="outline"
-			onclick={() => {
-				quickSelectDateRange(30);
-			}}
-			>Last 30 days
-		</Button>
-		<Button
-			variant="outline"
-			onclick={() => {
-				quickSelectDateRange(-1);
-			}}
-			>All time
-		</Button>
+		/>
 	</div>
 </div>
