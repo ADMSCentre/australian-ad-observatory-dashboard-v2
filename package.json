@@ -37,7 +37,7 @@
 		"@tailwindcss/typography": "^0.5.15",
 		"@types/eslint": "^9.6.0",
 		"autoprefixer": "^10.4.20",
-		"bits-ui": "^1.0.0-next.63",
+		"bits-ui": "^1.0.0-next.66",
 		"clsx": "^2.1.1",
 		"embla-carousel-svelte": "^8.3.1",
 		"eslint": "^9.7.0",
@@ -64,6 +64,7 @@
 	"dependencies": {
 		"@codemirror/lang-json": "^6.0.1",
 		"@codemirror/lang-sql": "^6.8.0",
+		"@tanstack/table-core": "^8.20.5",
 		"ag-grid-community": "^32.3.2",
 		"aws-sdk": "^2.1692.0",
 		"chart.js": "^4.4.6",

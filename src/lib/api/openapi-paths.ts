@@ -196,7 +196,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Returns a list of users from the database
+         * Returns a list of users from the database (admin only)
          * @description Returns a list of users stored in the database.
          */
         get: {
@@ -214,7 +214,13 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": Record<string, never>[];
+                        "application/json": {
+                            username?: string;
+                            enabled?: boolean;
+                            password?: string;
+                            full_name?: string;
+                            role?: string;
+                        }[];
                     };
                 };
                 /** @description A failed response */
@@ -230,10 +236,88 @@ export interface paths {
                         };
                     };
                 };
+                /** @description Unauthorized access */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example UNAUTHORISED */
+                            comment?: string;
+                        };
+                    };
+                };
             };
         };
         put?: never;
-        post?: never;
+        /**
+         * Create a new user (admin only)
+         * @description Create a new user in the database.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        username?: string;
+                        enabled?: boolean;
+                        password?: string;
+                        full_name?: string;
+                        role?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description User created successfully */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description User creation failed */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example User already exists */
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description Unauthorized access */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example UNAUTHORISED */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -248,7 +332,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get a user from the database
+         * Get a user from the database (self or admin only)
          * @description Get a user's information stored in the database.
          */
         get: {
@@ -269,7 +353,13 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": Record<string, never>;
+                        "application/json": {
+                            username?: string;
+                            enabled?: boolean;
+                            password?: string;
+                            full_name?: string;
+                            role?: string;
+                        };
                     };
                 };
                 /** @description A failed response */
@@ -286,15 +376,86 @@ export interface paths {
                         };
                     };
                 };
+                /** @description Unauthorized access */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example UNAUTHORISED */
+                            comment?: string;
+                        };
+                    };
+                };
             };
         };
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete a user (admin only)
+         * @description Delete a user by moving their data to the recycle bin.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The username of the user to delete */
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description User deleted successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description User deletion failed */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example User not found */
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description Unauthorized access */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example UNAUTHORISED */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         /**
-         * Edit a user's information
+         * Edit a user's information (self or admin only)
          * @description Edit a user's information. All fields are optional, and only the fields provided will be updated.
          */
         patch: {
@@ -353,13 +514,72 @@ export interface paths {
                         "application/json": {
                             /** @example false */
                             success?: boolean;
-                            /** @example UNAUTHORIZED */
+                            /** @example UNAUTHORISED */
                             comment?: string;
                         };
                     };
                 };
             };
         };
+        trace?: never;
+    };
+    "/users/self": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the current user's information
+         * @description Get the information of the user making the request.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            username?: string;
+                            enabled?: boolean;
+                            password?: string;
+                            full_name?: string;
+                            role?: string;
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example User not found */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/ads/{observer_id}": {

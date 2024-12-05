@@ -13,12 +13,13 @@
 		...options
 	} = $props<
 		{
-			style: Record<string, string>;
+			style?: Record<string, string>;
 			searchable?: boolean;
 		} & GridOptions
 	>();
 
 	const styleStr = $derived.by(() => {
+		if (!style) return '';
 		return Object.entries(style)
 			.map(([key, value]) => `${key}: ${value}`)
 			.join(';');

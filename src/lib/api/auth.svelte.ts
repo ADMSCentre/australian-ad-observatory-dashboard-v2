@@ -6,6 +6,7 @@ export type User = {
 	payload: {
 		username: string;
 		full_name: string;
+		role: string;
 		exp: number;
 	};
 };

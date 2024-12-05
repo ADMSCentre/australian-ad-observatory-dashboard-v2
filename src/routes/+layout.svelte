@@ -8,6 +8,7 @@
 	import { goto } from '$app/navigation';
 	import { withBase } from '$lib/utils';
 	import { page } from '$app/stores';
+	import ToastsContainer from '$lib/components/toasts/toasts-container.svelte';
 	let { children } = $props();
 
 	setAuthState();
@@ -30,3 +31,5 @@
 		</div>
 	</main>
 </Sidebar.Provider>
+
+<ToastsContainer />

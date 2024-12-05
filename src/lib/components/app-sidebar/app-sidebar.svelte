@@ -10,59 +10,79 @@
 		Globe,
 		Circle,
 		ChevronDown,
-		ChevronRight
+		ChevronRight,
+		User,
+		Edit,
+		Users
 	} from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
+	import { getAuthState } from '$lib/api/auth.svelte';
+	import { Button } from '../ui/button';
 
 	// Get the current url
+	const auth = getAuthState();
 
-	const itemsDef = [
+	const itemsDef = $derived([
 		{
 			title: 'Mobile Ads Observatory',
 			// url: mobileObservationsPath,
 			icon: Smartphone,
+			visible: true,
 			subItems: [
 				{
 					title: 'Monitor',
 					icon: HeartPulse,
-					url: withBase(`mobile-observations`)
+					url: withBase(`mobile-observations`),
+					visible: true
 				},
 				{
 					title: 'Query',
 					icon: Search,
-					url: withBase(`mobile-observations/query`)
+					url: withBase(`mobile-observations/query`),
+					visible: true
 				}
 			]
 		},
 		{
 			title: 'Web Observations',
 			url: withBase('web-observations'),
-			icon: Globe
+			icon: Globe,
+			visible: true
+		},
+		{
+			title: 'Users',
+			url: withBase('users'),
+			icon: Users,
+			visible: auth.currentUser?.role === 'admin'
 		}
-	];
+	]);
 
 	const items = $derived.by(() => {
 		const currentUrl = $page.url.pathname;
-		return itemsDef.map((item) => {
-			// Proxy-active if the any of the sub-items match the current url
-			if (item.subItems) {
-				const subItems = item.subItems.map((sub) => {
+		return itemsDef
+			.filter((item) => item.visible)
+			.map((item) => {
+				// Proxy-active if the any of the sub-items match the current url
+				if (item.subItems) {
+					const subItems = item.subItems
+						.filter((sub) => sub.visible)
+						.map((sub) => {
+							return {
+								...sub,
+								active: sub.url === currentUrl
+							};
+						});
 					return {
-						...sub,
-						active: sub.url === currentUrl
+						...item,
+						proxyActive: subItems.some((sub) => sub.active),
+						subItems
 					};
-				});
+				}
 				return {
 					...item,
-					proxyActive: subItems.some((sub) => sub.active),
-					subItems
+					active: item.url === currentUrl
 				};
-			}
-			return {
-				...item,
-				active: item.url === currentUrl
-			};
-		});
+			});
 	});
 </script>
 
@@ -139,7 +159,19 @@
 			</Sidebar.GroupContent>
 		</Sidebar.Group>
 	</Sidebar.Content>
-	<Sidebar.Footer />
+	<Sidebar.Footer>
+		{#if auth.currentUser}
+			<div class="flex items-center justify-between gap-2">
+				<div class="flex items-center gap-1">
+					<User />
+					<span>{auth.currentUser.full_name}</span>
+				</div>
+				<Button variant="ghost" class="flex items-center gap-1">
+					<Edit />
+				</Button>
+			</div>
+		{/if}
+	</Sidebar.Footer>
 </Sidebar.Root>
 
 <style>

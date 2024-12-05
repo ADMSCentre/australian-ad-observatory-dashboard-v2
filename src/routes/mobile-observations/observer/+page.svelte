@@ -73,10 +73,10 @@
 			variant={isPresenting ? 'destructive' : 'outline'}
 		>
 			{#if isPresenting}
-				<Presentation />
+				<Square />
 				Exit Presentation
 			{:else}
-				<Square />
+				<Presentation />
 				Present
 			{/if}
 		</Button>

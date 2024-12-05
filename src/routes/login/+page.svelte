@@ -12,7 +12,7 @@
 	let password = $state('');
 	let message = $state({
 		value: '',
-		kind: 'error'
+		text: 'error'
 	});
 	let loading = $state(false);
 	const auth = getAuthState();
@@ -22,7 +22,7 @@
 		if (redirect !== '/') {
 			message = {
 				value: `Please login to access [${redirect}](${redirect})`,
-				kind: 'info'
+				text: 'info'
 			};
 		}
 	});
@@ -33,7 +33,7 @@
 		if (username === '' || password === '') {
 			message = {
 				value: 'Username and password are required.',
-				kind: 'error'
+				text: 'error'
 			};
 			loading = false;
 			return;
@@ -42,14 +42,14 @@
 			await auth.login({ username, password });
 			message = {
 				value: `Successfully logged in as ${username}`,
-				kind: 'success'
+				text: 'success'
 			};
 			loading = false;
 			goto(redirect);
 		} catch (error) {
 			message = {
 				value: (error as Error).message,
-				kind: 'error'
+				text: 'error'
 			};
 			loading = false;
 		}
@@ -60,7 +60,7 @@
 	<div class="w-full max-w-sm rounded bg-white p-8 shadow-md">
 		<h2 class="mb-6 text-center text-2xl font-bold">Login</h2>
 		{#if message.value}
-			<div class={twMerge('relative mb-4 rounded border px-4 py-3', message.kind)} role="alert">
+			<div class={twMerge('relative mb-4 rounded border px-4 py-3', message.text)} role="alert">
 				<!-- <span class="block sm:inline">{message.value}</span> -->
 				<Markdown md={message.value} />
 			</div>
