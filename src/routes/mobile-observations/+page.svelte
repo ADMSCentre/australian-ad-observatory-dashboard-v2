@@ -22,7 +22,7 @@
 	});
 </script>
 
-<div class="flex flex-col gap-8 p-4 pb-0">
+<div class="flex flex-col gap-8 p-1 pb-0 sm:p-4">
 	<h1>Mobile Observations</h1>
 
 	<div>

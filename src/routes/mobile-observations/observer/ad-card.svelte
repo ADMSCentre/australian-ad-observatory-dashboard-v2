@@ -153,7 +153,7 @@
 
 		<div
 			class={twMerge(
-				'group flex min-h-40 min-w-64 max-w-full flex-auto transform flex-col gap-2 overflow-hidden rounded border-4 border-transparent shadow-lg transition-transform hover:border-inherit sm:max-w-64'
+				'group flex min-h-40  max-w-full flex-auto transform flex-col gap-2 overflow-hidden rounded border-4 border-transparent shadow-lg transition-transform hover:border-inherit'
 			)}
 		>
 			<!-- <img class="h-fit object-cover" src="https://placehold.co/400x600" alt="Ad image" /> -->
