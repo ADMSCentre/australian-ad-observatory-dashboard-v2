@@ -27,9 +27,9 @@
 	});
 
 	const defaultFormData: User = {
-		username: 'test',
-		fullname: 'test',
-		password: 'test',
+		username: '',
+		fullname: '',
+		password: '',
 		role: 'user'
 	};
 

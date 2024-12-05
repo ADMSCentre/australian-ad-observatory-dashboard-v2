@@ -53,7 +53,7 @@
 				if (error instanceof Error) message = { text: error.message, type: 'error' };
 				else if (typeof error === 'string') message = { text: error, type: 'error' };
 			} finally {
-				loading = { loading: false, target: null };
+				loading = { loading: false, target: target };
 			}
 		};
 </script>
