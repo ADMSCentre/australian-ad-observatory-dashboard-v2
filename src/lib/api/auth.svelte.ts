@@ -1,5 +1,6 @@
 import { getContext, setContext } from 'svelte';
 import { client } from './client';
+import { pushToast } from '$lib/components/toasts/toasts.svelte';
 
 export type User = {
 	token: string;
@@ -74,6 +75,11 @@ export class Authentication {
 			// If the token is invalid, log out
 			if (!result || !result.success) {
 				this.logout();
+				pushToast({
+					type: 'error',
+					message: 'Your session has expired. Please log in again.',
+					timeout: 5000
+				});
 				return;
 			}
 		} catch (e) {

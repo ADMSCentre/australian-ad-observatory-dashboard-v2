@@ -114,29 +114,31 @@
 				</div>
 			{/if}
 			<Dialog.Footer>
-				<Button
-					variant={loading.target === 'delete' ? 'default' : 'destructive'}
-					class="w-20"
-					onclick={withLoadState(
-						onDelete,
-						'delete',
-						'User deleted successfully. Click **Close** to return.'
-					)}
-				>
-					{#if loading.loading && loading.target === 'delete'}
-						<Circle size="20" color="white" />
-					{:else if !loading.loading && loading.target === 'delete'}
-						<!-- Delete completed -->
-						<Dialog.Close>
-							<Button variant="ghost">Close</Button>
-						</Dialog.Close>
-					{:else}
-						Delete
-					{/if}
-				</Button>
-				<Dialog.Close>
-					<Button variant="ghost">Cancel</Button>
-				</Dialog.Close>
+				{#if !loading.loading && loading.target === 'delete'}
+					<!-- Delete completed -->
+					<Dialog.Close>
+						<Button>Close</Button>
+					</Dialog.Close>
+				{:else}
+					<Button
+						variant={loading.target === 'delete' ? 'default' : 'destructive'}
+						class="w-20"
+						onclick={withLoadState(
+							onDelete,
+							'delete',
+							'User deleted successfully. Click **Close** to return.'
+						)}
+					>
+						{#if loading.loading && loading.target === 'delete'}
+							<Circle size="20" color="white" />
+						{:else}
+							Delete
+						{/if}
+					</Button>
+					<Dialog.Close>
+						<Button variant="ghost">Cancel</Button>
+					</Dialog.Close>
+				{/if}
 			</Dialog.Footer>
 		</Dialog.Content>
 	</Dialog.Root>
