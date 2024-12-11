@@ -14,7 +14,7 @@
 	import { listAdsForObserver } from '$lib/api/mobile-observations';
 	import { getAuthState } from '$lib/api/auth.svelte';
 	import { Circle } from 'svelte-loading-spinners';
-	import type { BasicAdData, RichAdData } from './types';
+	import type { BasicAdData, RichAdData } from '../types';
 	import AdsBrowser from '../components/ads-browser.svelte';
 	import ObservationsTimeline from '../components/observations-timeline.svelte';
 	import { withBase } from '$lib/utils';
@@ -33,7 +33,7 @@
 
 	const fetchAdsIndex = async () => {
 		if (!auth.token) return [];
-		return await listAdsForObserver(auth.token, participantId, ['attributes']);
+		return await listAdsForObserver(auth.token, participantId);
 	};
 
 	$effect(() => {

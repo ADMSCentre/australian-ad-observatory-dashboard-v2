@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { DateRange } from 'bits-ui';
-	import type { BasicAdData } from '../observer/types';
+	import type { BasicAdData } from '../types';
 	import { dateToCalendarDate } from '../utils';
 	import Timeline from './timeline.svelte';
 

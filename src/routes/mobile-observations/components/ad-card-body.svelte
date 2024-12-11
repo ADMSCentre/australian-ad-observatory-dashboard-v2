@@ -6,11 +6,12 @@
 	import { Slider } from '$lib/components/ui/slider';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import Codemirror from 'svelte-codemirror-editor';
-	import type { RichAdData } from '../observer/types';
+	import type { RichAdData } from '../types';
 	import { client } from '$lib/api/client';
 	import { getAuthState } from '$lib/api/auth.svelte';
 	import { json } from '@codemirror/lang-json';
 	import { getAdFrameUrls } from '$lib/api/mobile-observations';
+	import { fetchAttributes } from '../utils';
 
 	// {adData} {images} {completed} {currentIndex} {autoPlay} {onSliderChange}
 	type Props = {
@@ -28,30 +29,21 @@
 
 	$effect(() => {
 		(async () => {
-			adData.attributes = await fetchAttributes();
+			adData.attributes = await syncAttributes();
 		})();
 	});
 
-	const fetchAttributes = async () => {
-		isUpdatingAttributes = true;
-		const { data, error } = await client.GET('/ads/{observer_id}/{timestamp}.{ad_id}/attributes', {
-			headers: {
-				Authorization: `Bearer ${auth.token}`
-			},
-			params: {
-				path: {
-					observer_id: adData.observer,
-					timestamp: adData.timestamp.toString(),
-					ad_id: adData.adId
-				}
-			}
-		});
-		isUpdatingAttributes = false;
-		if (error) {
+	const syncAttributes = async () => {
+		if (!auth.token) return;
+		try {
+			isUpdatingAttributes = true;
+			const attributes = await fetchAttributes(adData, auth.token);
+			return attributes;
+		} catch (error) {
 			console.error(error);
-			return;
+		} finally {
+			isUpdatingAttributes = false;
 		}
-		return data.attributes;
 	};
 
 	const setAttribute = async (key: string, value: any) => {
@@ -82,7 +74,7 @@
 			return;
 		}
 		// Update the attributes state with the true value
-		adData.attributes = await fetchAttributes();
+		adData.attributes = await syncAttributes();
 	};
 
 	let completed = $state(false);

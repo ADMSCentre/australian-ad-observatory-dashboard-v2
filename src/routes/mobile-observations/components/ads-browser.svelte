@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { DateRange } from 'bits-ui';
-	import type { BasicAdData, RichAdData } from '../observer/types';
+	import type { BasicAdData, RichAdData } from '../types';
 	import AdCard, { type Props as AdCardProps } from './ad-card.svelte';
 	import { dateToCalendarDate } from '../utils';
 	import Accordion from '$lib/components/accordion/accordion.svelte';
@@ -10,6 +10,7 @@
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import { getExpandedRowModel } from '@tanstack/table-core';
 	import AdCardBody from './ad-card-body.svelte';
+	import AdRichView from './ad-rich-view.svelte';
 
 	type Props = {
 		ads: RichAdData[];
@@ -21,6 +22,9 @@
 	};
 
 	let {
+		// The ad is bindable so that if a component
+		// requires the ad to be expanded, it can
+		// update this prop
 		ads = $bindable(),
 		dateRange,
 		open,
@@ -98,24 +102,7 @@
 	{/each}
 </div>
 
-<Sheet.Root
-	open={richViewExpanded}
-	onOpenChange={(open) => {
-		richViewExpanded = open;
-	}}
->
-	<Sheet.Content class="min-w-[100vw] sm:min-w-[60vw]">
-		<Sheet.Header>
-			<Sheet.Title>Rich Ad Data View</Sheet.Title>
-			<Sheet.Description>
-				This view shows the Rich Data Object for the current ad.
-			</Sheet.Description>
-		</Sheet.Header>
-		{#if currentAd}
-			<AdCardBody bind:adData={currentAd} class="w-96" />
-		{/if}
-	</Sheet.Content>
-</Sheet.Root>
+<AdRichView bind:richViewExpanded bind:currentAd />
 
 <!-- 
 

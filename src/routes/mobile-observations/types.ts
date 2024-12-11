@@ -1,13 +1,23 @@
-export interface QuickAccessCache {
-	success: boolean;
-	data: Data;
-}
+import type { RichDataObject } from './rich-data-object-type';
 
-export interface Data {
-	observations: string[];
-	ads: string[];
-	ads_passed_ocr: string[];
-	ads_passed_ad_scrape: string[];
-	ads_passed_mass_download: string[];
-}
+export type BasicAdData = {
+	adId: string;
+	timestamp: number;
+	date: string;
+	time: string;
+	observer: string;
+	path: string;
+};
 
+export type RichAdData = BasicAdData & {
+	attributes?: {
+		[key: string]: {
+			value?: string;
+			createdBy?: string;
+			createdAt?: string;
+			modifiedBy?: string;
+			modifiedAt?: string;
+		};
+	};
+	richDataObject?: RichDataObject;
+};

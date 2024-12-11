@@ -2,7 +2,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { RotateCcw, Eye, EyeOff, Star, Braces, Download, Expand } from 'lucide-svelte/icons';
 	import ImagesGif from '../observer/images-gif.svelte';
-	import type { BasicAdData, RichAdData } from '../observer/types';
+	import type { BasicAdData, RichAdData } from '../types';
 	import { getAuthState } from '$lib/api/auth.svelte';
 	import IntersectionObserverSvelte from 'svelte-intersection-observer/IntersectionObserver.svelte';
 	import { withBase } from '$lib/utils';
@@ -59,7 +59,7 @@
 						</a>
 					{/if}
 					<div>
-						<Button variant="ghost" size="icon" onclick={onExpand}>
+						<Button variant="outline" size="icon" onclick={onExpand}>
 							<Expand />
 						</Button>
 					</div>

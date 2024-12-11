@@ -5,10 +5,10 @@ export const client = createClient<paths>({
 	baseUrl: 'https://f06kj1k332.execute-api.ap-southeast-2.amazonaws.com/dev/'
 });
 
-export const tryGetFromCache = async (url: string, options: object) => {
+export const tryGetFromCache = async (cacheKey: string) => {
 	const cache = await caches.open('api-cache');
-	const hash = btoa(JSON.stringify({ url, options }));
-	const request = new Request(document.location.origin + '/api-cache/' + hash);
+	// const hash = btoa(JSON.stringify({ url, options }));
+	const request = new Request(document.location.origin + '/api-cache/' + cacheKey);
 	const response = await cache.match(request);
 	if (response) {
 		const { data, expireAt } = await response.json();
@@ -20,15 +20,42 @@ export const tryGetFromCache = async (url: string, options: object) => {
 	return null;
 };
 
-export const setCache = async (
-	url: string,
-	options: object,
-	data: object,
-	expireAt: number = -1 // -1 means never expire
-) => {
+export const setCache = async (cacheKey: string, data: unknown, expireAt: number = -1) => {
 	const cache = await caches.open('api-cache');
-	const hash = btoa(JSON.stringify({ url, options }));
-	const request = new Request(document.location.origin + '/api-cache/' + hash);
+	const request = new Request(document.location.origin + '/api-cache/' + cacheKey);
 	const response = new Response(JSON.stringify({ data, expireAt }));
 	await cache.put(request, response);
 };
+
+/**
+ * Run a function and cache the result. Optionally provide a cache function to transform the result of the run function before caching.
+ * @typeParam T The type of the data returned by the run function
+ * @param cacheKey The key to use for caching
+ * @param runFn The function to retrieve the data to cache
+ * @param cacheFn A function to transform the data before caching, can be used to add an expiry time
+ * @returns The data returned by the run function, or the cached data if it exists
+ */
+export const runWithCache = async <T>({
+	cacheKey,
+	run: runFn,
+	cache: cacheFn = async (data: T) => ({ data, expireAt: -1 })
+}: {
+	cacheKey: string;
+	run: () => Promise<T>;
+	cache: (data: T) => Promise<{
+		data: T;
+		expireAt: number;
+	}>;
+}) => {
+	const data = await tryGetFromCache(cacheKey);
+	if (data) {
+		return data;
+	}
+	const result = await runFn();
+	const { data: dataToCache, expireAt } = await cacheFn(result);
+	await setCache(cacheKey, dataToCache, expireAt);
+	return result;
+};
+
+export const generateCacheKey = (url: string, options: object) =>
+	btoa(JSON.stringify({ url, options }));

@@ -3,7 +3,7 @@
 	import { Circle } from 'svelte-loading-spinners';
 	import { listAllAds } from '$lib/api/mobile-observations';
 	import MobileObservationsDashboard from './mobile-observations-dashboard.svelte';
-	import type { RichAdData } from './observer/types';
+	import type { RichAdData } from './types';
 	// import { parseAdsIndex } from './utils';
 	const auth = getAuthState();
 	let ads = $state<RichAdData[]>([]);

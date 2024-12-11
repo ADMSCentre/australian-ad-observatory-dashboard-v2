@@ -1,7 +1,9 @@
 import type { ObservationIndex } from '$lib/api/mobile-observations';
 import { CalendarDate } from '@internationalized/date';
-import type { BasicAdData, RichAdData } from './observer/types';
+import type { BasicAdData, RichAdData } from './types';
 import { client } from '$lib/api/client';
+import rdo from './rdo.json';
+import type { RichDataObject } from './rich-data-object-type';
 
 export const dateToCalendarDate = (date: Date) => {
 	return new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
@@ -45,7 +47,7 @@ export const parseAdsIndex = (index: ObservationIndex) => {
 	return adsIndex;
 };
 
-export type ExpandType = 'attributes';
+export type ExpandType = 'attributes' | 'richDataObject';
 
 export const enrichAllAds = async (
 	ads: BasicAdData[],
@@ -56,15 +58,26 @@ export const enrichAllAds = async (
 	return enrichedAds;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const enrichSingleAd = async (ad: BasicAdData, token: string, expand: ExpandType[] = []) => {
 	const richAd = { ...ad } as RichAdData;
-	if (expand.includes('attributes')) {
-		richAd.attributes = await fetchAttributes(ad, token);
-	}
+	// const enrichers = expand.map((type) => {
+	// 	switch (type) {
+	// 		case 'attributes':
+	// 			return async () => {
+	// 				richAd.attributes = await fetchAttributes(ad, token);
+	// 			};
+	// 		case 'richDataObject':
+	// 			return async () => {
+	// 				richAd.richDataObject = await fetchRichDataObject(ad, token);
+	// 			};
+	// 	}
+	// });
+	// await Promise.all(enrichers.map((enricher) => enricher()));
 	return richAd;
 };
 
-const fetchAttributes = async (adData: BasicAdData, token: string) => {
+export const fetchAttributes = async (adData: BasicAdData, token: string) => {
 	const { data, error } = await client.GET('/ads/{observer_id}/{timestamp}.{ad_id}/attributes', {
 		headers: {
 			Authorization: `Bearer ${token}`
@@ -82,4 +95,19 @@ const fetchAttributes = async (adData: BasicAdData, token: string) => {
 		return;
 	}
 	return data.attributes;
+};
+
+// TODO: Replace with actual API call
+export const fetchRichDataObject = async (
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	adData: BasicAdData,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	token: string
+): Promise<RichDataObject> => {
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			// ! This isn't safe - need proper type checking later
+			return resolve(rdo as unknown as RichDataObject);
+		}, 100);
+	});
 };

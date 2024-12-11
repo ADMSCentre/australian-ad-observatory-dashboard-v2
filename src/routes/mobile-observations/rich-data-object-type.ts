@@ -247,7 +247,7 @@ export interface Ocr {
 export interface TextEntry {
 	result: string;
 	key_path: Array<string | number>;
-	ocr_matches: { [key: string]: OcrMatch[] };
+	ocr_matches: { [key: string]: OcrMatch[] | undefined };
 }
 
 export interface OcrMatch {

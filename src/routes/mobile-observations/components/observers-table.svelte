@@ -1,7 +1,7 @@
 <script lang="ts">
 	import AgGrid from '$lib/components/ag-grid/ag-grid.svelte';
 	import type { DateRange } from 'bits-ui';
-	import type { BasicAdData } from '../observer/types';
+	import type { BasicAdData } from '../types';
 	import { dateToCalendarDate, parseTime } from '../utils';
 	import { withBase } from '$lib/utils';
 

@@ -3,43 +3,8 @@ import {
 	parseAdsIndex,
 	type ExpandType
 } from '../../routes/mobile-observations/utils';
-import { client, setCache, tryGetFromCache } from '$lib/api/client';
-import type { BasicAdData, RichAdData } from '../../routes/mobile-observations/observer/types';
-
-// export const fetchMobileObservationsApi = async (
-// 	endpoint: string,
-// 	{
-// 		method = 'GET',
-// 		token = '',
-// 		headers = {},
-// 		body = {}
-// 	}: {
-// 		method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'HEAD';
-// 		token?: string;
-// 		headers?: Record<string, string>;
-// 		body?: unknown;
-// 	}
-// ) => {
-// 	const { data } = await client.GET('/ads', {
-// 		headers: {
-// 			Authorization: `Bearer ${token}`,
-// 			...headers
-// 		},
-// 		requestBody: body
-// 	});
-
-// 	// const res = await fetch(url, {
-// 	// 	method,
-// 	// 	headers: {
-// 	// 		Authorization: `Bearer ${token}`,
-// 	// 		...headers
-// 	// 	},
-// 	// 	mode: 'cors',
-// 	// 	...(method !== 'GET' && method !== 'HEAD' ? { body: JSON.stringify(body) } : {})
-// 	// });
-// 	// return await res.json();
-// 	return data;
-// };
+import { client, runWithCache, generateCacheKey } from '$lib/api/client';
+import type { BasicAdData, RichAdData } from '../../routes/mobile-observations/types';
 
 export type ObservationIndex = {
 	[key: string]: { observer: string; timestamp: string; adId: string; path: string }[];
@@ -53,11 +18,7 @@ const parseAdPath = (path: string) => {
 	return { observer, timestamp, adId, path };
 };
 
-export const listAllAds = async (
-	token: string,
-	expand: ExpandType[] = [],
-	filters: ((ad: RichAdData) => boolean)[] = []
-) => {
+export const listAllAds = async (token: string, filters: ((ad: RichAdData) => boolean)[] = []) => {
 	const { data, error } = await client.GET('/ads', {
 		headers: {
 			Authorization: `Bearer ${token}`
@@ -82,10 +43,10 @@ export const listAllAds = async (
 		return acc;
 	}, {} as ObservationIndex);
 
-	let ads = parseAdsIndex(index) as RichAdData[];
-	if (expand.length > 0) {
-		ads = await enrichAllAds(ads, token, expand);
-	}
+	const ads = parseAdsIndex(index) as RichAdData[];
+	// if (expand.length > 0) {
+	// 	ads = await enrichAllAds(ads, token, expand);
+	// }
 	return ads.filter((ad) => filters.every((filter) => filter(ad)));
 };
 
@@ -143,23 +104,21 @@ export const getAdFrameUrls = async (token: string, adData: BasicAdData) => {
 			}
 		}
 	};
-	const cached = await tryGetFromCache(url, options);
-	if (cached) return cached;
 
-	// If not cached, fetch the data
-	const { data, error } = await client.GET(url, options);
-	if (!data?.success || !data.presigned_urls || error) {
-		return [];
-	}
-	const presignedUrls = data.presigned_urls;
-
-	// Get the expiration from the first URL
-	const urlParams = new URLSearchParams(presignedUrls[0]);
-	const expireAt = urlParams.get('Expires') || -1;
-	// Ensure the expiration is in milliseconds
-	const expireAtMs = expireAt !== -1 && +expireAt * 1000;
-
-	// Cache the data
-	await setCache(url, options, presignedUrls, +expireAtMs);
-	return presignedUrls;
+	return await runWithCache<string[]>({
+		cacheKey: generateCacheKey(url, options),
+		run: async () => {
+			const { data, error } = await client.GET(url, options);
+			if (!data?.success || !data.presigned_urls || error) {
+				return [];
+			}
+			return data.presigned_urls;
+		},
+		cache: async (data) => {
+			const urlParams = new URLSearchParams(data[0]);
+			const expireAt = urlParams.get('Expires') || -1;
+			const expireAtMs = expireAt !== -1 && +expireAt * 1000;
+			return { data, expireAt: +expireAtMs };
+		}
+	});
 };
