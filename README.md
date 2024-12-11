@@ -28,7 +28,7 @@ serve build
 
 ## Generate Types from OpenAPI for `openapi-fetch`
 
-Run the following command:
+To generate types from an OpenAPI spec (when the API changes), run:
 
 ```bash
 npx openapi-typescript https://admscentre.github.io/australian-ad-observatory-api/swagger.yaml -o ./src/lib/api/openapi-paths.ts

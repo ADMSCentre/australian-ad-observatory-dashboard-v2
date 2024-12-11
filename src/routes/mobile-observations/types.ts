@@ -20,4 +20,6 @@ export type RichAdData = BasicAdData & {
 		};
 	};
 	richDataObject?: RichDataObject;
+	rawFrames?: string[];
+	stitchedFrames?: string[];
 };

@@ -1,7 +1,7 @@
 import type { ObservationIndex } from '$lib/api/mobile-observations';
 import { CalendarDate } from '@internationalized/date';
 import type { BasicAdData, RichAdData } from './types';
-import { client } from '$lib/api/client';
+import { client, generateCacheKey, runWithCache } from '$lib/api/client';
 import rdo from './rdo.json';
 import type { RichDataObject } from './rich-data-object-type';
 
@@ -22,7 +22,7 @@ export const parseTime = (timestamp: string | number) => {
 };
 
 export const parseAdsIndex = (index: ObservationIndex) => {
-	const adsIndex = index['ads_passed_mass_download']
+	const adsIndex = index['ads_passed_restitch']
 		.map((ad) => {
 			// Convert timestamp to date (DD/MM/YYYY) and time (HH:MM:SS.SSS)
 			const date = new Date(+ad.timestamp).toLocaleDateString('en-US', {
@@ -109,5 +109,38 @@ export const fetchRichDataObject = async (
 			// ! This isn't safe - need proper type checking later
 			return resolve(rdo as unknown as RichDataObject);
 		}, 100);
+	});
+};
+
+export const fetchStitchFrames = async (adData: BasicAdData, token: string): Promise<string[]> => {
+	const url = '/ads/{observer_id}/{timestamp}.{ad_id}/stitching/frames';
+	const options = {
+		headers: {
+			Authorization: `Bearer ${token}`
+		},
+		params: {
+			path: {
+				observer_id: adData.observer,
+				timestamp: adData.timestamp.toString(),
+				ad_id: adData.adId
+			}
+		}
+	};
+
+	return await runWithCache<string[]>({
+		cacheKey: generateCacheKey(url, options),
+		run: async () => {
+			const { data, error } = await client.GET(url, options);
+			if (!data?.success || !data.presigned_urls || error) {
+				return [];
+			}
+			return data.presigned_urls;
+		},
+		cache: async (data) => {
+			const urlParams = new URLSearchParams(data[0]);
+			const expireAt = urlParams.get('Expires') || -1;
+			const expireAtMs = expireAt !== -1 && +expireAt * 1000;
+			return { data, expireAt: +expireAtMs };
+		}
 	});
 };

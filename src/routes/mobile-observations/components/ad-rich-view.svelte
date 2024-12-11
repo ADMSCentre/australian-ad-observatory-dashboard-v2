@@ -28,8 +28,14 @@
 </script>
 
 {#if currentAd}
-	{#snippet ad()}
-		<AdCardBody adData={currentAd} class="max-w-96" />
+	{#snippet stitchedAd()}
+		<p>This is the stitched ad view where the frames are cropped to show the ad content only.</p>
+		<AdCardBody adData={currentAd} class="max-w-96" framesMode={'stitched'} />
+	{/snippet}
+
+	{#snippet originalAd()}
+		<p>This is the original ad view where the frames are not cropped.</p>
+		<AdCardBody adData={currentAd} class="max-w-96" framesMode="raw" />
 	{/snippet}
 
 	{#snippet richDataJson()}
@@ -62,13 +68,17 @@
 					This view shows the Rich Data Object for the current ad.
 				</Sheet.Description>
 			</Sheet.Header>
-			<Tabs.Root value="ad">
+			<Tabs.Root value="stitched-ad">
 				<Tabs.List>
-					<Tabs.Trigger value="ad">Ad View</Tabs.Trigger>
+					<Tabs.Trigger value="stitched-ad">Stitched Ad</Tabs.Trigger>
+					<Tabs.Trigger value="original-ad">Original Ad</Tabs.Trigger>
 					<Tabs.Trigger value="rich-data">Rich Data Object</Tabs.Trigger>
 				</Tabs.List>
-				<Tabs.Content value="ad">
-					{@render ad()}
+				<Tabs.Content value="stitched-ad">
+					{@render stitchedAd()}
+				</Tabs.Content>
+				<Tabs.Content value="original-ad">
+					{@render originalAd()}
 				</Tabs.Content>
 				<Tabs.Content value="rich-data">
 					{@render richDataJson()}

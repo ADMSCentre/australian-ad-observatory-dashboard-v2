@@ -54,7 +54,7 @@
 	</div>
 	<div
 		class={twMerge(
-			'fixed bottom-2 right-2 z-50 flex w-fit items-center border bg-white bg-opacity-50 px-4 py-2 shadow backdrop-blur-sm transition-all',
+			'fixed bottom-2 right-2 z-[100] flex w-fit items-center border bg-white bg-opacity-50 px-4 py-2 shadow backdrop-blur-sm transition-all',
 			isToolboxOpen ? 'translate-x-0' : 'translate-x-full'
 		)}
 	>

@@ -654,6 +654,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/ads/{observer_id}/{timestamp}.{ad_id}/stitching/frames": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the presigned URLs for the frames of an ad's stitching.
+         * @description Retrieve presigned URLs for the frames of the specified ad's stitching, which is the cropped version of the ad that removes the irrelevant parts.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    observer_id: string;
+                    timestamp: string;
+                    ad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            frame_paths?: string[];
+                            presigned_urls?: string[];
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example PATH_NOT_PROVIDED */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/ads/{observer_id}/{timestamp}.{ad_id}/frames": {
         parameters: {
             query?: never;

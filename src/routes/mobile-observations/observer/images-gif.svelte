@@ -30,6 +30,7 @@
 		// Do not advance if the current image is not loaded
 		if (imageLoadings[currentIndex]) return;
 		if (completed) return;
+		if (!autoPlay) return;
 		const isFinal = currentIndex + 1 === images.length;
 		if (isFinal) {
 			currentIndex = 0;
@@ -46,11 +47,7 @@
 	// }
 
 	$effect(() => {
-		if (autoPlay) {
-			repeat = setInterval(nextImage, interval);
-		} else {
-			clearInterval(repeat);
-		}
+		repeat = setInterval(nextImage, interval);
 	});
 
 	onDestroy(() => {

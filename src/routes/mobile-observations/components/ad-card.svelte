@@ -1,6 +1,18 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
-	import { RotateCcw, Eye, EyeOff, Star, Braces, Download, Expand } from 'lucide-svelte/icons';
+	import {
+		RotateCcw,
+		Eye,
+		EyeOff,
+		Star,
+		Braces,
+		Download,
+		Expand,
+		GalleryHorizontal,
+		SquareBottomDashedScissors,
+		CircleEllipsis,
+		ScanSearch
+	} from 'lucide-svelte/icons';
 	import ImagesGif from '../observer/images-gif.svelte';
 	import type { BasicAdData, RichAdData } from '../types';
 	import { getAuthState } from '$lib/api/auth.svelte';
@@ -27,6 +39,7 @@
 
 	let element = $state<HTMLElement | null>(null);
 	let intersecting = $state(false);
+	let framesMode = $state<'raw' | 'stitched'>('stitched');
 
 	// let attributes = $state<Awaited<ReturnType<typeof fetchAttributes>>>();
 
@@ -43,7 +56,7 @@
 		bind:this={element}
 	>
 		<!-- Header -->
-		<div class="px-2">
+		<div class="flex flex-col gap-0.5">
 			<div class="flex items-center justify-between gap-2">
 				<p class="inline-block rounded-full py-1 font-medium">
 					{adData.time}
@@ -59,8 +72,8 @@
 						</a>
 					{/if}
 					<div>
-						<Button variant="outline" size="icon" onclick={onExpand}>
-							<Expand />
+						<Button variant="outline" class="size-fit p-1.5" size="icon" onclick={onExpand}>
+							<ScanSearch />
 						</Button>
 					</div>
 				</div>
@@ -71,8 +84,31 @@
 			</div>
 		</div>
 
-		<AdCardBody {adData} visible={intersecting} />
+		<AdCardBody {adData} visible={intersecting} {framesMode} />
 
+		<div class="w-full text-2xs">
+			{#if framesMode === 'raw'}
+				<Button
+					variant="outline"
+					size="sm"
+					class="size-fit p-1.5"
+					onclick={() => (framesMode = 'stitched')}
+				>
+					<GalleryHorizontal /> Full Mode
+				</Button>
+				<p>All parts of the recording are shown</p>
+			{:else}
+				<Button
+					variant="outline"
+					size="sm"
+					class="size-fit p-1.5"
+					onclick={() => (framesMode = 'raw')}
+				>
+					<SquareBottomDashedScissors /> Cropped Mode
+				</Button>
+				<p>Only the ad content is shown</p>
+			{/if}
+		</div>
 		<!-- Footer -->
 		<div class="flex items-center justify-between gap-2"></div>
 	</div>
