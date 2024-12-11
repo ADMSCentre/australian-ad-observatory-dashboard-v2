@@ -29,13 +29,17 @@
 
 {#if currentAd}
 	{#snippet stitchedAd()}
-		<p>This is the stitched ad view where the frames are cropped to show the ad content only.</p>
-		<AdCardBody adData={currentAd} class="max-w-96" framesMode={'stitched'} />
+		<div>
+			<p class="text-xs">Ad-only view - only the ad content is shown.</p>
+			<AdCardBody adData={currentAd} class="max-w-96" framesMode={'stitched'} />
+		</div>
 	{/snippet}
 
 	{#snippet originalAd()}
-		<p>This is the original ad view where the frames are not cropped.</p>
-		<AdCardBody adData={currentAd} class="max-w-96" framesMode="raw" />
+		<div>
+			<p class="text-xs">Original view - the original recording is shown.</p>
+			<AdCardBody adData={currentAd} class="max-w-96" framesMode="raw" />
+		</div>
 	{/snippet}
 
 	{#snippet richDataJson()}
@@ -68,17 +72,16 @@
 					This view shows the Rich Data Object for the current ad.
 				</Sheet.Description>
 			</Sheet.Header>
-			<Tabs.Root value="stitched-ad">
+			<Tabs.Root value="captured-ad">
 				<Tabs.List>
-					<Tabs.Trigger value="stitched-ad">Stitched Ad</Tabs.Trigger>
-					<Tabs.Trigger value="original-ad">Original Ad</Tabs.Trigger>
+					<Tabs.Trigger value="captured-ad">Captured Ad</Tabs.Trigger>
 					<Tabs.Trigger value="rich-data">Rich Data Object</Tabs.Trigger>
 				</Tabs.List>
-				<Tabs.Content value="stitched-ad">
-					{@render stitchedAd()}
-				</Tabs.Content>
-				<Tabs.Content value="original-ad">
-					{@render originalAd()}
+				<Tabs.Content value="captured-ad">
+					<div class="flex flex-col gap-2 md:flex-row">
+						{@render originalAd()}
+						{@render stitchedAd()}
+					</div>
 				</Tabs.Content>
 				<Tabs.Content value="rich-data">
 					{@render richDataJson()}
