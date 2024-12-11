@@ -1,12 +1,15 @@
 <script lang="ts">
 	import type { DateRange } from 'bits-ui';
 	import type { BasicAdData, RichAdData } from '../observer/types';
-	import AdCard, { type Props as AdCardProps } from '../observer/ad-card.svelte';
+	import AdCard, { type Props as AdCardProps } from './ad-card.svelte';
 	import { dateToCalendarDate } from '../utils';
 	import Accordion from '$lib/components/accordion/accordion.svelte';
 	import { ChevronDown, ChevronRight } from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
 	import { slide } from 'svelte/transition';
+	import * as Sheet from '$lib/components/ui/sheet/index.js';
+	import { getExpandedRowModel } from '@tanstack/table-core';
+	import AdCardBody from './ad-card-body.svelte';
 
 	type Props = {
 		ads: RichAdData[];
@@ -14,18 +17,21 @@
 		open?: boolean;
 		cardOptions?: Omit<AdCardProps, 'adData'>;
 		filters?: ((ad: RichAdData) => boolean)[];
+		richViewExpanded?: boolean;
 	};
 
-	const {
+	let {
 		ads = $bindable(),
 		dateRange,
 		open,
 		cardOptions = {
 			showObserver: true
 		},
-		filters = []
+		filters = [],
+		richViewExpanded = $bindable(false)
 	}: Props = $props();
 
+	let currentAd = $state<RichAdData | null>(null);
 	const groupedAds = $derived.by(() => {
 		// Filter ads by date range
 		const filteredAds = ads
@@ -59,6 +65,10 @@
 	});
 
 	const getIndex = (ad: RichAdData) => ads.findIndex((a) => a.adId === ad.adId);
+	const onSingleAdExpand = (ad: RichAdData) => {
+		currentAd = ad;
+		richViewExpanded = true;
+	};
 </script>
 
 <div class="relative flex flex-col gap-4">
@@ -77,12 +87,35 @@
 				transition:slide
 			>
 				{#each adData as adData, i}
-					<AdCard bind:adData={ads[getIndex(adData)]} {...cardOptions} />
+					<AdCard
+						bind:adData={ads[getIndex(adData)]}
+						{...cardOptions}
+						onExpand={() => onSingleAdExpand(ads[getIndex(adData)])}
+					/>
 				{/each}
 			</div>
 		</Accordion>
 	{/each}
 </div>
+
+<Sheet.Root
+	open={richViewExpanded}
+	onOpenChange={(open) => {
+		richViewExpanded = open;
+	}}
+>
+	<Sheet.Content class="min-w-[100vw] sm:min-w-[60vw]">
+		<Sheet.Header>
+			<Sheet.Title>Rich Ad Data View</Sheet.Title>
+			<Sheet.Description>
+				This view shows the Rich Data Object for the current ad.
+			</Sheet.Description>
+		</Sheet.Header>
+		{#if currentAd}
+			<AdCardBody bind:adData={currentAd} class="w-96" />
+		{/if}
+	</Sheet.Content>
+</Sheet.Root>
 
 <!-- 
 

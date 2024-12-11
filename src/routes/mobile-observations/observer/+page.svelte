@@ -10,7 +10,7 @@
 		Presentation,
 		Square
 	} from 'lucide-svelte/icons';
-	import AdCard from './ad-card.svelte';
+	import AdCard from '../components/ad-card.svelte';
 	import { listAdsForObserver } from '$lib/api/mobile-observations';
 	import { getAuthState } from '$lib/api/auth.svelte';
 	import { Circle } from 'svelte-loading-spinners';

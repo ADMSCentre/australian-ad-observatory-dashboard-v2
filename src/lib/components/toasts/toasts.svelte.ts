@@ -1,7 +1,7 @@
 export type Toast = {
 	id: number;
 	message: string;
-	type: 'info' | 'success' | 'warning' | 'error';
+	type: 'info' | 'success' | 'warning' | 'error' | 'default';
 	timeout?: number;
 };
 

@@ -10,3 +10,4 @@ export interface Data {
 	ads_passed_ad_scrape: string[];
 	ads_passed_mass_download: string[];
 }
+

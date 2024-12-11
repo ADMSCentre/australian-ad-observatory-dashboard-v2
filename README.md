@@ -26,7 +26,7 @@ npm install -g serve
 serve build
 ```
 
-## Generate Types from OpenAPI
+## Generate Types from OpenAPI for `openapi-fetch`
 
 Run the following command:
 
@@ -34,7 +34,22 @@ Run the following command:
 npx openapi-typescript https://admscentre.github.io/australian-ad-observatory-api/swagger.yaml -o ./src/lib/api/openapi-paths.ts
 ```
 
-Which will create an `openapi-paths.ts` file in the `src/lib/api` directory with types for the OpenAPI paths.
+Which will create an `openapi-paths.ts` file in the `src/lib/api` directory with types for the OpenAPI paths defined at `https://admscentre.github.io/australian-ad-observatory-api`.
+
+Usage:
+
+```typescript
+import { client } from '$lib/api/client';
+
+const { data, error} = await client.GET('url');
+```
+
+Documentation for `openapi-fetch` can be found [here](https://openapi-ts.dev/openapi-fetch/).
+
+## Notable Dependencies
+
+- [Tailwind CSS](https://tailwindcss.com/docs) for styling
+- [Shadcn Svelte](https://next.shadcn-svelte.com/docs) for re-usable components
 
 # Notes
 

@@ -18,3 +18,4 @@ export type RichAdData = BasicAdData & {
 		};
 	};
 };
+

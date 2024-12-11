@@ -3,7 +3,7 @@ import {
 	parseAdsIndex,
 	type ExpandType
 } from '../../routes/mobile-observations/utils';
-import { client } from '$lib/api/client';
+import { client, setCache, tryGetFromCache } from '$lib/api/client';
 import type { BasicAdData, RichAdData } from '../../routes/mobile-observations/observer/types';
 
 // export const fetchMobileObservationsApi = async (
@@ -130,15 +130,8 @@ export const listAdsForObserver = async (
 };
 
 export const getAdFrameUrls = async (token: string, adData: BasicAdData) => {
-	// const presignedRes: {
-	// 	success: boolean;
-	// 	presigned_urls: string[];
-	// } = await fetchMobileObservationsApi(`get-frames-presigned?path=${framePath}`, {
-	// 	token,
-	// 	method: 'GET'
-	// });
-	console.log('getAdFrameUrls', adData);
-	const { data, error } = await client.GET('/ads/{observer_id}/{timestamp}.{ad_id}/frames', {
+	const url = '/ads/{observer_id}/{timestamp}.{ad_id}/frames';
+	const options = {
 		headers: {
 			Authorization: `Bearer ${token}`
 		},
@@ -149,10 +142,24 @@ export const getAdFrameUrls = async (token: string, adData: BasicAdData) => {
 				ad_id: adData.adId
 			}
 		}
-	});
-	console.log('getAdFrameUrls', data, error);
+	};
+	const cached = await tryGetFromCache(url, options);
+	if (cached) return cached;
+
+	// If not cached, fetch the data
+	const { data, error } = await client.GET(url, options);
 	if (!data?.success || !data.presigned_urls || error) {
 		return [];
 	}
-	return data.presigned_urls;
+	const presignedUrls = data.presigned_urls;
+
+	// Get the expiration from the first URL
+	const urlParams = new URLSearchParams(presignedUrls[0]);
+	const expireAt = urlParams.get('Expires') || -1;
+	// Ensure the expiration is in milliseconds
+	const expireAtMs = expireAt !== -1 && +expireAt * 1000;
+
+	// Cache the data
+	await setCache(url, options, presignedUrls, +expireAtMs);
+	return presignedUrls;
 };
