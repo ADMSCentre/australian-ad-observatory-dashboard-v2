@@ -147,7 +147,7 @@
 		<!-- Replay button (center, overlay) -->
 		{#if frames && frames.length > 1 && completed}
 			<div
-				class="absolute top-0 flex h-full w-full flex-col items-center justify-center bg-foreground bg-opacity-25 text-white opacity-0 group-hover:opacity-100"
+				class="absolute top-0 flex h-full w-full flex-col items-center justify-center bg-foreground bg-opacity-25 text-white opacity-0 transition group-hover:opacity-100"
 			>
 				<Button variant="ghost" onclick={replay} class="z-50">
 					<RotateCcw />

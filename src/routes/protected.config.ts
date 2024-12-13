@@ -4,7 +4,8 @@ const protectedRoutes = [
 	'/mobile-observations',
 	'/mobile-observations/observer',
 	'/web-observations',
-	'/users'
+	'/users',
+	'/users/self'
 ];
 
 export const isRouteProtected = (path: string) => {

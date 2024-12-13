@@ -166,7 +166,7 @@
 					<User />
 					<span>{auth.currentUser.full_name}</span>
 				</div>
-				<Button variant="ghost" class="flex items-center gap-1">
+				<Button variant="ghost" class="flex items-center gap-1" href={withBase('users/self')}>
 					<Edit />
 				</Button>
 			</div>

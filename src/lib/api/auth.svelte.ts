@@ -44,6 +44,19 @@ export class Authentication {
 		return payload;
 	});
 
+	refresh = async () => {
+		const { data, error } = await client.POST('/auth/refresh', {
+			body: {
+				token: this.token || ''
+			}
+		});
+		if (error || !data.token) {
+			throw new Error('Failed to refresh token');
+		}
+		this.token = data.token;
+		localStorage.setItem('jwt', data.token);
+	};
+
 	login = async ({ username, password }: { username: string; password: string }) => {
 		const result = await fetchLoginToken({ username, password });
 		if (!result || !result.token) {
