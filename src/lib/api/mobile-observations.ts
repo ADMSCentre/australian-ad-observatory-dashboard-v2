@@ -19,17 +19,36 @@ const parseAdPath = (path: string) => {
 };
 
 export const listAllAds = async (token: string, filters: ((ad: RichAdData) => boolean)[] = []) => {
-	const { data, error } = await client.GET('/ads', {
-		headers: {
-			Authorization: `Bearer ${token}`
+	const url = '/ads';
+	const options = {
+		headers: { Authorization: `Bearer ${token}` }
+	};
+
+	const presignedUrl = await runWithCache<string>({
+		cacheKey: generateCacheKey(url, options),
+		run: async () => {
+			const { data, error } = await client.GET(url, options);
+			if (!data?.success || !data?.presigned_url || error) {
+				return '';
+			}
+			return data.presigned_url;
+		},
+		cache: async (data) => {
+			const urlParams = new URLSearchParams(data);
+			const expireAt = urlParams.get('Expires') || -1;
+			const expireAtMs = expireAt !== -1 && +expireAt * 1000;
+			return { data, expireAt: +expireAtMs };
 		}
 	});
-	if (!data?.success || !data?.presigned_url || error) {
-		return [];
-	}
-	const { presigned_url: presignedUrl } = data;
-	// Get the data from the presigned URL
+
+	// const { data, error } = await client.GET(url, options);
+	// if (!data?.success || !data?.presigned_url || error) {
+	// 	return [];
+	// }
+	// const { presigned_url: presignedUrl } = data;
+	// // Get the data from the presigned URL
 	const presignedRes = await fetch(presignedUrl);
+
 	// value structure: fda7681c-d7f1-4420-8499-46b4695d224a/temp/1729261457039.c979d19c-0546-412b-a2d9-63a247d7c250/
 	// observer: fda7681c-d7f1-4420-8499-46b4695d224a
 	// timestamp: 1729261457039

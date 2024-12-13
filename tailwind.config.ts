@@ -4,7 +4,7 @@ import tailwindcssAnimate from 'tailwindcss-animate';
 import contentVisibility from 'tailwindcss-content-visibility';
 
 const config: Config = {
-	darkMode: ['class'],
+	darkMode: ['class', "[class~='dark']"],
 	content: ['./src/**/*.{html,js,svelte,ts}'],
 	safelist: ['dark'],
 	theme: {
