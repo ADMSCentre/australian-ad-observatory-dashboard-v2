@@ -3,6 +3,8 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { Circle } from 'svelte-loading-spinners';
+	import { toggleLightMode, theme } from '$lib/states/theme.svelte';
+	import { Sun, Moon } from 'lucide-svelte/icons';
 
 	const auth = getAuthState();
 
@@ -32,18 +34,44 @@
 	});
 </script>
 
+{#snippet themeModeSwitch()}
+	<button
+		onclick={toggleLightMode}
+		class={twMerge('flex w-16 flex-row items-center rounded-full border-2 p-1 transition-all')}
+	>
+		<div
+			class={twMerge(
+				'flex flex-1 justify-end transition-all',
+				theme.mode === 'light' && 'flex-none'
+			)}
+		>
+			<span
+				class="flex size-6 cursor-pointer items-center justify-center rounded-full border-none bg-background p-1"
+			>
+				{#if theme.mode === 'light'}
+					<Sun class="text-foreground" />
+				{:else}
+					<Moon class="text-foreground" />
+				{/if}
+			</span>
+		</div>
+	</button>
+{/snippet}
+
 <header
 	class={twMerge(
-		'sticky top-0 z-50 flex w-full items-center border-b bg-white bg-opacity-50 p-2 backdrop-blur-sm transition duration-300',
+		'sticky top-0 z-50 flex w-full items-center border-b bg-background bg-opacity-50 p-2 text-foreground backdrop-blur-sm transition duration-300',
 		!headerVisible && ' -translate-y-full transform'
 	)}
 >
 	<div class="flex w-full items-center justify-between">
 		<Sidebar.Trigger />
 		<div class="flex items-center gap-4">
+			{@render themeModeSwitch()}
+
 			{#if auth.loading}
 				<div class="flex items-center gap-2">
-					<Circle size="30" color="black" />
+					<Circle size="30" color={theme.colors.foreground} />
 					<span> Authenticating... </span>
 				</div>
 			{:else if auth.currentUser}

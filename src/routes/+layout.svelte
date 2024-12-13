@@ -9,8 +9,11 @@
 	import { withBase } from '$lib/utils';
 	import { page } from '$app/stores';
 	import ToastsContainer from '$lib/components/toasts/toasts-container.svelte';
-	let { children } = $props();
+	import { twMerge } from 'tailwind-merge';
+	import { theme } from '$lib/states/theme.svelte';
+	import { classList } from 'svelte-body';
 
+	let { children } = $props();
 	setAuthState();
 
 	const auth = getAuthState();
@@ -22,9 +25,11 @@
 	});
 </script>
 
-<Sidebar.Provider class="h-screen">
+<svelte:body use:classList={theme.mode} />
+
+<Sidebar.Provider class={twMerge('min-h-screen', theme.mode)}>
 	<AppSidebar />
-	<main class="flex h-fit min-h-full w-full flex-col">
+	<main class="flex h-fit min-h-screen w-full flex-col">
 		<Header />
 		<div class="flex flex-1 flex-col p-1 sm:p-4 sm:pb-0">
 			{@render children()}

@@ -4,6 +4,7 @@
 	import PlatformItem from './platform-item.svelte';
 	import { Circle } from 'svelte-loading-spinners';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import { theme } from '$lib/states/theme.svelte';
 
 	const auth = getAuthState();
 
@@ -61,7 +62,7 @@
 
 	{#if loading}
 		<div class="flex size-full items-center justify-center">
-			<Circle size="200" color="black" />
+			<Circle size="200" color={theme.colors.foreground} />
 		</div>
 	{/if}
 

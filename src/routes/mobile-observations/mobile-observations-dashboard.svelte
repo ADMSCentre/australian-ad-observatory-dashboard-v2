@@ -30,6 +30,7 @@
 		// const endDate = new Date(lastAd.timestamp);
 		const endDate = new Date(today);
 		const startDate = new Date(endDate.getTime() - 1000 * 60 * 60 * 24 * 7);
+
 		return {
 			start: dateToCalendarDate(startDate),
 			end: dateToCalendarDate(endDate)

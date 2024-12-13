@@ -49,7 +49,7 @@
 <IntersectionObserverSvelte {element} threshold={0.25} once bind:intersecting>
 	<div
 		class={twMerge(
-			'mb-4 flex w-fit break-inside-avoid flex-col gap-2 rounded border bg-gray-50 p-4',
+			'mb-4 flex w-fit break-inside-avoid flex-col gap-2 rounded border bg-gray-100 p-4 dark:bg-zinc-800',
 			adData.attributes?.hidden?.value && 'opacity-35',
 			className
 		)}
@@ -66,7 +66,7 @@
 						<span class="inline-block text-xs font-extralight">Seen by</span>
 						<a
 							href={withBase(`mobile-observations/observer?observer_id=${adData.observer}`)}
-							class="inline-block w-[12ch] overflow-hidden text-ellipsis text-nowrap rounded-full bg-gray-300 px-1 text-xs font-light hover:underline"
+							class="inline-block w-[12ch] overflow-hidden text-ellipsis text-nowrap rounded-full bg-zinc-300 px-1 text-xs font-light hover:underline dark:bg-zinc-700"
 						>
 							{adData.observer}
 						</a>

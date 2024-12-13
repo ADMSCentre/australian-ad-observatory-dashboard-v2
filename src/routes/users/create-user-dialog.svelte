@@ -14,6 +14,7 @@
 	import Markdown from 'svelte-exmarkdown';
 	import { Circle } from 'svelte-loading-spinners';
 	import { pushToast } from '$lib/components/toasts/toasts.svelte';
+	import { theme } from '$lib/states/theme.svelte';
 
 	const options = [
 		{ value: 'admin', label: 'Admin' },
@@ -118,7 +119,7 @@
 			<Dialog.Footer>
 				<Button type="submit" disabled={loading} class="w-20">
 					{#if loading}
-						<Circle size="20" color="white" />
+						<Circle size="20" color={theme.colors.background} />
 					{:else}
 						Create
 					{/if}

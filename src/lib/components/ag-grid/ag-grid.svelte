@@ -4,6 +4,7 @@
 	import 'ag-grid-community/styles/ag-theme-alpine.css';
 	import Input from '../ui/input/input.svelte';
 	import { Search } from 'lucide-svelte';
+	import { theme } from '$lib/states/theme.svelte';
 
 	const {
 		columnDefs,
@@ -54,5 +55,9 @@
 		</div>
 	{/if}
 
-	<div bind:this={gridDiv} class="ag-theme-alpine" style={styleStr}></div>
+	<div
+		bind:this={gridDiv}
+		class={theme.mode === 'light' ? 'ag-theme-alpine' : 'ag-theme-alpine-dark'}
+		style={styleStr}
+	></div>
 </div>

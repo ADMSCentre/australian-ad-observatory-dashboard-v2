@@ -37,7 +37,7 @@
 </script>
 
 <div
-	class="sticky bottom-0 z-10 flex w-full flex-col items-start gap-2 border-t bg-white bg-opacity-50 py-2 text-sm backdrop-blur sm:flex-row sm:items-center sm:gap-4"
+	class="sticky bottom-0 z-50 flex w-full flex-col items-start gap-2 border-t bg-background bg-opacity-50 py-2 text-sm backdrop-blur sm:flex-row sm:items-center sm:gap-4"
 >
 	<div class="flex items-center gap-2">
 		<span> Show between: </span>
@@ -48,24 +48,25 @@
 		<Dropdown
 			options={[
 				{
-					value: 7,
+					value: '7',
 					label: 'Last 7 days'
 				},
 				{
-					value: 14,
+					value: '14',
 					label: 'Last 14 days'
 				},
 				{
-					value: 30,
+					value: '30',
 					label: 'Last 30 days'
 				},
 				{
-					value: -1,
+					value: '-1',
 					label: 'All time'
 				}
 			]}
 			onSelected={(value) => {
-				quickSelectDateRange(value);
+				quickSelectDateRange(+value);
+				console.log('Selected completed', value);
 			}}
 		/>
 	</div>

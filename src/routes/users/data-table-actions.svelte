@@ -9,6 +9,7 @@
 	import { Circle } from 'svelte-loading-spinners';
 	import { twMerge } from 'tailwind-merge';
 	import Markdown from 'svelte-exmarkdown';
+	import { theme } from '$lib/states/theme.svelte';
 
 	let loading = $state<{
 		loading: boolean;
@@ -68,7 +69,7 @@
 			disabled={loading.loading && loading.target === 'edit'}
 		>
 			{#if loading.loading && loading.target === 'edit'}
-				<Circle size="20" color="black" />
+				<Circle size="20" color={theme.colors.foreground} />
 			{:else}
 				<Check class="size-4" />
 			{/if}
@@ -80,7 +81,7 @@
 			class="aspect-square p-1"
 		>
 			{#if loading.loading && loading.target === 'edit'}
-				<Circle size="20" color="black" />
+				<Circle size="20" color={theme.colors.foreground} />
 			{:else}
 				<X class="size-4" />
 			{/if}
@@ -130,7 +131,7 @@
 						)}
 					>
 						{#if loading.loading && loading.target === 'delete'}
-							<Circle size="20" color="white" />
+							<Circle size="20" color={theme.colors.background} />
 						{:else}
 							Delete
 						{/if}

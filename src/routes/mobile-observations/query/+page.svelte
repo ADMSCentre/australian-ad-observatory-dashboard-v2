@@ -8,6 +8,7 @@
 	import CodeMirror from 'svelte-codemirror-editor';
 	import { json } from '@codemirror/lang-json';
 	import { type Query } from './const';
+	import { theme } from '$lib/states/theme.svelte';
 
 	let queryObj = $state<Query | null>(null);
 	let promise = $state<Promise<unknown>>();
@@ -69,7 +70,7 @@
 		</div>
 		<Button class="w-24" onclick={executeQuery} disabled={loading}>
 			{#if loading}
-				<Circle size={20} color="white" />
+				<Circle size={20} color={theme.colors.background} />
 			{:else}
 				<Play />
 			{/if}

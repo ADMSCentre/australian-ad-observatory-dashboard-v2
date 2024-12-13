@@ -5,6 +5,7 @@
 	import { useDashboardAPI } from '$lib/api/use-dashboard';
 	import { Circle } from 'svelte-loading-spinners';
 	import * as Carousel from '$lib/components/ui/carousel/index.js';
+	import { theme } from '$lib/states/theme.svelte';
 
 	const auth = getAuthState();
 
@@ -28,7 +29,7 @@
 		} = await useDashboardAPI({
 			actionType: 'presign',
 			data: {
-				session_token: auth.currentUser?.token,
+				session_token: auth.token,
 				media: mediaImages.map(([mediaId, imageUrl]) => imageUrl).flat(),
 				json: []
 			}
@@ -72,9 +73,9 @@
 				>
 			</div>
 		{/if}
-		<div class=" flex flex-1 items-center justify-center bg-black">
+		<div class=" flex flex-1 items-center justify-center bg-foreground">
 			{#await imageUrls}
-				<Circle size="100" color="white" />
+				<Circle size="100" color={theme.colors.background} />
 			{:then urls}
 				<Carousel.Root>
 					<Carousel.Content>

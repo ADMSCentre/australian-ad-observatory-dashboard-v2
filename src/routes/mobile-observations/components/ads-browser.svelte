@@ -80,7 +80,7 @@
 		<Accordion {open} class="w-full">
 			{#snippet summary(open)}
 				<div
-					class="sticky top-0 z-10 flex w-full cursor-pointer items-center gap-2 border-b bg-white bg-opacity-50 p-2 text-left font-medium backdrop-blur-sm"
+					class="sticky top-0 z-10 flex w-full cursor-pointer items-center gap-2 border-b bg-background bg-opacity-50 p-2 text-left font-medium backdrop-blur-sm"
 				>
 					<ChevronRight class={twMerge('size-4 transition', open ? 'rotate-90 transform' : '')} />
 					{date} ({adData.length} ad{adData.length > 1 ? 's' : ''})

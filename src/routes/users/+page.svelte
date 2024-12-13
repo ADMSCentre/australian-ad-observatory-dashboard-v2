@@ -6,6 +6,7 @@
 	import UserTable from './user-table.svelte';
 	import { data } from './columns.svelte';
 	import { Circle } from 'svelte-loading-spinners';
+	import { theme } from '$lib/states/theme.svelte';
 
 	const auth = getAuthState();
 	let loading = $state(true);
@@ -184,7 +185,7 @@
 
 <div class="flex w-full flex-col items-center">
 	{#if loading}
-		<Circle color="black" />
+		<Circle color={theme.colors.foreground} />
 	{:else}
 		<UserTable />
 	{/if}

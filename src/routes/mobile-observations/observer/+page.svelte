@@ -19,6 +19,7 @@
 	import ObservationsTimeline from '../components/observations-timeline.svelte';
 	import { withBase } from '$lib/utils';
 	import { twMerge } from 'tailwind-merge';
+	import { theme } from '$lib/states/theme.svelte';
 
 	const participantId = $page.url.searchParams.get('observer_id') || '';
 	const auth = getAuthState();
@@ -54,13 +55,13 @@
 	</div>
 	<div
 		class={twMerge(
-			'fixed bottom-2 right-2 z-[100] flex w-fit items-center border bg-white bg-opacity-50 px-4 py-2 shadow backdrop-blur-sm transition-all',
+			'fixed bottom-2 right-2 z-40 flex w-fit items-center border bg-background bg-opacity-50 px-4 py-2 shadow backdrop-blur-sm transition-all',
 			isToolboxOpen ? 'translate-x-0' : 'translate-x-full'
 		)}
 	>
 		<button
 			onclick={() => (isToolboxOpen = !isToolboxOpen)}
-			class="absolute left-0 -mr-2 -translate-x-1/2 rounded bg-white"
+			class="absolute left-0 -mr-2 -translate-x-1/2 rounded bg-background"
 		>
 			{#if isToolboxOpen}
 				<ChevronRightSquare />
@@ -85,7 +86,7 @@
 	<!-- <ObserverOverview observerId={participantId} /> -->
 	{#if !ads || ads.length === 0}
 		<div class="flex size-full items-center justify-center">
-			<Circle size="200" color="black" />
+			<Circle size="200" color={theme.colors.foreground} />
 		</div>
 	{:else}
 		<ObservationsTimeline {ads} />

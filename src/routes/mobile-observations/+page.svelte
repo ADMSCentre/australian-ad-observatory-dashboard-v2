@@ -4,6 +4,7 @@
 	import { listAllAds } from '$lib/api/mobile-observations';
 	import MobileObservationsDashboard from './mobile-observations-dashboard.svelte';
 	import type { RichAdData } from './types';
+	import { theme } from '$lib/states/theme.svelte';
 	// import { parseAdsIndex } from './utils';
 	const auth = getAuthState();
 	let ads = $state<RichAdData[]>([]);
@@ -37,7 +38,7 @@
 
 	{#if isLoading}
 		<div class="flex size-full items-center justify-center">
-			<Circle size="200" color="black" />
+			<Circle size="200" color={theme.colors.foreground} />
 		</div>
 	{:else if !ads || ads.length === 0}
 		<div>No data available.</div>
