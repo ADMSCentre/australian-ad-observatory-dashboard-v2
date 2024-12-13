@@ -83,12 +83,15 @@
 					}
 				]
 			},
-			onEdit: (value: string) => {
-				formData = {
-					...formData,
-					role: value as 'admin' | 'user'
-				};
-			}
+			onEdit:
+				formData?.role === 'admin'
+					? (value: string) => {
+							formData = {
+								...formData,
+								role: value as 'admin' | 'user'
+							};
+						}
+					: undefined
 		}
 	]);
 
@@ -146,6 +149,11 @@
 		isEditLoading = false;
 		if (error) {
 			console.error(error);
+			pushToast({
+				message: 'Failed to update user profile',
+				type: 'error',
+				timeout: 5000
+			});
 			return;
 		}
 		pushToast({
@@ -200,7 +208,7 @@
 {#if !formData}
 	<PageLoader />
 {:else}
-	<section class="flex size-full flex-col items-center gap-8">
+	<section class="flex size-full flex-col items-center gap-8 px-4">
 		<div class="flex flex-col items-center">
 			<UserCircle size={128} />
 			<h2>{formData.full_name}</h2>
