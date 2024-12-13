@@ -72,7 +72,8 @@
 						title: {
 							display: true,
 							text: 'Date'
-						}
+						},
+						reverse: indexAxis === 'y' // order top-to-bottom if vertical
 					},
 					[valueAxis]: {
 						beginAtZero: true

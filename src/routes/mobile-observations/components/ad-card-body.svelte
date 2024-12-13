@@ -132,9 +132,10 @@
 
 <!-- Body -->
 <div class="flex w-fit flex-col gap-2">
+	<!-- Main image -->
 	<div
 		class={twMerge(
-			'group flex min-h-40  max-w-full flex-auto transform flex-col gap-2 overflow-hidden rounded border-4 border-transparent shadow-lg transition-transform hover:border-inherit',
+			'group flex min-h-40  max-w-full flex-auto transform flex-col gap-2 overflow-hidden rounded border-4 border-transparent shadow-lg transition-transform hover:border-inherit dark:shadow-zinc-800',
 			className
 		)}
 	>
@@ -226,6 +227,7 @@
 		</div>
 	</div>
 
+	<!-- Controls -->
 	{#if frames && frames.length > 1}
 		<div class="flex w-full gap-2 pr-2">
 			<Button

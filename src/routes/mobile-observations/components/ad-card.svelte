@@ -49,7 +49,7 @@
 <IntersectionObserverSvelte {element} threshold={0.25} once bind:intersecting>
 	<div
 		class={twMerge(
-			'mb-4 flex w-fit break-inside-avoid flex-col gap-2 rounded border bg-gray-100 p-4 dark:bg-zinc-800',
+			'mb-4 flex w-fit break-inside-avoid flex-col gap-2 rounded border bg-zinc-50 p-4 content-visibility-auto dark:bg-zinc-900',
 			adData.attributes?.hidden?.value && 'opacity-35',
 			className
 		)}
@@ -84,7 +84,7 @@
 			</div>
 		</div>
 
-		<AdCardBody {adData} visible={intersecting} {framesMode} />
+		<AdCardBody bind:adData visible={intersecting} {framesMode} />
 
 		<div class="w-full text-2xs">
 			{#if framesMode === 'raw'}

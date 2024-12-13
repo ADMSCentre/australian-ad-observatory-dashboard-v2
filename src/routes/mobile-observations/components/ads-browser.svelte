@@ -73,10 +73,12 @@
 		currentAd = ad;
 		richViewExpanded = true;
 	};
+	const maxAdsCount = $derived(Math.max(...groupedAds.map(([, ads]) => ads.length)));
 </script>
 
 <div class="relative flex flex-col gap-4">
 	{#each groupedAds as [date, adData]}
+		{@const adCountBarWidth = (adData.length / maxAdsCount) * 100 + '%'}
 		<Accordion {open} class="w-full">
 			{#snippet summary(open)}
 				<div
@@ -84,6 +86,11 @@
 				>
 					<ChevronRight class={twMerge('size-4 transition', open ? 'rotate-90 transform' : '')} />
 					{date} ({adData.length} ad{adData.length > 1 ? 's' : ''})
+					<!-- Ad count bar background -->
+					<div
+						class="absolute left-0 top-0 h-full bg-gradient-to-r from-foreground/25 to-transparent"
+						style={`width: ${adCountBarWidth}`}
+					></div>
 				</div>
 			{/snippet}
 			<div
