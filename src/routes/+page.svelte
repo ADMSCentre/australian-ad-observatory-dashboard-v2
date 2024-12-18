@@ -23,6 +23,10 @@
 				day: 'numeric'
 			});
 
+		if (ads.length === 0) {
+			return null;
+		}
+
 		return {
 			count: ads.length,
 			period: {
@@ -66,26 +70,28 @@
 				/>
 				{#await ads then ads}
 					{@const summary = summarise(ads)}
-					<div
-						class="summary absolute bottom-0 flex flex-wrap items-end gap-2 p-2 text-xs font-medium"
-					>
-						<span class="summary-tag">
-							<User size={14} />
-							{summary.observersCount}
-						</span>
-						<span class="summary-tag">
-							<Database size={14} />
-							{summary.count} ads
-						</span>
-						<span class="summary-tag">
-							{summary.recentCount} last 24h
-						</span>
+					{#if summary !== null}
+						<div
+							class="summary absolute bottom-0 flex flex-wrap items-end gap-2 p-2 text-xs font-medium"
+						>
+							<span class="summary-tag">
+								<User size={14} />
+								{summary.observersCount}
+							</span>
+							<span class="summary-tag">
+								<Database size={14} />
+								{summary.count} ads
+							</span>
+							<span class="summary-tag">
+								{summary.recentCount} last 24h
+							</span>
 
-						<span class="summary-tag">
-							<CalendarDaysIcon size={14} />
-							{summary.period.start} - {summary.period.end}
-						</span>
-					</div>
+							<span class="summary-tag">
+								<CalendarDaysIcon size={14} />
+								{summary.period.start} - {summary.period.end}
+							</span>
+						</div>
+					{/if}
 				{/await}
 			</div>
 			<div class="p-2 font-bold">Mobile Ads Observatory</div>
