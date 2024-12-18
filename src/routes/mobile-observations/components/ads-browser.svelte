@@ -10,7 +10,7 @@
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import { getExpandedRowModel } from '@tanstack/table-core';
 	import AdCardBody from './ad-card-body.svelte';
-	import AdRichView from './ad-rich-view.svelte';
+	import AdRichView from './rich-view/ad-rich-view.svelte';
 
 	type Props = {
 		ads: RichAdData[];

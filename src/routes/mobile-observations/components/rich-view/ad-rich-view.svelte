@@ -5,9 +5,10 @@
 	import Codemirror from 'svelte-codemirror-editor';
 	import { json } from '@codemirror/lang-json';
 
-	import type { RichAdData } from '../types';
-	import { fetchRichDataObject } from '../utils';
-	import AdCardBody from './ad-card-body.svelte';
+	import type { RichAdData } from '../../types';
+	import { fetchRichDataObject } from '../../utils';
+	import AdCardBody from '../ad-card-body.svelte';
+	import OcrView from './ocr-view.svelte';
 
 	let {
 		richViewExpanded = $bindable(false),
@@ -24,6 +25,21 @@
 			if (!currentAd || !auth.token) return;
 			currentAd.richDataObject = await fetchRichDataObject(currentAd, auth.token);
 		})();
+	});
+
+	const keyframes = $derived(currentAd?.richDataObject?.observation.keyframes || null);
+	const adDimension = $derived(currentAd?.richDataObject?.observation.ad_dimensions || null);
+	// const imagePath = $derived.by(() => {
+	// 	if (!currentAd || !currentAd.richDataObject) return null;
+	// 	return `${currentAd?.richDataObject.observer.uuid}/tempt/${currentAd?.richDataObject.observation.uuid}/`;
+	// });
+	const observationId = $derived.by(() => {
+		if (!currentAd || !currentAd.richDataObject) return null;
+		return currentAd.richDataObject.observation.uuid;
+	});
+	const observerId = $derived.by(() => {
+		if (!currentAd || !currentAd.richDataObject) return null;
+		return currentAd.richDataObject.observer.uuid;
 	});
 </script>
 
@@ -75,6 +91,7 @@
 			<Tabs.Root value="captured-ad">
 				<Tabs.List>
 					<Tabs.Trigger value="captured-ad">Captured Ad</Tabs.Trigger>
+					<Tabs.Trigger value="ocr-data">OCR Data</Tabs.Trigger>
 					<Tabs.Trigger value="rich-data">Rich Data Object</Tabs.Trigger>
 				</Tabs.List>
 				<Tabs.Content value="captured-ad">
@@ -82,6 +99,11 @@
 						{@render originalAd()}
 						{@render stitchedAd()}
 					</div>
+				</Tabs.Content>
+				<Tabs.Content value="ocr-data">
+					{#if keyframes && adDimension && observationId && observerId}
+						<OcrView {keyframes} {adDimension} {observationId} {observerId} />
+					{/if}
 				</Tabs.Content>
 				<Tabs.Content value="rich-data">
 					{@render richDataJson()}

@@ -9,16 +9,17 @@ export const dateToCalendarDate = (date: Date) => {
 	return new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
 };
 
-export const parseTime = (timestamp: string | number) => {
+export const parseTime = (timestamp: string | number, options?: Intl.DateTimeFormatOptions) => {
 	// const date = new Date(parseInt(timestamp));
 	const date = new Date(+timestamp);
-	const options = {
+	const opts = {
 		year: '2-digit' as const,
 		month: 'numeric' as const,
 		day: 'numeric' as const,
-		weekday: 'long' as const
+		weekday: 'long' as const,
+		...options
 	};
-	return new Intl.DateTimeFormat('en-GB', options).format(date);
+	return new Intl.DateTimeFormat('en-GB', opts).format(date);
 };
 
 export const parseAdsIndex = (index: ObservationIndex) => {
@@ -112,7 +113,14 @@ export const fetchRichDataObject = async (
 	});
 };
 
-export const fetchStitchFrames = async (adData: BasicAdData, token: string): Promise<string[]> => {
+export const fetchStitchFrames = async (
+	adData: {
+		observer: string;
+		timestamp: number;
+		adId: string;
+	},
+	token: string
+): Promise<string[]> => {
 	const url = '/ads/{observer_id}/{timestamp}.{ad_id}/stitching/frames';
 	const options = {
 		headers: {

@@ -4,7 +4,7 @@ import {
 	type ExpandType
 } from '../../routes/mobile-observations/utils';
 import { client, runWithCache, generateCacheKey } from '$lib/api/client';
-import type { BasicAdData, RichAdData } from '../../routes/mobile-observations/types';
+import type { RichAdData } from '../../routes/mobile-observations/types';
 
 export type ObservationIndex = {
 	[key: string]: { observer: string; timestamp: string; adId: string; path: string }[];
@@ -109,7 +109,14 @@ export const listAdsForObserver = async (
 	return ads.filter((ad) => filters.every((filter) => filter(ad)));
 };
 
-export const getAdFrameUrls = async (token: string, adData: BasicAdData) => {
+export const getAdFrameUrls = async (
+	token: string,
+	adData: {
+		observer: string;
+		timestamp: number;
+		adId: string;
+	}
+) => {
 	const url = '/ads/{observer_id}/{timestamp}.{ad_id}/frames';
 	const options = {
 		headers: {
