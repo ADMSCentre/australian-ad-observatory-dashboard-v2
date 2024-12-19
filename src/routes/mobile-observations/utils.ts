@@ -9,7 +9,10 @@ export const dateToCalendarDate = (date: Date) => {
 	return new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
 };
 
-export const parseTime = (timestamp: string | number, options?: Intl.DateTimeFormatOptions) => {
+export const formatTimestamp = (
+	timestamp: string | number,
+	options?: Intl.DateTimeFormatOptions
+) => {
 	// const date = new Date(parseInt(timestamp));
 	const date = new Date(+timestamp);
 	const opts = {
@@ -146,6 +149,37 @@ export const fetchStitchFrames = async (
 		},
 		cache: async (data) => {
 			const urlParams = new URLSearchParams(data[0]);
+			const expireAt = urlParams.get('Expires') || -1;
+			const expireAtMs = expireAt !== -1 && +expireAt * 1000;
+			return { data, expireAt: +expireAtMs };
+		}
+	});
+};
+
+export const fetchMedia = async (path: string, token: string) => {
+	const url = `/medias`;
+	const options = {
+		headers: {
+			Authorization: `Bearer ${token}`
+		},
+		params: {
+			query: {
+				path: path
+			}
+		}
+	};
+
+	return await runWithCache<string>({
+		cacheKey: generateCacheKey(url, options),
+		run: async () => {
+			const { data, error } = await client.GET(url, options);
+			if (!data?.success || !data.presigned_url || error) {
+				return '';
+			}
+			return data.presigned_url;
+		},
+		cache: async (data) => {
+			const urlParams = new URLSearchParams(data);
 			const expireAt = urlParams.get('Expires') || -1;
 			const expireAtMs = expireAt !== -1 && +expireAt * 1000;
 			return { data, expireAt: +expireAtMs };

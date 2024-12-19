@@ -1180,6 +1180,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/medias": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a media file from S3 from a given path in the query string.
+         * @description The path should be a key in the S3 bucket.
+         */
+        get: {
+            parameters: {
+                query: {
+                    /** @description The path to the media file in the S3 bucket */
+                    path: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example true */
+                            success?: boolean;
+                            path?: string;
+                            url?: string;
+                        };
+                    };
+                };
+                /** @description File not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example FILE_NOT_FOUND */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reflect": {
         parameters: {
             query?: never;

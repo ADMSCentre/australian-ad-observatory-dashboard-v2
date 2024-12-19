@@ -2,7 +2,7 @@
 	import AgGrid from '$lib/components/ag-grid/ag-grid.svelte';
 	import type { DateRange } from 'bits-ui';
 	import type { BasicAdData } from '../types';
-	import { dateToCalendarDate, parseTime } from '../utils';
+	import { dateToCalendarDate, formatTimestamp } from '../utils';
 	import { withBase } from '$lib/utils';
 
 	const {
@@ -24,7 +24,7 @@
 				return calendarDate >= dateRange.start && calendarDate <= dateRange.end;
 			})
 			.reduce((acc, timestamp) => {
-				const dateString = parseTime(timestamp);
+				const dateString = formatTimestamp(timestamp);
 				if (!acc.includes(dateString)) {
 					acc.push(dateString);
 				}
@@ -51,7 +51,7 @@
 					result[ad.observer][time] = [];
 				});
 			}
-			const dateString = parseTime(ad.timestamp);
+			const dateString = formatTimestamp(ad.timestamp);
 			result[ad.observer][dateString]?.push({
 				adId: ad.adId,
 				timestamp: ad.timestamp,

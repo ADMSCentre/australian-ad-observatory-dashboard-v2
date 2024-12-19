@@ -9,6 +9,8 @@
 	import { fetchRichDataObject } from '../../utils';
 	import AdCardBody from '../ad-card-body.svelte';
 	import OcrView from './ocr-view.svelte';
+	import CandidatesView from './candidates-view.svelte';
+	import type { MediaSource } from '../../rich-data-object-type';
 
 	let {
 		richViewExpanded = $bindable(false),
@@ -40,6 +42,35 @@
 	const observerId = $derived.by(() => {
 		if (!currentAd || !currentAd.richDataObject) return null;
 		return currentAd.richDataObject.observer.uuid;
+	});
+	const candidates = $derived.by(() => {
+		if (!currentAd || !currentAd.richDataObject) return null;
+		return currentAd.richDataObject.enrichment.meta_adlibrary_scrape.candidates;
+	});
+	const rankings = $derived.by(() => {
+		if (!currentAd || !currentAd.richDataObject) return null;
+		return currentAd.richDataObject.enrichment.meta_adlibrary_scrape.rankings;
+	});
+	const mediaMapping = $derived.by(() => {
+		if (!currentAd || !currentAd.richDataObject) return null;
+		const scrapeReference =
+			currentAd.richDataObject.enrichment.meta_adlibrary_scrape.reference.scrape;
+
+		const scrapeSources = {
+			...currentAd.richDataObject.enrichment.meta_adlibrary_scrape.comparisons.image
+				.ad_scrape_sources,
+			...currentAd.richDataObject.enrichment.meta_adlibrary_scrape.comparisons.video
+				.ad_scrape_sources
+		};
+		return Object.entries(scrapeSources).reduce(
+			(acc, [path, mediaObj]) => {
+				const mediaUrl = mediaObj.media_url;
+				const fullPath = `${scrapeReference.observer_uuid}/meta_adlibrary_scrape/${scrapeReference.tentative_ad}/${path}`;
+				acc[mediaUrl] = { ...mediaObj, filename: path, fullPath };
+				return acc;
+			},
+			{} as Record<string, MediaSource & { filename: string; fullPath: string }>
+		);
 	});
 </script>
 
@@ -90,9 +121,10 @@
 			</Sheet.Header>
 			<Tabs.Root value="captured-ad">
 				<Tabs.List>
-					<Tabs.Trigger value="captured-ad">Captured Ad</Tabs.Trigger>
-					<Tabs.Trigger value="ocr-data">OCR Data</Tabs.Trigger>
-					<Tabs.Trigger value="rich-data">Rich Data Object</Tabs.Trigger>
+					<Tabs.Trigger value="captured-ad">Capture</Tabs.Trigger>
+					<Tabs.Trigger value="ocr-data">OCR</Tabs.Trigger>
+					<Tabs.Trigger value="candidate-ads">Candidates</Tabs.Trigger>
+					<Tabs.Trigger value="rich-data">JSON</Tabs.Trigger>
 				</Tabs.List>
 				<Tabs.Content value="captured-ad">
 					<div class="flex flex-col gap-2 md:flex-row">
@@ -103,6 +135,11 @@
 				<Tabs.Content value="ocr-data">
 					{#if keyframes && adDimension && observationId && observerId}
 						<OcrView {keyframes} {adDimension} {observationId} {observerId} />
+					{/if}
+				</Tabs.Content>
+				<Tabs.Content value="candidate-ads">
+					{#if candidates && rankings && mediaMapping}
+						<CandidatesView {candidates} {rankings} {mediaMapping} />
 					{/if}
 				</Tabs.Content>
 				<Tabs.Content value="rich-data">

@@ -166,6 +166,7 @@ export interface Card {
 	video_sd_url: null;
 	watermarked_video_hd_url: null;
 	watermarked_video_sd_url: null;
+	[key: string]: string | unknown;
 }
 
 export enum CtaType {
@@ -187,10 +188,11 @@ export enum DisplayFormat {
 }
 
 export interface ImageElement {
-	original_image_url: string;
-	resized_image_url: string;
-	watermarked_resized_image_url: string;
-	image_crops: unknown[];
+	// original_image_url: string;
+	// resized_image_url: string;
+	// watermarked_resized_image_url: string;
+	// image_crops: unknown[];
+	[key: string]: string;
 }
 
 export enum PageCategory {
@@ -198,11 +200,12 @@ export enum PageCategory {
 }
 
 export interface VideoElement {
-	video_hd_url: string;
-	video_preview_image_url: string;
-	video_sd_url: string;
-	watermarked_video_hd_url: string;
-	watermarked_video_sd_url: string;
+	// video_hd_url: string;
+	// video_preview_image_url: string;
+	// video_sd_url: string;
+	// watermarked_video_hd_url: string;
+	// watermarked_video_sd_url: string;
+	[key: string]: string;
 }
 
 export interface Comparisons {

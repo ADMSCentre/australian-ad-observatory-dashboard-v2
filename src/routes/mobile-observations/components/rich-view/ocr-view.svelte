@@ -4,7 +4,7 @@
 	import { Slider } from '$lib/components/ui/slider';
 	import { twMerge } from 'tailwind-merge';
 	import type { RichDataObject } from '../../rich-data-object-type';
-	import { fetchStitchFrames, parseTime } from '../../utils';
+	import { fetchStitchFrames, formatTimestamp } from '../../utils';
 
 	type Keyframe = RichDataObject['observation']['keyframes'][0];
 	type AdDimension = RichDataObject['observation']['ad_dimensions'];
@@ -166,7 +166,7 @@
 
 <div class="flex max-w-md flex-col gap-2">
 	<span>
-		{parseTime((currentKeyframe?.observed_at || 0) * 1000, {
+		{formatTimestamp((currentKeyframe?.observed_at || 0) * 1000, {
 			hour: 'numeric',
 			minute: 'numeric',
 			second: 'numeric',
