@@ -2,6 +2,7 @@
 	import { getAuthState } from '$lib/api/auth.svelte';
 	import { getAdFrameUrls } from '$lib/api/mobile-observations';
 	import { Slider } from '$lib/components/ui/slider';
+	import { twMerge } from 'tailwind-merge';
 	import type { RichDataObject } from '../../rich-data-object-type';
 	import { fetchStitchFrames, parseTime } from '../../utils';
 
@@ -24,24 +25,68 @@
 	let container = $state<HTMLDivElement | null>(null);
 
 	let currentIndex = $state(0);
-	let currentKeyframe = $derived.by(() => {
-		return keyframes[currentIndex];
-	});
+	let currentKeyframe = $derived(keyframes[currentIndex]);
 
 	const aspectRatio = $derived(adDimension.w / adDimension.h);
-	const ocrData = $derived.by(() => {
-		if (!currentKeyframe) return null;
-		return currentKeyframe.ocr_data;
-	});
 
 	const onSliderChange = (values: number[]) => {
 		currentIndex = values[0];
 	};
 
-	const scale = (value: number) => {
-		if (!container) return 0;
-		return (value / adDimension.w) * container.clientWidth;
+	const scaledOcrData = $derived.by(() => {
+		if (!currentKeyframe) return [];
+		// Scale a value to a percentage relative to the initial ad dimensions
+		const scale = (value: number, dimension: 'w' | 'h' = 'w') =>
+			(value / (dimension === 'w' ? adDimension.w : adDimension.h)) * 100;
+
+		// Convert all values to percentage for responsiveness
+		return currentKeyframe.ocr_data.map((ocrBox) => ({
+			...ocrBox,
+			x: scale(ocrBox.x),
+			y: scale(ocrBox.y, 'h'),
+			w: scale(ocrBox.w),
+			h: scale(ocrBox.h, 'h')
+		}));
+	});
+
+	// Count all the text values in all the frames
+	type TextAppearance = {
+		text: string;
+		containingFrames: {
+			url: string;
+			index: number;
+			confidence: number;
+		}[];
 	};
+	const textValues: TextAppearance[] = $derived.by(() => {
+		if (!keyframes) return [];
+		return keyframes
+			.reduce((acc, keyframe, index) => {
+				keyframe.ocr_data.forEach((ocrBox) => {
+					const existing = acc.find((text) => text.text === ocrBox.text);
+					if (existing) {
+						existing.containingFrames.push({
+							url: keyframe.screenshot_cropped,
+							index,
+							confidence: ocrBox.confidence
+						});
+					} else {
+						acc.push({
+							text: ocrBox.text,
+							containingFrames: [
+								{
+									url: keyframe.screenshot_cropped,
+									index,
+									confidence: ocrBox.confidence
+								}
+							]
+						});
+					}
+				});
+				return acc;
+			}, [] as TextAppearance[])
+			.toSorted((a, b) => b.containingFrames.length - a.containingFrames.length);
+	});
 
 	const confidenceColor = (confidence: number) => {
 		// Hue from red to green
@@ -68,9 +113,13 @@
 			return urls;
 		})();
 	});
+
+	// Feature to link the extracted text to the text in the current frame
+	let linkedTexts = $state<string[]>([]);
+	const isLinked = (text: string) => linkedTexts.includes(text);
 </script>
 
-{#snippet box({
+{#snippet textbox({
 	x,
 	y,
 	w,
@@ -86,20 +135,36 @@
 	confidence: number;
 })}
 	<div
-		class="absolute border border-foreground"
-		style={`left: ${scale(x)}px; top: ${scale(y)}px; width: ${scale(w)}px; height: ${scale(h)}px;`}
+		class={twMerge(
+			'bg-brand group absolute box-border border-2 bg-opacity-0 hover:bg-opacity-15',
+			isLinked(text) && 'bg-opacity-15'
+		)}
+		style={`left: ${x}%; top: ${y}%; width: ${w}%; height: ${h}%; border-color: ${confidenceColor(confidence)};`}
 	>
-		<div class="border-foreground bg-background bg-opacity-70 text-xs text-foreground shadow">
+		<div
+			class={twMerge(
+				'pointer-events-none absolute top-full z-20 size-full border-foreground bg-background text-center text-xs text-foreground opacity-0 shadow group-hover:opacity-100',
+				isLinked(text) && 'opacity-100'
+			)}
+		>
 			{text}
 		</div>
+
+		<!-- confidence label -->
 		<div
-			class="absolute h-0.5 text-xs text-foreground"
-			style={`background-color: ${confidenceColor(confidence)}; width: ${confidence * 100}%;`}
-		></div>
+			class="absolute left-full top-0 z-10 rounded-r border-2 px-0.5 text-3xs text-foreground"
+			style={`border-color: ${confidenceColor(confidence)};`}
+		>
+			{(confidence * 100).toFixed(0)}%
+			<div
+				class="absolute left-0 top-0 size-full opacity-15"
+				style={`background-color: ${confidenceColor(confidence)};`}
+			></div>
+		</div>
 	</div>
 {/snippet}
 
-<div class="flex max-w-sm flex-col gap-2">
+<div class="flex max-w-md flex-col gap-2">
 	<span>
 		{parseTime((currentKeyframe?.observed_at || 0) * 1000, {
 			hour: 'numeric',
@@ -108,23 +173,51 @@
 			fractionalSecondDigits: 1
 		})}
 	</span>
-	<div style={`aspect-ratio: ${aspectRatio};`} class="relative border" bind:this={container}>
-		{#if frames && frames.length && frames.length > 0}
-			<img src={frames[currentIndex]} alt="Ad frame" class="object-cover opacity-50" />
-		{/if}
-		{#if ocrData}
-			{#each ocrData as ocrBox}
-				{@render box(ocrBox)}
-			{/each}
-		{/if}
+
+	<!-- Keyframes player -->
+	<div class="contents">
+		<div style={`aspect-ratio: ${aspectRatio};`} class="relative shadow" bind:this={container}>
+			{#if frames && frames.length && frames.length > 0}
+				<img src={frames[currentIndex]} alt="Ad frame" class="object-cover" />
+				{#each scaledOcrData as ocrBox}
+					{@render textbox(ocrBox)}
+				{/each}
+			{/if}
+		</div>
+
+		<Slider
+			min={0}
+			max={keyframes.length - 1}
+			step={1}
+			onValueChange={onSliderChange}
+			value={[currentIndex]}
+			class="accent-back flex-1"
+		/>
 	</div>
 
-	<Slider
-		min={0}
-		max={keyframes.length - 1}
-		step={1}
-		onValueChange={onSliderChange}
-		value={[currentIndex]}
-		class="accent-back flex-1"
-	/>
+	<!-- Extracted text -->
+	<h2 class="text-lg">Extracted Text</h2>
+	<div class="flex flex-wrap gap-2">
+		{#each Object.values(textValues) as { text, containingFrames }}
+			{@const label = containingFrames.length > 1 ? 'frames' : 'frame'}
+			{@const active = containingFrames.some((frame) => frame.index === currentIndex)}
+			<button
+				type="button"
+				class={twMerge(
+					'flex cursor-auto flex-col gap-1 rounded px-1 shadow-sm',
+					active && 'bg-brand bg-opacity-15'
+				)}
+				onmouseenter={() => linkedTexts.push(text)}
+				onmouseleave={() => (linkedTexts = linkedTexts.filter((t) => t !== text))}
+			>
+				<div class="flex items-center gap-1">
+					<span class="text-nowrap">{text}</span>
+					<span class="text-3xs text-muted-foreground"> ({containingFrames.length} {label})</span>
+				</div>
+			</button>
+		{/each}
+	</div>
+
+	<!-- <pre>{JSON.stringify(currentKeyframe, null, 2)}</pre> -->
+	<!-- <pre>{JSON.stringify(textValues, null, 2)}</pre> -->
 </div>
