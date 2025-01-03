@@ -65,7 +65,11 @@
 	)}
 >
 	<div class="flex w-full items-center justify-between">
-		<Sidebar.Trigger />
+		<span>
+			{#if !auth.isGuest}
+				<Sidebar.Trigger />
+			{/if}
+		</span>
 		<div class="flex items-center gap-4">
 			{@render themeModeSwitch()}
 
@@ -75,8 +79,10 @@
 					<span> Authenticating... </span>
 				</div>
 			{:else if auth.currentUser}
-				<p>Hello <span class=" font-semibold">{auth.currentUser.full_name}</span>!</p>
-				<Button variant="outline" type="button" onclick={onLogout}>Logout</Button>
+				{#if !auth.isGuest}
+					<p>Hello <span class=" font-semibold">{auth.currentUser.full_name}</span>!</p>
+					<Button variant="outline" type="button" onclick={onLogout}>Logout</Button>
+				{/if}
 			{:else}
 				<Button variant="outline" href={withBase('login')}>Login</Button>
 			{/if}

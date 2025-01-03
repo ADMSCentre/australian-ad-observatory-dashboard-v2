@@ -86,29 +86,32 @@
 
 		<AdCardBody bind:adData visible={intersecting} {framesMode} />
 
-		<div class="w-full text-2xs">
-			{#if framesMode === 'raw'}
-				<Button
-					variant="outline"
-					size="sm"
-					class="size-fit p-1.5"
-					onclick={() => (framesMode = 'stitched')}
-				>
-					<GalleryHorizontal /> Full Mode
-				</Button>
-				<p>All parts of the recording are shown</p>
-			{:else}
-				<Button
-					variant="outline"
-					size="sm"
-					class="size-fit p-1.5"
-					onclick={() => (framesMode = 'raw')}
-				>
-					<SquareBottomDashedScissors /> Cropped Mode
-				</Button>
-				<p>Only the ad content is shown</p>
-			{/if}
-		</div>
+		{#if !auth.isGuest}
+			<div class="w-full text-2xs">
+				{#if framesMode === 'raw'}
+					<Button
+						variant="outline"
+						size="sm"
+						class="size-fit p-1.5"
+						onclick={() => (framesMode = 'stitched')}
+					>
+						<GalleryHorizontal /> Full Mode
+					</Button>
+					<p>All parts of the recording are shown</p>
+				{:else}
+					<Button
+						variant="outline"
+						size="sm"
+						class="size-fit p-1.5"
+						onclick={() => (framesMode = 'raw')}
+					>
+						<SquareBottomDashedScissors /> Cropped Mode
+					</Button>
+					<p>Only the ad content is shown</p>
+				{/if}
+			</div>
+		{/if}
+
 		<!-- Footer -->
 		<div class="flex items-center justify-between gap-2"></div>
 	</div>

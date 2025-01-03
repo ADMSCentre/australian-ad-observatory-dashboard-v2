@@ -61,13 +61,14 @@
 	});
 
 	const syncAttributes = async () => {
-		if (!auth.token) return;
+		if (!auth.token) return {};
 		try {
 			isUpdatingAttributes = true;
 			const attributes = await fetchAttributes(adData, auth.token);
 			return attributes;
 		} catch (error) {
 			console.error(error);
+			return {};
 		} finally {
 			isUpdatingAttributes = false;
 		}
@@ -190,39 +191,42 @@
 						</Dialog.Content>
 					</Dialog.Root>
 				</div>
-				<div class="mr-1 flex flex-col">
-					<Button
-						variant="ghost"
-						size="sm"
-						class="size-full p-2"
-						disabled={!adData.attributes || isUpdatingAttributes}
-						onclick={() => {
-							setAttribute('starred', !adData.attributes?.starred?.value);
-						}}
-					>
-						<!-- <Star class="!size-5 drop-shadow-strong" /> -->
-						{#if adData.attributes?.starred?.value}
-							<Star class="!size-5 drop-shadow-strong" fill="gold" stroke="gold" />
-						{:else}
-							<Star class="!size-5 drop-shadow-strong" />
-						{/if}
-					</Button>
-					<Button
-						variant="ghost"
-						size="sm"
-						class="size-full p-2"
-						onclick={() => {
-							setAttribute('hidden', !adData.attributes?.hidden?.value);
-						}}
-						disabled={!adData.attributes || isUpdatingAttributes}
-					>
-						{#if adData.attributes?.hidden?.value}
-							<EyeOff class="!size-5 drop-shadow-strong" />
-						{:else}
-							<Eye class="!size-5 drop-shadow-strong" />
-						{/if}
-					</Button>
-				</div>
+
+				{#if !auth.isGuest}
+					<div class="mr-1 flex flex-col">
+						<Button
+							variant="ghost"
+							size="sm"
+							class="size-full p-2"
+							disabled={!adData.attributes || isUpdatingAttributes}
+							onclick={() => {
+								setAttribute('starred', !adData.attributes?.starred?.value);
+							}}
+						>
+							<!-- <Star class="!size-5 drop-shadow-strong" /> -->
+							{#if adData.attributes?.starred?.value}
+								<Star class="!size-5 drop-shadow-strong" fill="gold" stroke="gold" />
+							{:else}
+								<Star class="!size-5 drop-shadow-strong" />
+							{/if}
+						</Button>
+						<Button
+							variant="ghost"
+							size="sm"
+							class="size-full p-2"
+							onclick={() => {
+								setAttribute('hidden', !adData.attributes?.hidden?.value);
+							}}
+							disabled={!adData.attributes || isUpdatingAttributes}
+						>
+							{#if adData.attributes?.hidden?.value}
+								<EyeOff class="!size-5 drop-shadow-strong" />
+							{:else}
+								<Eye class="!size-5 drop-shadow-strong" />
+							{/if}
+						</Button>
+					</div>
+				{/if}
 			</div>
 		</div>
 	</div>

@@ -119,12 +119,16 @@
 					This view shows the Rich Data Object for the current ad.
 				</Sheet.Description>
 			</Sheet.Header>
-			<Tabs.Root value="captured-ad">
+			<Tabs.Root value="ocr-data">
 				<Tabs.List>
-					<Tabs.Trigger value="captured-ad">Capture</Tabs.Trigger>
+					{#if !auth.isGuest}
+						<Tabs.Trigger value="captured-ad">Capture</Tabs.Trigger>
+					{/if}
 					<Tabs.Trigger value="ocr-data">OCR</Tabs.Trigger>
 					<Tabs.Trigger value="candidate-ads">Candidates</Tabs.Trigger>
-					<Tabs.Trigger value="rich-data">JSON</Tabs.Trigger>
+					{#if !auth.isGuest}
+						<Tabs.Trigger value="rich-data">JSON</Tabs.Trigger>
+					{/if}
 				</Tabs.List>
 				<Tabs.Content value="captured-ad">
 					<div class="flex flex-col gap-2 md:flex-row">

@@ -96,9 +96,9 @@ export const fetchAttributes = async (adData: BasicAdData, token: string) => {
 	});
 	if (error) {
 		console.error(error);
-		return;
+		return {};
 	}
-	return data.attributes;
+	return data.attributes || {};
 };
 
 // TODO: Replace with actual API call

@@ -44,6 +44,10 @@ export class Authentication {
 		return payload;
 	});
 
+	isGuest = $derived.by(() => {
+		return !this.currentUser || this.currentUser.role === 'guest';
+	});
+
 	refresh = async () => {
 		const { data, error } = await client.POST('/auth/refresh', {
 			body: {

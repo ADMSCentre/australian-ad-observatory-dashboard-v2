@@ -1,0 +1,21 @@
+{
+	"github.copilot.chat.codeGeneration.instructions": [
+		{
+			"file": "docs/.copilot/svelte-llms-small.md" // svelte documentation
+		},
+		{
+			"file": "docs/.copilot/svelte-style-guide.md"
+		}
+	],
+	"github.copilot.chat.commitMessageGeneration.instructions": [
+		{
+			"text": "Use Australian English spelling."
+		},
+		{
+			"text": "Use conventional commit message format."
+		},
+		{
+			"file": "docs/.copilot/commit-message-instructions.md"
+		}
+	]
+}

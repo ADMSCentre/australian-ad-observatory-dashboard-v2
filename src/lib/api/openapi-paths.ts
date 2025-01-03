@@ -258,8 +258,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Returns a list of users from the database (admin only)
+         * Returns a list of users from the database (admin only) [allows - admin]
          * @description Returns a list of users stored in the database.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
          */
         get: {
             parameters: {
@@ -316,8 +318,10 @@ export interface paths {
         };
         put?: never;
         /**
-         * Create a new user (admin only)
+         * Create a new user (admin only) [allows - admin]
          * @description Create a new user in the database.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
          */
         post: {
             parameters: {
@@ -329,11 +333,11 @@ export interface paths {
             requestBody: {
                 content: {
                     "application/json": {
-                        username?: string;
-                        enabled?: boolean;
-                        password?: string;
-                        full_name?: string;
-                        role?: string;
+                        username: string;
+                        enabled: boolean;
+                        password: string;
+                        full_name: string;
+                        role: string;
                     };
                 };
             };
@@ -394,8 +398,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get a user from the database (self or admin only)
+         * Get a user from the database (self or admin only) [allows - user, admin]
          * @description Get a user's information stored in the database.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
          */
         get: {
             parameters: {
@@ -457,8 +463,10 @@ export interface paths {
         put?: never;
         post?: never;
         /**
-         * Delete a user (admin only)
+         * Delete a user (admin only) [allows - admin]
          * @description Delete a user by moving their data to the recycle bin.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
          */
         delete: {
             parameters: {
@@ -517,8 +525,10 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Edit a user's information (self or admin only)
+         * Edit a user's information (self or admin only) [allows - user, admin]
          * @description Edit a user's information. All fields are optional, and only the fields provided will be updated.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
          */
         patch: {
             parameters: {
@@ -593,8 +603,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get the current user's information
+         * Get the current user's information [allows - user, admin]
          * @description Get the information of the user making the request.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
          */
         get: {
             parameters: {
@@ -903,8 +915,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List all observers.
+         * List all observers. [allows - user, admin]
          * @description Retrieve a list of all observers from the S3 bucket.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
          */
         get: {
             parameters: {
@@ -1010,8 +1024,10 @@ export interface paths {
             };
         };
         /**
-         * Add or update ad attributes in the database.
+         * Add or update ad attributes in the database. [allows - user, admin]
          * @description Add or update custom attributes for the specified ad in the database.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
          */
         put: {
             parameters: {
@@ -1130,8 +1146,10 @@ export interface paths {
         put?: never;
         post?: never;
         /**
-         * Delete ad attributes from the database.
+         * Delete ad attributes from the database. [allows - user, admin]
          * @description Delete custom attributes for the specified ad in the database.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
          */
         delete: {
             parameters: {
@@ -1239,6 +1257,242 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/guests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List all guest sessions. [allows - admin, user]
+         * @description This endpoint requires the authenticated user to have one of the following roles: **admin, user**.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A JSON array containing session data */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            key?: string;
+                            data?: Record<string, never>;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create a guest session. [allows - admin, user]
+         * @description This endpoint requires the authenticated user to have one of the following roles: **admin, user**.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description A unique identifier for the session. */
+                        key?: string;
+                        /** @description The time in seconds until the session expires. */
+                        expiration_time?: number;
+                        /** @description A description of the session. */
+                        description?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description A JSON object containing the session token */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            token?: string;
+                        };
+                    };
+                };
+                /** @description A JSON object containing an error message */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guests/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Retrieve a guest session. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The key of the session. */
+                    key: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A JSON object containing the session token */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            token?: string;
+                        };
+                    };
+                };
+                /** @description A JSON object containing an error message */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Delete a guest session. [allows - admin, user]
+         * @description This endpoint requires the authenticated user to have one of the following roles: **admin, user**.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The key of the session. */
+                    key: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A JSON object indicating success */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description A JSON object containing an error message */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update a guest session. [allows - admin, user]
+         * @description This endpoint requires the authenticated user to have one of the following roles: **admin, user**.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The key of the session. */
+                    key: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description A new description for the session. */
+                        description?: string;
+                        /** @description A new expiration time for the session in seconds. */
+                        expiration_time?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description A JSON object indicating success */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description A JSON object containing an error message */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/reflect": {

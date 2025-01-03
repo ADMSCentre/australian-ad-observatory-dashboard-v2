@@ -28,7 +28,9 @@
 <svelte:body use:classList={theme.mode} />
 
 <Sidebar.Provider class={twMerge('min-h-screen', theme.mode)}>
-	<AppSidebar />
+	{#if !auth.isGuest}
+		<AppSidebar />
+	{/if}
 	<main class="flex h-fit min-h-screen w-full flex-col">
 		<Header />
 		<div class="flex flex-1 flex-col p-1 sm:p-4 sm:pb-0">
