@@ -3,21 +3,17 @@
 	import { Button } from '$lib/components/ui/button';
 	import {
 		ArrowLeft,
-		ChevronLeftCircle,
 		ChevronLeftSquare,
-		ChevronRightCircle,
 		ChevronRightSquare,
 		CircleAlert,
-		Copy,
 		Presentation,
 		Share2,
 		Square
 	} from 'lucide-svelte/icons';
-	import AdCard from '../components/ad-card.svelte';
 	import { listAdsForObserver } from '$lib/api/mobile-observations';
 	import { auth } from '$lib/api/auth.svelte';
 	import { Circle } from 'svelte-loading-spinners';
-	import type { BasicAdData, RichAdData } from '../types';
+	import type { RichAdData } from '../types';
 	import AdsBrowser from '../components/ads-browser.svelte';
 	import ObservationsTimeline from '../components/observations-timeline.svelte';
 	import { withBase } from '$lib/utils';

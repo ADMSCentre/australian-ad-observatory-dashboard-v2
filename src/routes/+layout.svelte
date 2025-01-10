@@ -13,6 +13,8 @@
 	import { twMerge } from 'tailwind-merge';
 	import { theme } from '$lib/states/theme.svelte';
 	import { classList } from 'svelte-body';
+	import { Bug } from 'lucide-svelte';
+	import DebugToolbar from './debug-toolbar.svelte';
 
 	let { children } = $props();
 	$effect.pre(() => {
@@ -25,7 +27,12 @@
 
 <svelte:body use:classList={theme.mode} />
 
-<Toaster richColors closeButton />
+<Toaster richColors closeButton theme={theme.mode} visibleToasts={5} />
+
+<!-- Debug utilities -->
+{#if process.env.NODE_ENV === 'development'}
+	<DebugToolbar />
+{/if}
 
 <Sidebar.Provider class={twMerge('min-h-screen', theme.mode)}>
 	{#if !auth.isGuest}
