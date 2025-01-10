@@ -38,7 +38,11 @@ class GuestSessions {
 			console.error(error);
 			return;
 		}
-		this.sessions = data;
+		this.sessions = data.toSorted((a, b) => {
+			// Sort by data.exp (expiration time)
+			const diff = (a.data?.exp || 0) - (b.data?.exp || 0);
+			return Math.sign(diff);
+		});
 	};
 
 	create = async ({
@@ -98,78 +102,11 @@ class GuestSessions {
 		}
 		return data.token || null;
 	};
+
+	find = (key: string) => {
+		return this.sessions.find((session) => session.key === key);
+	};
 }
-
-// export const syncSessions = async () => {
-// 	const { data, error } = await client.GET('/guests', {
-// 		headers: {
-// 			Authorization: `Bearer ${auth.token}`
-// 		}
-// 	});
-// 	if (error) {
-// 		console.error(error);
-// 		return;
-// 	}
-// 	sessionsWrapper.sessions = data;
-// };
-
-// export const createGuestSession = async ({
-// 	key,
-// 	description,
-// 	expirationTime
-// }: {
-// 	key: string;
-// 	description: string;
-// 	expirationTime: number;
-// }) => {
-// 	const { data, error } = await client.POST('/guests', {
-// 		body: {
-// 			key: key,
-// 			expiration_time: expirationTime,
-// 			description
-// 		},
-// 		headers: {
-// 			Authorization: `Bearer ${auth.token}`
-// 		}
-// 	});
-// 	if (error || !data.success) {
-// 		console.error('An error occurred while creating the guest session:', error);
-// 		return;
-// 	}
-// 	await syncSessions();
-// };
-
-// export const deleteGuestSession = async (key: string) => {
-// 	const { data, error } = await client.DELETE('/guests/{key}', {
-// 		params: {
-// 			path: {
-// 				key
-// 			}
-// 		},
-// 		headers: {
-// 			Authorization: `Bearer ${auth.token}`
-// 		}
-// 	});
-// 	if (error || !data.success) {
-// 		console.error('An error occurred while deleting the guest session:', error);
-// 		return;
-// 	}
-// 	await syncSessions();
-// };
-
-// export const getGuestToken = async (key: string) => {
-// 	const { data, error } = await client.GET('/guests/{key}', {
-// 		params: {
-// 			path: {
-// 				key
-// 			}
-// 		}
-// 	});
-// 	if (error || !data.success) {
-// 		return null;
-// 	}
-// 	return data.token || null;
-// };
 
 export const guestSessions = new GuestSessions();
 guestSessions.sync();

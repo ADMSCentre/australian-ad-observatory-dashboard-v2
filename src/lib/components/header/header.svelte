@@ -5,14 +5,14 @@
 	import { Circle } from 'svelte-loading-spinners';
 	import { toggleLightMode, theme } from '$lib/states/theme.svelte';
 	import { Sun, Moon } from 'lucide-svelte/icons';
+	import { onMount } from 'svelte';
+	import { twMerge } from 'tailwind-merge';
+	import { withBase } from '$lib/utils';
+	import { page } from '$app/stores';
 
 	const onLogout = () => {
 		auth.logout();
 	};
-
-	import { onMount } from 'svelte';
-	import { twMerge } from 'tailwind-merge';
-	import { withBase } from '$lib/utils';
 
 	let lastScrollTop = $state(0);
 	let headerVisible = $state(true);
@@ -76,13 +76,14 @@
 					<Circle size="30" color={theme.colors.foreground} />
 					<span> Authenticating... </span>
 				</div>
-			{:else if auth.currentUser}
-				{#if !auth.isGuest}
-					<p>Hello <span class=" font-semibold">{auth.currentUser.full_name}</span>!</p>
-					<Button variant="outline" type="button" onclick={onLogout}>Logout</Button>
-				{/if}
+			{:else if auth.currentUser && !auth.isGuest}
+				<p>Hello <span class=" font-semibold">{auth.currentUser.full_name}</span>!</p>
+				<Button variant="outline" type="button" onclick={onLogout}>Logout</Button>
 			{:else}
-				<Button variant="outline" href={withBase('login')}>Login</Button>
+				<Button
+					variant="outline"
+					href={withBase(`/login?redirect=${$page.url.pathname}${$page.url.search}`)}>Login</Button
+				>
 			{/if}
 		</div>
 	</div>

@@ -68,6 +68,12 @@
 		"@codemirror/lang-json": "^6.0.1",
 		"@codemirror/lang-sql": "^6.8.0",
 		"@tanstack/table-core": "^8.20.5",
+		"@tiptap/core": "^2.11.0",
+		"@tiptap/extension-link": "^2.11.0",
+		"@tiptap/extension-placeholder": "^2.11.0",
+		"@tiptap/extension-underline": "^2.11.0",
+		"@tiptap/pm": "^2.11.0",
+		"@tiptap/starter-kit": "^2.11.0",
 		"ag-grid-community": "^32.3.2",
 		"aws-sdk": "^2.1692.0",
 		"chart.js": "^4.4.6",
@@ -81,6 +87,7 @@
 		"svelte-exmarkdown": "^4.0.1",
 		"svelte-intersection-observer": "^1.0.0",
 		"svelte-loading-spinners": "^0.3.6",
+		"svelte-tiptap": "^2.1.0",
 		"tailwindcss-content-visibility": "^1.0.0"
 	}
 }

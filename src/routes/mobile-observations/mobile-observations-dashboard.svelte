@@ -82,10 +82,9 @@
 					{/if}
 					<div class="flex items-center justify-between">
 						{#if data && data.exp}
-							<div class="flex gap-1">
+							<div class="flex items-center gap-1 text-sm">
 								<Hourglass />
 								<Timer exp={data.exp * 1000} />
-								remaining
 							</div>
 						{/if}
 						<Button

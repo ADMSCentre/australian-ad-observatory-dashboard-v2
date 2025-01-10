@@ -26,6 +26,7 @@
 	import CopyButton from '$lib/components/copy-button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import { guestSessions } from '$lib/api/auth/guest-sessions.svelte';
+	import ShareSessionForm from './share-session-form.svelte';
 
 	const participantId = $page.url.searchParams.get('observer_id') || '';
 	const pageUrl = $page.url.href;
@@ -86,7 +87,7 @@
 	{/if}
 
 	<!-- Toolbox -->
-	{#if !auth.isGuest}
+	{#if auth.token && !auth.isGuest}
 		<div
 			class={twMerge(
 				'fixed bottom-2 right-2 z-40 flex w-fit items-center gap-2 border bg-background bg-opacity-50 px-4 py-2 shadow backdrop-blur-sm transition-all',
@@ -115,66 +116,7 @@
 					Present
 				{/if}
 			</Button>
-			<Dialog.Root>
-				<Dialog.Trigger>
-					<Button size="icon" variant={guestSessionToken ? 'destructive' : 'outline'}>
-						<Share2 />
-					</Button>
-				</Dialog.Trigger>
-				<Dialog.Content>
-					<Dialog.Header>
-						<Dialog.Title>Share report</Dialog.Title>
-						<div class="flex flex-col gap-2">
-							{#if guestSessionToken}
-								<p>Share this report with others by providing them with the following link.</p>
-								<Alert.Root variant="destructive">
-									<CircleAlert class="size-4" />
-									<Alert.Title>Caution!</Alert.Title>
-									<Alert.Description>
-										Anyone on the internet with the link will have access to this report.
-									</Alert.Description>
-								</Alert.Root>
-								<div class="flex w-full items-center gap-2">
-									<Input type="text" value={`${pageUrl}`} readonly />
-									<CopyButton text={pageUrl} />
-								</div>
-								<Button
-									onclick={() => {
-										guestSessions.delete(guestKey).then(syncGuestToken);
-									}}
-									variant="destructive"
-								>
-									Deactivate Session
-								</Button>
-							{:else}
-								<p>
-									No shareable link available. Click "Create Session" to start a sharing session.
-								</p>
-								<Alert.Root variant="warning">
-									<CircleAlert class="size-4" />
-									<Alert.Title>Warning!</Alert.Title>
-									<Alert.Description>
-										After creating a session, anyone with the link will have access to this report.
-									</Alert.Description>
-								</Alert.Root>
-								<Button
-									onclick={() => {
-										guestSessions
-											.create({
-												key: guestKey,
-												expirationTime: 60 * 60, // 1 hour
-												description: `Guest session for observer ${participantId}`
-											})
-											.then(syncGuestToken);
-									}}
-								>
-									Create Session
-								</Button>
-							{/if}
-						</div>
-					</Dialog.Header>
-				</Dialog.Content>
-			</Dialog.Root>
+			<ShareSessionForm {guestKey} currentPageUrl={pageUrl} bind:guestSessionToken />
 		</div>
 	{/if}
 
