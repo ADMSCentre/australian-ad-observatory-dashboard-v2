@@ -11,7 +11,7 @@
 		Square
 	} from 'lucide-svelte/icons';
 	import { listAdsForObserver } from '$lib/api/mobile-observations';
-	import { auth } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth/auth.svelte';
 	import { Circle } from 'svelte-loading-spinners';
 	import type { RichAdData } from '../types';
 	import AdsBrowser from '../components/ads-browser.svelte';
@@ -25,9 +25,11 @@
 	import * as Alert from '$lib/components/ui/alert/index.js';
 	import CopyButton from '$lib/components/copy-button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
+	import { guestSessions } from '$lib/api/auth/guest-sessions.svelte';
 
 	const participantId = $page.url.searchParams.get('observer_id') || '';
 	const pageUrl = $page.url.href;
+	const guestKey = $derived(`mobile-observer-${participantId}`);
 
 	let ads = $state<RichAdData[]>([]);
 	let isPresenting = $state(true);
@@ -49,49 +51,13 @@
 	});
 
 	let guestSessionToken = $state<string | null>(null);
-	const createGuestSession = async () => {
-		const { data, error } = await client.POST('/guests', {
-			body: {
-				key: participantId,
-				expiration_time: 60 * 60, // 1 hour
-				description: `Guest session for observer ${participantId}`
-			},
-			headers: {
-				Authorization: `Bearer ${auth.token}`
-			}
-		});
-	};
-
-	const deleteGuestSession = async () => {
-		const { data, error } = await client.DELETE('/guests/{key}', {
-			params: {
-				path: {
-					key: participantId
-				}
-			},
-			headers: {
-				Authorization: `Bearer ${auth.token}`
-			}
-		});
-	};
-
-	const checkGuestSession = async () => {
-		const { data, error } = await client.GET('/guests/{key}', {
-			params: {
-				path: {
-					key: participantId
-				}
-			}
-		});
-		if (error || !data.success) {
-			return null;
-		}
-		return data.token || null;
+	const syncGuestToken = async () => {
+		guestSessionToken = await guestSessions.getToken(guestKey);
 	};
 
 	$effect.pre(() => {
 		(async () => {
-			guestSessionToken = await checkGuestSession();
+			await syncGuestToken();
 			if (!auth.loading && !auth.currentUser && !guestSessionToken) {
 				goto(withBase(`/login?redirect=${$page.url.pathname}${$page.url.search}`));
 			}
@@ -174,11 +140,7 @@
 								</div>
 								<Button
 									onclick={() => {
-										deleteGuestSession()
-											.then(checkGuestSession)
-											.then((token) => {
-												guestSessionToken = token;
-											});
+										guestSessions.delete(guestKey).then(syncGuestToken);
 									}}
 									variant="destructive"
 								>
@@ -192,17 +154,18 @@
 									<CircleAlert class="size-4" />
 									<Alert.Title>Warning!</Alert.Title>
 									<Alert.Description>
-										After the session is created, anyone on the internet with the link will have
-										access to this report.
+										After creating a session, anyone with the link will have access to this report.
 									</Alert.Description>
 								</Alert.Root>
 								<Button
 									onclick={() => {
-										createGuestSession()
-											.then(checkGuestSession)
-											.then((token) => {
-												guestSessionToken = token;
-											});
+										guestSessions
+											.create({
+												key: guestKey,
+												expirationTime: 60 * 60, // 1 hour
+												description: `Guest session for observer ${participantId}`
+											})
+											.then(syncGuestToken);
 									}}
 								>
 									Create Session

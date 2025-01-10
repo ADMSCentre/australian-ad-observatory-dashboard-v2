@@ -16,7 +16,7 @@
 		Users
 	} from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
-	import { auth } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth/auth.svelte';
 	import { Button } from '../ui/button';
 
 	// Get the current url

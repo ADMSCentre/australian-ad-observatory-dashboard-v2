@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { auth } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth/auth.svelte';
 	import { Circle } from 'svelte-loading-spinners';
 	import { listAllAds } from '$lib/api/mobile-observations';
 	import MobileObservationsDashboard from './mobile-observations-dashboard.svelte';
 	import type { RichAdData } from './types';
 	import { theme } from '$lib/states/theme.svelte';
+
 	// import { parseAdsIndex } from './utils';
 	let ads = $state<RichAdData[]>([]);
 	let isLoading = $state(true);

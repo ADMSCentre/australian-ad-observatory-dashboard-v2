@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { auth } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth/auth.svelte';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import Codemirror from 'svelte-codemirror-editor';

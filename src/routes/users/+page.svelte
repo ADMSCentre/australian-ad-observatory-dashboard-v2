@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { auth } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth/auth.svelte';
 	import { client } from '$lib/api/client';
 	import { onMount } from 'svelte';
 	import type { User } from './types';

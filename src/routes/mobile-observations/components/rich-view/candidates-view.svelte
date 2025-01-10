@@ -18,7 +18,7 @@
 	import { data } from '../../../users/columns.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { fetchMedia, formatTimestamp } from '../../utils';
-	import { auth } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth/auth.svelte';
 
 	const {
 		candidates,

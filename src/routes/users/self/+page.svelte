@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { auth } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth/auth.svelte';
 	import { User, UserCircle } from 'lucide-svelte';
 	import { client } from '$lib/api/client';
 	import PageLoader from '$lib/components/page-loader/page-loader.svelte';

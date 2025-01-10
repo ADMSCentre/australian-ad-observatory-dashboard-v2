@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { auth } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth/auth.svelte';
 	import { getAdFrameUrls } from '$lib/api/mobile-observations';
 	import { Slider } from '$lib/components/ui/slider';
 	import { twMerge } from 'tailwind-merge';
@@ -185,6 +185,7 @@
 		</div>
 
 		<Slider
+			type="multiple"
 			min={0}
 			max={keyframes.length - 1}
 			step={1}

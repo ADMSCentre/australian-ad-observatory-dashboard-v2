@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { PlatformItemData } from './platform-item';
-	import { auth } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth/auth.svelte';
 	import { useDashboardAPI } from '$lib/api/use-dashboard';
 	import { Circle } from 'svelte-loading-spinners';
 	import * as Carousel from '$lib/components/ui/carousel/index.js';

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { auth } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth/auth.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { twMerge } from 'tailwind-merge';
 	import { Circle } from 'svelte-loading-spinners';

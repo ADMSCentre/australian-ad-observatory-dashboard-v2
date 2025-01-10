@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { auth } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth/auth.svelte';
 	import { listAllAds } from '$lib/api/mobile-observations';
 	import { withBase } from '$lib/utils';
 	import { CalendarDaysIcon, Database, Hourglass, User } from 'lucide-svelte';

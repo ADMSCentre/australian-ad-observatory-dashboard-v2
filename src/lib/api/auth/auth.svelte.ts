@@ -1,4 +1,4 @@
-import { client } from './client';
+import { client } from '../client';
 import { pushToast } from '$lib/components/toasts/toasts.svelte';
 
 export type User = {

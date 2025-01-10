@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import AppSidebar from '$lib/components/app-sidebar/app-sidebar.svelte';
-	import { auth } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth/auth.svelte';
 	import '../app.css';
 	import Header from '../lib/components/header/header.svelte';
 	import { isRouteProtected } from './protected.config';

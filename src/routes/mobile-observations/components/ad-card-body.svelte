@@ -18,7 +18,7 @@
 	import Codemirror from 'svelte-codemirror-editor';
 	import type { RichAdData } from '../types';
 	import { client } from '$lib/api/client';
-	import { auth } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth/auth.svelte';
 	import { json } from '@codemirror/lang-json';
 	import { getAdFrameUrls } from '$lib/api/mobile-observations';
 	import { fetchAttributes, fetchStitchFrames } from '../utils';
@@ -253,6 +253,7 @@
 				{/if}
 			</Button>
 			<Slider
+				type="multiple"
 				min={0}
 				max={frames.length - 1}
 				step={1}

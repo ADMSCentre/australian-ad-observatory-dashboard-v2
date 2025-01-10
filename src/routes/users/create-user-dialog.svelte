@@ -7,7 +7,7 @@
 	import * as Alert from '$lib/components/ui/alert/index.js';
 	import { CircleAlert } from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
-	import { auth } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth/auth.svelte';
 	import type { User } from './types';
 	import { appendUser } from './columns.svelte';
 	import { client } from '$lib/api/client';
