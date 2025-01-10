@@ -1,12 +1,10 @@
 <script lang="ts">
-	import { getAuthState } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { Circle } from 'svelte-loading-spinners';
 	import { toggleLightMode, theme } from '$lib/states/theme.svelte';
 	import { Sun, Moon } from 'lucide-svelte/icons';
-
-	const auth = getAuthState();
 
 	const onLogout = () => {
 		auth.logout();

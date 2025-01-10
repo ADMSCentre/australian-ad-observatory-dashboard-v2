@@ -18,9 +18,7 @@
 	import { data } from '../../../users/columns.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { fetchMedia, formatTimestamp } from '../../utils';
-	import { getAuthState } from '$lib/api/auth.svelte';
-
-	const auth = getAuthState();
+	import { auth } from '$lib/api/auth.svelte';
 
 	const {
 		candidates,
@@ -227,7 +225,7 @@
 
 {#snippet statCard(value: string | null, label: string)}
 	<div
-		class="via-brand/15 flex w-32 flex-col items-center gap-1 rounded bg-gradient-to-br from-background to-background p-2 shadow"
+		class="flex w-32 flex-col items-center gap-1 rounded bg-gradient-to-br from-background via-brand/15 to-background p-2 shadow"
 	>
 		<div class="text-lg font-semibold drop-shadow">
 			{value || 'N/A'}

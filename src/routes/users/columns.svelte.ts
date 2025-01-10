@@ -47,8 +47,8 @@ const prepareUserUpdate = (username: string, updatedData: Partial<User>) => {
  * @returns The payload to send to the API
  */
 const prepareUserPayload = (user: Partial<User>) => {
-	const payload = { ...user } as Partial<User> & { full_name?: string };
-	payload.full_name = payload.fullname;
+	const payload = { ...user } as Partial<User> & { full_name: string };
+	payload.full_name = payload.fullname || '';
 	delete payload.fullname;
 	return payload;
 };
@@ -90,11 +90,16 @@ const abortUserUpdate = (username: string) => {
 export const appendUser = async (user: User) => {
 	const auth = data.auth;
 	if (!auth || !auth.token) throw new Error('You must be logged in to create a user.');
+
+	const body = prepareUserPayload(user);
 	const { data: res, error } = await client.POST('/users', {
 		headers: {
 			Authorization: `Bearer ${auth.token}`
 		},
-		body: prepareUserPayload(user)
+		body: { ...body, enabled: true } as Omit<User, 'fullname'> & {
+			full_name: string;
+			enabled: boolean;
+		}
 	});
 	if (!res && error) throw new Error(error.comment);
 	if (!res?.success) throw new Error(res?.comment);
@@ -216,7 +221,7 @@ export const columns: ColumnDef<User>[] = [
 				onEditConfirm: async () => {
 					await commitUserUpdate(row.original.username);
 					pushToast({
-						message: `User **${row.original.username}** updated successfully`,
+						message: `User "${row.original.username}" updated successfully`,
 						type: 'success',
 						timeout: 5000
 					});
@@ -225,7 +230,7 @@ export const columns: ColumnDef<User>[] = [
 				onDelete: async () => {
 					await deleteUser(row.original.username);
 					pushToast({
-						message: `User **${row.original.username}** deleted successfully`,
+						message: `User "${row.original.username}" deleted successfully`,
 						type: 'success',
 						timeout: 5000
 					});

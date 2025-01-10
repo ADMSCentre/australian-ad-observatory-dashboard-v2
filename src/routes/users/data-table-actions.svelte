@@ -10,6 +10,7 @@
 	import { twMerge } from 'tailwind-merge';
 	import Markdown from 'svelte-exmarkdown';
 	import { theme } from '$lib/states/theme.svelte';
+	import * as Alert from '$lib/components/ui/alert/index.js';
 
 	let loading = $state<{
 		loading: boolean;
@@ -109,10 +110,12 @@
 				</p>
 			</div>
 			{#if message.text}
-				<div class={twMerge('relative mb-4 rounded border px-4 py-3', message.type)} role="alert">
-					<!-- <span class="block sm:inline">{message.value}</span> -->
-					<Markdown md={message.text} />
-				</div>
+				<Alert.Root variant={message.type === 'error' ? 'destructive' : message.type}>
+					<Alert.Title>{message.type.charAt(0).toUpperCase() + message.type.slice(1)}</Alert.Title>
+					<Alert.Description>
+						<Markdown md={message.text} />
+					</Alert.Description>
+				</Alert.Root>
 			{/if}
 			<Dialog.Footer>
 				{#if !loading.loading && loading.target === 'delete'}
@@ -144,18 +147,3 @@
 		</Dialog.Content>
 	</Dialog.Root>
 </div>
-
-<style>
-	.error {
-		@apply border-red-400 bg-red-100 text-red-700;
-	}
-	.success {
-		@apply border-green-400 bg-green-100 text-green-700;
-	}
-	.info {
-		@apply border-blue-400 bg-blue-100 text-blue-700;
-	}
-	a {
-		@apply underline;
-	}
-</style>

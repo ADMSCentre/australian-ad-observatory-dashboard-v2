@@ -1,7 +1,6 @@
 <script module>
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import { fn } from '@storybook/test';
-	import Toast from '$lib/components/toasts/toast.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { pushToast } from '$lib/components/toasts/toasts.svelte';
 	import ContextDecorator from './ContextDecorator.svelte';
@@ -9,7 +8,6 @@
 	// More on how to set up stories at: https://storybook.js.org/docs/writing-stories
 	const { Story } = defineMeta({
 		title: 'Example/Toast',
-		component: Toast,
 		tags: ['autodocs'],
 		// @ts-ignore
 		decorators: [() => ContextDecorator]

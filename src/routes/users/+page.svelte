@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getAuthState } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth.svelte';
 	import { client } from '$lib/api/client';
 	import { onMount } from 'svelte';
 	import type { User } from './types';
@@ -8,7 +8,6 @@
 	import { Circle } from 'svelte-loading-spinners';
 	import { theme } from '$lib/states/theme.svelte';
 
-	const auth = getAuthState();
 	let loading = $state(true);
 
 	const fetchUsers = async (): Promise<User[]> => {

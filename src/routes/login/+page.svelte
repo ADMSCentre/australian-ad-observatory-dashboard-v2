@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getAuthState } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { twMerge } from 'tailwind-merge';
 	import { Circle } from 'svelte-loading-spinners';
@@ -9,15 +9,18 @@
 	import { Markdown } from 'svelte-exmarkdown';
 	import { theme } from '$lib/states/theme.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
+	import * as Alert from '$lib/components/ui/alert/index.js';
 
 	let username = $state('');
 	let password = $state('');
-	let message = $state({
+	let message = $state<{
+		text: string;
+		type: 'error' | 'info' | 'success';
+	}>({
 		text: '',
 		type: 'error'
 	});
 	let loading = $state(false);
-	const auth = getAuthState();
 
 	const redirect = $page.url.searchParams.get('redirect') || withBase('/');
 	$effect(() => {
@@ -62,13 +65,19 @@
 	<div class="w-full max-w-sm rounded bg-background p-8 shadow-md">
 		<h2 class="mb-6 text-center text-2xl font-bold">Login</h2>
 		{#if message.text}
-			<div
+			<!-- <div
 				class={twMerge('relative mb-4 rounded border !bg-opacity-15 px-4 py-3', message.type)}
 				role="alert"
 			>
-				<!-- <span class="block sm:inline">{message.value}</span> -->
+				<span class="block sm:inline">{message.value}</span>
 				<Markdown md={message.text} />
-			</div>
+			</div> -->
+			<Alert.Root variant={message.type === 'error' ? 'destructive' : message.type}>
+				<Alert.Title>{message.type.charAt(0).toUpperCase() + message.type.slice(1)}</Alert.Title>
+				<Alert.Description>
+					<Markdown md={message.text} />
+				</Alert.Description>
+			</Alert.Root>
 		{/if}
 		<form onsubmit={handleSubmit}>
 			<div class="mb-4">
@@ -91,18 +100,3 @@
 		</form>
 	</div>
 </div>
-
-<style>
-	.error {
-		@apply border-red-400 bg-red-500 text-red-500;
-	}
-	.success {
-		@apply border-green-400 bg-green-500 text-green-500;
-	}
-	.info {
-		@apply border-blue-400 bg-blue-500 text-blue-500;
-	}
-	a {
-		@apply underline;
-	}
-</style>

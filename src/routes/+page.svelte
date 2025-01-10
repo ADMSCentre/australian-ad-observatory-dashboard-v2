@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { getAuthState } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth.svelte';
 	import { listAllAds } from '$lib/api/mobile-observations';
 	import { withBase } from '$lib/utils';
 	import { CalendarDaysIcon, Database, Hourglass, User } from 'lucide-svelte';
 	import type { RichAdData } from './mobile-observations/types';
 
-	const auth = getAuthState();
 	const ads = $derived(auth.token ? listAllAds(auth.token) : []);
 
 	const summarise = (ads: RichAdData[]) => {

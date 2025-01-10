@@ -7,6 +7,7 @@
 		ChevronLeftSquare,
 		ChevronRightCircle,
 		ChevronRightSquare,
+		CircleAlert,
 		Copy,
 		Presentation,
 		Share2,
@@ -14,7 +15,7 @@
 	} from 'lucide-svelte/icons';
 	import AdCard from '../components/ad-card.svelte';
 	import { listAdsForObserver } from '$lib/api/mobile-observations';
-	import { getAuthState } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth.svelte';
 	import { Circle } from 'svelte-loading-spinners';
 	import type { BasicAdData, RichAdData } from '../types';
 	import AdsBrowser from '../components/ads-browser.svelte';
@@ -25,11 +26,12 @@
 	import { client } from '$lib/api/client';
 	import { goto } from '$app/navigation';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import * as Alert from '$lib/components/ui/alert/index.js';
 	import CopyButton from '$lib/components/copy-button.svelte';
+	import Input from '$lib/components/ui/input/input.svelte';
 
 	const participantId = $page.url.searchParams.get('observer_id') || '';
 	const pageUrl = $page.url.href;
-	const auth = getAuthState();
 
 	let ads = $state<RichAdData[]>([]);
 	let isPresenting = $state(true);
@@ -163,16 +165,15 @@
 						<div class="flex flex-col gap-2">
 							{#if guestSessionToken}
 								<p>Share this report with others by providing them with the following link.</p>
-								<p class=" font-bold">
-									Anyone on the internet with the link will have access to this report.
-								</p>
+								<Alert.Root variant="destructive">
+									<CircleAlert class="size-4" />
+									<Alert.Title>Caution!</Alert.Title>
+									<Alert.Description>
+										Anyone on the internet with the link will have access to this report.
+									</Alert.Description>
+								</Alert.Root>
 								<div class="flex w-full items-center gap-2">
-									<input
-										type="text"
-										class="size-full rounded px-2 shadow"
-										value={`${pageUrl}`}
-										readonly
-									/>
+									<Input type="text" value={`${pageUrl}`} readonly />
 									<CopyButton text={pageUrl} />
 								</div>
 								<Button
@@ -191,10 +192,14 @@
 								<p>
 									No shareable link available. Click "Create Session" to start a sharing session.
 								</p>
-								<p class=" font-bold">
-									After the session is created, anyone on the internet with the link will have
-									access to this report.
-								</p>
+								<Alert.Root variant="warning">
+									<CircleAlert class="size-4" />
+									<Alert.Title>Warning!</Alert.Title>
+									<Alert.Description>
+										After the session is created, anyone on the internet with the link will have
+										access to this report.
+									</Alert.Description>
+								</Alert.Root>
 								<Button
 									onclick={() => {
 										createGuestSession()

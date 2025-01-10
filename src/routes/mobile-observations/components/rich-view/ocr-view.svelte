@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getAuthState } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth.svelte';
 	import { getAdFrameUrls } from '$lib/api/mobile-observations';
 	import { Slider } from '$lib/components/ui/slider';
 	import { twMerge } from 'tailwind-merge';
@@ -21,7 +21,6 @@
 		observationId: string;
 	} = $props();
 
-	const auth = getAuthState();
 	let container = $state<HTMLDivElement | null>(null);
 
 	let currentIndex = $state(0);
@@ -136,7 +135,7 @@
 })}
 	<div
 		class={twMerge(
-			'bg-brand group absolute box-border border-2 bg-opacity-0 hover:bg-opacity-15',
+			'group absolute box-border border-2 bg-brand bg-opacity-0 hover:bg-opacity-15',
 			isLinked(text) && 'bg-opacity-15'
 		)}
 		style={`left: ${x}%; top: ${y}%; width: ${w}%; height: ${h}%; border-color: ${confidenceColor(confidence)};`}

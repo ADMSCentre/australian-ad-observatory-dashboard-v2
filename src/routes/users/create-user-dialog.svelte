@@ -7,7 +7,7 @@
 	import * as Alert from '$lib/components/ui/alert/index.js';
 	import { CircleAlert } from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
-	import { getAuthState } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth.svelte';
 	import type { User } from './types';
 	import { appendUser } from './columns.svelte';
 	import { client } from '$lib/api/client';
@@ -22,7 +22,10 @@
 	];
 	let open = $state(false);
 	let loading = $state(false);
-	let message = $state({
+	let message = $state<{
+		type: 'error' | 'success' | 'info';
+		text: string;
+	}>({
 		type: 'info',
 		text: ''
 	});
@@ -111,10 +114,12 @@
 				</div>
 			</div>
 			{#if message.text}
-				<div class={twMerge('relative mb-4 rounded border px-4 py-3', message.type)} role="alert">
-					<!-- <span class="block sm:inline">{message.value}</span> -->
-					<Markdown md={message.text} />
-				</div>
+				<Alert.Root variant={message.type === 'error' ? 'destructive' : message.type}>
+					<Alert.Title>{message.type.charAt(0).toUpperCase() + message.type.slice(1)}</Alert.Title>
+					<Alert.Description>
+						<Markdown md={message.text} />
+					</Alert.Description>
+				</Alert.Root>
 			{/if}
 			<Dialog.Footer>
 				<Button type="submit" disabled={loading} class="w-20">
@@ -128,18 +133,3 @@
 		</form>
 	</Dialog.Content>
 </Dialog.Root>
-
-<style>
-	.error {
-		@apply border-red-400 bg-red-100 text-red-700;
-	}
-	.success {
-		@apply border-green-400 bg-green-100 text-green-700;
-	}
-	.info {
-		@apply border-blue-400 bg-blue-100 text-blue-700;
-	}
-	a {
-		@apply underline;
-	}
-</style>

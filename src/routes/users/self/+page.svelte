@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getAuthState } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth.svelte';
 	import { User, UserCircle } from 'lucide-svelte';
 	import { client } from '$lib/api/client';
 	import PageLoader from '$lib/components/page-loader/page-loader.svelte';
@@ -9,8 +9,6 @@
 	import { Circle } from 'svelte-loading-spinners';
 	import { theme } from '$lib/states/theme.svelte';
 	import { pushToast } from '$lib/components/toasts/toasts.svelte';
-
-	const auth = getAuthState();
 
 	// const formData = $derived.by(async () => {
 	// 	const { data, error } = await client.GET('/users/self');

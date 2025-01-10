@@ -18,7 +18,7 @@
 	import Codemirror from 'svelte-codemirror-editor';
 	import type { RichAdData } from '../types';
 	import { client } from '$lib/api/client';
-	import { getAuthState } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth.svelte';
 	import { json } from '@codemirror/lang-json';
 	import { getAdFrameUrls } from '$lib/api/mobile-observations';
 	import { fetchAttributes, fetchStitchFrames } from '../utils';
@@ -39,7 +39,6 @@
 		class: className = ''
 	}: Props = $props();
 
-	const auth = getAuthState();
 	let isUpdatingAttributes = $state(false);
 	let autoPlay = $state(true);
 	let currentIndex = $state(0);

@@ -1,13 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { PlatformItemData } from './platform-item';
-	import { getAuthState } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth.svelte';
 	import { useDashboardAPI } from '$lib/api/use-dashboard';
 	import { Circle } from 'svelte-loading-spinners';
 	import * as Carousel from '$lib/components/ui/carousel/index.js';
 	import { theme } from '$lib/states/theme.svelte';
-
-	const auth = getAuthState();
 
 	const {
 		itemId,

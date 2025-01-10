@@ -1,22 +1,20 @@
 <script lang="ts">
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import AppSidebar from '$lib/components/app-sidebar/app-sidebar.svelte';
-	import { getAuthState, setAuthState } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth.svelte';
 	import '../app.css';
 	import Header from '../lib/components/header/header.svelte';
 	import { isRouteProtected } from './protected.config';
 	import { goto } from '$app/navigation';
 	import { withBase } from '$lib/utils';
 	import { page } from '$app/stores';
-	import ToastsContainer from '$lib/components/toasts/toasts-container.svelte';
+	// import ToastsContainer from '$lib/components/toasts/toasts-container.svelte';
+	import { Toaster } from '$lib/components/ui/sonner/index.js';
 	import { twMerge } from 'tailwind-merge';
 	import { theme } from '$lib/states/theme.svelte';
 	import { classList } from 'svelte-body';
 
 	let { children } = $props();
-	setAuthState();
-
-	const auth = getAuthState();
 	$effect.pre(() => {
 		if (!isRouteProtected($page.url.pathname)) return;
 		if (!auth.loading && !auth.currentUser) {
@@ -26,6 +24,8 @@
 </script>
 
 <svelte:body use:classList={theme.mode} />
+
+<Toaster richColors closeButton />
 
 <Sidebar.Provider class={twMerge('min-h-screen', theme.mode)}>
 	{#if !auth.isGuest}
@@ -39,4 +39,4 @@
 	</main>
 </Sidebar.Provider>
 
-<ToastsContainer />
+<!-- <ToastsContainer /> -->

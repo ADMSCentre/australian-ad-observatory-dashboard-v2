@@ -5,6 +5,12 @@
 @layer base {
 	:root {
 		--brand: 50 100% 50%;
+		--info: 210 72.2% 50.6%;
+		--info-foreground: 210 0% 98%;
+		--success: 117.4 72.2% 50.6%;
+		--success-foreground: 117.4 0% 98%;
+		--warning: 40 72.2% 50.6%;
+		--warning-foreground: 0 0% 98%;
 
 		--background: 0 0% 100%;
 		--foreground: 240 10% 3.9%;
@@ -38,6 +44,12 @@
 
 	.dark {
 		--brand: 50 100% 50%;
+		--info: 210 72.2% 50.6%;
+		--info-foreground: 0 0% 98%;
+		--success: 117.4 72.2% 50.6%;
+		--success-foreground: 0 0% 98%;
+		--warning: 40 72.2% 50.6%;
+		--warning-foreground: 0 0% 98%;
 
 		--background: 240 10% 3.9%;
 		--foreground: 0 0% 98%;
@@ -55,7 +67,7 @@
 		--secondary-foreground: 0 0% 98%;
 		--accent: 240 3.7% 15.9%;
 		--accent-foreground: 0 0% 98%;
-		--destructive: 0 62.8% 30.6%;
+		--destructive: 0 62.8% 50.6%;
 		--destructive-foreground: 0 0% 98%;
 		--ring: 240 4.9% 83.9%;
 		--sidebar-background: 240 5.9% 10%;
@@ -110,5 +122,8 @@
 
 	h6 {
 		@apply text-base;
+	}
+	a {
+		@apply underline;
 	}
 }

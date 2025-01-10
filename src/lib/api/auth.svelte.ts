@@ -1,4 +1,3 @@
-import { getContext, setContext } from 'svelte';
 import { client } from './client';
 import { pushToast } from '$lib/components/toasts/toasts.svelte';
 
@@ -111,12 +110,4 @@ export class Authentication {
 	}
 }
 
-const AUTH_KEY = Symbol('auth');
-
-export function setAuthState() {
-	return setContext(AUTH_KEY, new Authentication());
-}
-
-export function getAuthState() {
-	return getContext<ReturnType<typeof setAuthState>>(AUTH_KEY);
-}
+export const auth = new Authentication();

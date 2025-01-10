@@ -15,7 +15,7 @@
 	} from 'lucide-svelte/icons';
 	import ImagesGif from '../observer/images-gif.svelte';
 	import type { BasicAdData, RichAdData } from '../types';
-	import { getAuthState } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth.svelte';
 	import IntersectionObserverSvelte from 'svelte-intersection-observer/IntersectionObserver.svelte';
 	import { withBase } from '$lib/utils';
 
@@ -42,8 +42,6 @@
 	let framesMode = $state<'raw' | 'stitched'>('stitched');
 
 	// let attributes = $state<Awaited<ReturnType<typeof fetchAttributes>>>();
-
-	const auth = getAuthState();
 </script>
 
 <IntersectionObserverSvelte {element} threshold={0.25} once bind:intersecting>

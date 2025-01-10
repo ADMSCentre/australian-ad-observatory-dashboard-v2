@@ -1,12 +1,10 @@
 <script lang="ts">
-	import { getAuthState } from '$lib/api/auth.svelte';
+	import { auth } from '$lib/api/auth.svelte';
 	import { useQueryApi, type QueryData } from '$lib/api/query.svelte';
 	import PlatformItem from './platform-item.svelte';
 	import { Circle } from 'svelte-loading-spinners';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { theme } from '$lib/states/theme.svelte';
-
-	const auth = getAuthState();
 
 	// TODO: Implement boolean filter
 	let filters = $state({
