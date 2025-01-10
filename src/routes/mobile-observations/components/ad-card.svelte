@@ -47,7 +47,7 @@
 <IntersectionObserverSvelte {element} threshold={0.25} once bind:intersecting>
 	<div
 		class={twMerge(
-			'mb-4 flex w-fit break-inside-avoid flex-col gap-2 rounded border bg-zinc-50 p-4 transition-all content-visibility-auto hover:shadow-lg dark:bg-zinc-900 dark:shadow-zinc-500',
+			'mb-4 flex w-fit break-inside-avoid flex-col gap-2 rounded border bg-zinc-50 p-4 transition-all content-visibility-auto hover:shadow-lg dark:bg-zinc-900 dark:shadow-zinc-800',
 			adData.attributes?.hidden?.value && 'opacity-35',
 			className
 		)}

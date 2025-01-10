@@ -26,4 +26,6 @@
 	);
 </script>
 
-<Timeline {timestamps} />
+<div class="rounded border p-4 shadow dark:shadow-zinc-800">
+	<Timeline {timestamps} />
+</div>

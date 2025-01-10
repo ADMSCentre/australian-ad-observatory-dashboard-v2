@@ -54,7 +54,7 @@
 			{#if key}
 				{@const observerId = key.replace('mobile-observer-', '')}
 				<div
-					class="flex max-w-[46ch] flex-col gap-2 rounded-lg bg-card p-4 text-card-foreground shadow-md"
+					class="flex max-w-[46ch] flex-col gap-2 rounded-lg border p-4 text-card-foreground shadow-md dark:shadow-zinc-800"
 				>
 					<h2 class="font-mono text-lg font-bold">
 						<a href={withBase(`mobile-observations/observer?observer_id=${observerId}`)}
