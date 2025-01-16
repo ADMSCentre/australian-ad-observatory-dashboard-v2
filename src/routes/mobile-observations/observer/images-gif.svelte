@@ -23,7 +23,7 @@
 
 	let intersectOnce = $state(false);
 	let element = $state<HTMLElement | null>(null);
-	let repeat = $state(0);
+	let repeat = $state<NodeJS.Timeout | null>(null);
 	let imageLoadings = $state(images.map(() => true));
 
 	function nextImage() {
@@ -51,7 +51,7 @@
 	});
 
 	onDestroy(() => {
-		clearInterval(repeat);
+		if (repeat) clearInterval(repeat);
 	});
 </script>
 
@@ -61,20 +61,20 @@
 	bind:intersecting={intersectOnce}
 	threshold={0.5}
 	on:intersect={(e) => {
-		clearInterval(repeat);
+		if (repeat) clearInterval(repeat);
 		completed = false;
 		currentIndex = 0;
 		repeat = setInterval(nextImage, interval);
 	}}
 >
-	<div bind:this={element}>
+	<div class="size-full" bind:this={element}>
 		{#each images as image, index}
 			<img
 				loading="lazy"
 				src={image}
 				alt="GIF frame"
 				class={twMerge(
-					'h-full w-full object-cover content-visibility-auto',
+					'h-full w-full object-contain content-visibility-auto',
 					index !== currentIndex && 'absolute opacity-0'
 				)}
 				onload={(e: any) => {

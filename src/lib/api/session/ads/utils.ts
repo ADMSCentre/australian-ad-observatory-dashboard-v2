@@ -37,7 +37,7 @@ export const parseAdsIndex = (
 	const adsIndex = index[type]
 		.map((ad) => {
 			// Convert timestamp to date (DD/MM/YYYY) and time (HH:MM:SS.SSS)
-			const date = new Date(+ad.timestamp).toLocaleDateString('en-US', {
+			const date = new Date(+ad.timestamp).toLocaleDateString('en-GB', {
 				month: 'long',
 				day: 'numeric',
 				year: 'numeric'

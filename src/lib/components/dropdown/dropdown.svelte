@@ -13,6 +13,7 @@
 		selected = $bindable(''),
 		disabled = false,
 		searchable = false,
+		placeholder = 'Select an option...',
 		triggerClass = '',
 		contentClass = '',
 		onSelected
@@ -20,6 +21,7 @@
 		options: { value: any; label: string }[];
 		selected?: any;
 		disabled?: boolean;
+		placeholder?: string;
 		searchable?: boolean;
 		triggerClass?: string;
 		contentClass?: string;
@@ -53,7 +55,7 @@
 				aria-expanded={open}
 				{disabled}
 			>
-				{selectedValue || 'Select an option...'}
+				{selectedValue || placeholder}
 				<ChevronsUpDown class="ml-2 size-4 shrink-0 opacity-50" />
 			</Button>
 		{/snippet}

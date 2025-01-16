@@ -104,7 +104,7 @@
 </script>
 
 <!-- Body -->
-<div class="flex w-fit flex-col gap-2">
+<div class="flex max-h-full w-fit flex-col gap-2">
 	<!-- Main image -->
 	<div
 		class={twMerge(

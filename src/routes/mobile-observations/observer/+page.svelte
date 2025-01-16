@@ -129,7 +129,7 @@
 			{filters}
 			open
 			cardOptions={{
-				showObserver: false
+				exclude: ['observer']
 			}}
 		/>
 	{/if}

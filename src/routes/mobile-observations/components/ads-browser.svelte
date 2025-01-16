@@ -1,16 +1,20 @@
 <script lang="ts">
 	import type { DateRange } from 'bits-ui';
-	import type { BasicAdData, RichAdData } from '../types';
+	import type { BasicAdData, RichAdData } from '$lib/api/session/ads/types';
 	import AdCard, { type Props as AdCardProps } from './ad-card.svelte';
 	import { dateToCalendarDate } from '../../../lib/api/session/ads/utils';
 	import Accordion from '$lib/components/accordion/accordion.svelte';
 	import { ChevronDown, ChevronRight } from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
-	import { slide } from 'svelte/transition';
+	import { scale, slide } from 'svelte/transition';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import { getExpandedRowModel } from '@tanstack/table-core';
 	import AdCardBody from './ad-card-body.svelte';
 	import AdRichView from './rich-view/ad-rich-view.svelte';
+	import { WindowVirtualizer } from 'virtua/svelte';
+	import { untrack } from 'svelte';
+	import { flip } from 'svelte/animate';
+	import Dropdown from '$lib/components/dropdown/dropdown.svelte';
 
 	type Props = {
 		ads: RichAdData[];
@@ -29,14 +33,70 @@
 		dateRange,
 		open,
 		cardOptions = {
-			showObserver: true
+			exclude: []
 		},
 		filters = [],
 		richViewExpanded = $bindable(false)
 	}: Props = $props();
 
+	// For expanded (rich) view
 	let currentAd = $state<RichAdData | null>(null);
+
+	// Grouping and sorting
+	const groups = [
+		{
+			value: 'date',
+			label: 'Date',
+			getKey: (ad: RichAdData) => ad.date
+		},
+		{
+			value: 'week',
+			label: 'Week',
+			getKey: (ad: RichAdData) => {
+				const date = new Date(ad.timestamp);
+				const weekStart = new Date(
+					date.getFullYear(),
+					date.getMonth(),
+					date.getDate() - date.getDay() + 1
+				);
+				const weekEnd = new Date(weekStart);
+				weekEnd.setDate(weekStart.getDate() + 6);
+				const dateStrOptions: Intl.DateTimeFormatOptions = {
+					weekday: 'short',
+					month: 'short',
+					day: 'numeric',
+					year: 'numeric'
+				};
+				return `${weekStart.toLocaleString('en-GB', dateStrOptions)} - ${weekEnd.toLocaleString('en-GB', dateStrOptions)}`;
+			}
+		},
+		{
+			value: 'month',
+			label: 'Month',
+			getKey: (ad: RichAdData) => {
+				const date = new Date(ad.timestamp);
+				return date.toLocaleString('default', { month: 'long', year: 'numeric' });
+			}
+		}
+	];
+	const sortOptions = [
+		{
+			value: 'newest',
+			label: 'Newest',
+			sort: (a: BasicAdData, b: BasicAdData) => b.timestamp - a.timestamp
+		},
+		{
+			value: 'oldest',
+			label: 'Oldest',
+			sort: (a: BasicAdData, b: BasicAdData) => a.timestamp - b.timestamp
+		}
+	];
+
+	let groupBy = $state(groups[0]);
+	let sortBy = $state(sortOptions[0]);
+
 	const groupedAds = $derived.by(() => {
+		console.log('Filtering ads');
 		// Filter ads by date range
 		const filteredAds = ads
 			.filter((ad) => {
@@ -46,7 +106,8 @@
 				const calendarDate = dateToCalendarDate(date);
 				return calendarDate >= dateRange.start && calendarDate <= dateRange.end;
 			})
-			.filter((ad) => filters.every((filter) => filter(ad)));
+			.filter((ad) => filters.every((filter) => filter(ad)))
+			.toSorted(sortBy.sort);
 
 		const groupedAds = filteredAds.reduce(
 			(
@@ -55,16 +116,16 @@
 				},
 				ad
 			) => {
-				if (!acc[ad.date]) acc[ad.date] = [];
-				acc[ad.date].push(ad);
+				const key = groupBy.getKey(ad);
+				if (!acc[key]) acc[key] = [];
+				acc[key].push(ad);
 				return acc;
 			},
 			{}
 		);
 		// Convert to entries, sort by date
-		const adsEntries = Object.entries(groupedAds).toSorted(
-			([a], [b]) => new Date(b).getTime() - new Date(a).getTime()
-		);
+		const adsEntries = Object.entries(groupedAds);
+		console.log('Completed filtering ads');
 		return adsEntries;
 	});
 
@@ -74,10 +135,70 @@
 		richViewExpanded = true;
 	};
 	const maxAdsCount = $derived(Math.max(...groupedAds.map(([, ads]) => ads.length)));
+
+	let clientWidth = $state(0);
+	const MAX_AD_WIDTH = 384; // px
+	const PADDING = 40; // px
+
+	let resizeTimeout = $state<NodeJS.Timeout | null>(null);
+	let groupSize = $state(1);
+
+	$effect(() => {
+		clientWidth;
+		untrack(() => {
+			if (resizeTimeout) clearTimeout(resizeTimeout);
+			resizeTimeout = setTimeout(() => {
+				groupSize = Math.floor(clientWidth / (MAX_AD_WIDTH - PADDING));
+				if (groupSize < 1) groupSize = 1;
+			}, 50);
+		});
+	});
+
+	const createGroup = $derived((adData: BasicAdData[]) => {
+		const groups = [];
+		for (let i = 0; i < adData.length; i += groupSize) {
+			groups.push(adData.slice(i, i + groupSize));
+		}
+		return groups;
+	});
+
+	// If group by date, do not include date
+	const exclude = $derived.by(() => {
+		const options = cardOptions.exclude || [];
+		if (groupBy.value === 'date') return [...options, 'date'];
+		return options;
+	});
 </script>
 
-<div class="relative flex flex-col gap-4">
-	{#each groupedAds as [date, adData]}
+<div class="relative flex flex-col gap-4" bind:clientWidth>
+	<!-- Controls (grouping, ordering) -->
+	<div
+		class="flex flex-col items-end gap-2 text-sm sm:flex-row sm:items-center sm:justify-end sm:gap-4"
+	>
+		<div class="flex items-center gap-2">
+			<p>Group by:</p>
+			<Dropdown
+				options={groups}
+				selected={groupBy.value}
+				onSelected={(option: string) => {
+					groupBy = groups.find((g) => g.value === option) || groups[0];
+				}}
+			/>
+		</div>
+		<div class="flex items-center gap-2">
+			<p>Sort by:</p>
+			<Dropdown
+				options={sortOptions}
+				selected={sortBy.value}
+				onSelected={(option: string) => {
+					sortBy = sortOptions.find((s) => s.value === option) || sortOptions[0];
+				}}
+			/>
+		</div>
+	</div>
+
+	{#each groupedAds as [groupKey, adData]}
+		{@const rowData = createGroup(adData)}
 		{@const adCountBarWidth = (adData.length / maxAdsCount) * 100 + '%'}
 		<Accordion {open} class="w-full">
 			{#snippet summary(open)}
@@ -85,7 +206,7 @@
 					class="sticky top-0 z-10 flex w-full cursor-pointer items-center gap-2 border-b bg-background bg-opacity-50 px-2 py-1.5 text-left font-medium backdrop-blur-sm"
 				>
 					<ChevronRight class={twMerge('size-4 transition', open ? 'rotate-90 transform' : '')} />
-					{date} ({adData.length} ad{adData.length > 1 ? 's' : ''})
+					{groupKey} ({adData.length} ad{adData.length > 1 ? 's' : ''})
 					<!-- Ad count bar background -->
 					<div
 						class="absolute left-0 top-0 h-full bg-gradient-to-r from-foreground/25 to-transparent"
@@ -93,17 +214,37 @@
 					></div>
 				</div>
 			{/snippet}
-			<div
-				class="columns-xs break-inside-avoid-page items-start gap-10 p-2 transition-all sm:p-8"
-				transition:slide
-			>
-				{#each adData as adData, i}
+			<div transition:slide class="p-4">
+				<!-- {#each adData as adData, i}
 					<AdCard
-						bind:adData={ads[getIndex(adData)]}
+						adData={ads[getIndex(adData)]}
 						{...cardOptions}
 						onExpand={() => onSingleAdExpand(ads[getIndex(adData)])}
+						class="grid grid-rows-[64px_384px_64px]"
 					/>
-				{/each}
+				{/each} -->
+
+				<WindowVirtualizer data={rowData} overscan={1}>
+					{#snippet children(item, index)}
+						<div class="flex w-full flex-col items-center" transition:scale={{ duration: 300 }}>
+							<div
+								class="grid w-full gap-10"
+								style={`grid-template-columns: repeat(${groupSize}, 1fr)`}
+							>
+								{#each item as adData (adData.adId)}
+									<div animate:flip={{ duration: 150 }} transition:scale={{ duration: 150 }}>
+										<AdCard
+											adData={ads[getIndex(adData)]}
+											{exclude}
+											onExpand={() => onSingleAdExpand(ads[getIndex(adData)])}
+											class="grid w-full grid-rows-[auto_384px_auto]"
+										/>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/snippet}
+				</WindowVirtualizer>
 			</div>
 		</Accordion>
 	{/each}

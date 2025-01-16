@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { withBase } from '$lib/utils';
 	import { CalendarDaysIcon, Database, Hourglass, User } from 'lucide-svelte';
-	import type { RichAdData } from './mobile-observations/types';
+	import type { RichAdData } from '$lib/api/session/ads/types';
 	import { session } from '$lib/api/session/session.svelte';
 
 	const ads = $derived(session.ads.getAll());

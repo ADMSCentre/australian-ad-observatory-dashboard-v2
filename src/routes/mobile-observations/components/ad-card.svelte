@@ -23,16 +23,18 @@
 	import { twMerge } from 'tailwind-merge';
 	import AdCardBody from './ad-card-body.svelte';
 
+	type AdElement = 'adId' | 'time' | 'date' | 'observer';
+
 	export type Props = {
 		adData: RichAdData;
-		showObserver?: boolean;
+		exclude?: AdElement[];
 		onExpand?: () => void;
 		class?: string;
 	};
 
 	let {
-		adData = $bindable(),
-		showObserver = false,
+		adData,
+		exclude = ['observer'],
 		onExpand = () => {},
 		class: className = ''
 	}: Props = $props();
@@ -40,6 +42,8 @@
 	let element = $state<HTMLElement | null>(null);
 	let intersecting = $state(false);
 	let framesMode = $state<'raw' | 'stitched'>('stitched');
+
+	const isIncluded = (key: AdElement) => !exclude.includes(key);
 
 	// let attributes = $state<Awaited<ReturnType<typeof fetchAttributes>>>();
 </script>
@@ -56,11 +60,31 @@
 		<!-- Header -->
 		<div class="flex flex-col gap-0.5">
 			<div class="flex items-center justify-between gap-2">
-				<p class="inline-block rounded-full py-1 font-medium">
-					{adData.time}
+				<p class="inline-flex flex-col gap-1 rounded-full py-1 text-sm font-medium">
+					{#if isIncluded('date')}
+						<span>
+							{new Date(adData.timestamp).toLocaleDateString('en-GB', {
+								year: '2-digit',
+								month: 'short',
+								day: 'numeric'
+							})}
+						</span>
+					{/if}
+					{#if isIncluded('time')}
+						<span>
+							{new Date(adData.timestamp).toLocaleTimeString('en-GB', {
+								year: undefined,
+								hour: '2-digit',
+								minute: '2-digit',
+								second: '2-digit',
+								fractionalSecondDigits: 2,
+								hourCycle: 'h11'
+							})}
+						</span>
+					{/if}
 				</p>
 				<div class="flex items-center gap-2">
-					{#if showObserver}
+					{#if isIncluded('observer')}
 						<span class="inline-block text-xs font-extralight">Seen by</span>
 						<a
 							href={withBase(`mobile-observations/observer?observer_id=${adData.observer}`)}
@@ -82,35 +106,35 @@
 			</div>
 		</div>
 
-		<AdCardBody bind:adData visible={intersecting} {framesMode} />
-
-		{#if !auth.isGuest}
-			<div class="w-full text-2xs">
-				{#if framesMode === 'raw'}
-					<Button
-						variant="outline"
-						size="sm"
-						class="size-fit p-1.5"
-						onclick={() => (framesMode = 'stitched')}
-					>
-						<GalleryHorizontal /> Full Mode
-					</Button>
-					<p>All parts of the recording are shown</p>
-				{:else}
-					<Button
-						variant="outline"
-						size="sm"
-						class="size-fit p-1.5"
-						onclick={() => (framesMode = 'raw')}
-					>
-						<SquareBottomDashedScissors /> Cropped Mode
-					</Button>
-					<p>Only the ad content is shown</p>
-				{/if}
-			</div>
-		{/if}
+		<AdCardBody {adData} visible={intersecting} {framesMode} />
 
 		<!-- Footer -->
-		<div class="flex items-center justify-between gap-2"></div>
+		<div class="flex items-center justify-between gap-2">
+			{#if !auth.isGuest}
+				<div class="w-full text-2xs">
+					{#if framesMode === 'raw'}
+						<Button
+							variant="outline"
+							size="sm"
+							class="size-fit p-1.5"
+							onclick={() => (framesMode = 'stitched')}
+						>
+							<GalleryHorizontal /> Full Mode
+						</Button>
+						<p>All parts of the recording are shown</p>
+					{:else}
+						<Button
+							variant="outline"
+							size="sm"
+							class="size-fit p-1.5"
+							onclick={() => (framesMode = 'raw')}
+						>
+							<SquareBottomDashedScissors /> Cropped Mode
+						</Button>
+						<p>Only the ad content is shown</p>
+					{/if}
+				</div>
+			{/if}
+		</div>
 	</div>
 </IntersectionObserverSvelte>
