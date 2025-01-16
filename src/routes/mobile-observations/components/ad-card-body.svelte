@@ -1,28 +1,16 @@
 <script lang="ts">
-	import {
-		RotateCcw,
-		Braces,
-		Download,
-		Star,
-		EyeOff,
-		Eye,
-		Play,
-		Pause,
-		GalleryHorizontal,
-		SquareBottomDashedScissors
-	} from 'lucide-svelte';
+	import { RotateCcw, Braces, Download, Star, EyeOff, Eye, Play, Pause } from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
 	import { Button } from '$lib/components/ui/button';
 	import { Slider } from '$lib/components/ui/slider';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import Codemirror from 'svelte-codemirror-editor';
-	import type { RichAdData } from '../types';
 	import { client } from '$lib/api/client';
 	import { auth } from '$lib/api/auth/auth.svelte';
 	import { json } from '@codemirror/lang-json';
-	import { getAdFrameUrls } from '$lib/api/mobile-observations';
-	import { fetchAttributes, fetchStitchFrames } from '../utils';
 	import ImagesGif from '../observer/images-gif.svelte';
+	import type { RichAdData } from '$lib/api/session/ads/types';
+	import { session } from '$lib/api/session/session.svelte';
 
 	// {adData} {adData.rawFrames} {completed} {currentIndex} {autoPlay} {onSliderChange}
 	type Props = {
@@ -45,10 +33,7 @@
 
 	$effect(() => {
 		(async () => {
-			if (!visible || !auth.token) return;
-			adData.attributes = await syncAttributes();
-			adData.rawFrames = await getAdFrameUrls(auth.token, adData);
-			adData.stitchedFrames = await fetchStitchFrames(adData, auth.token);
+			session.ads.enrich(adData, ['rawFrames', 'stitchedFrames', 'attributes']);
 		})();
 	});
 
@@ -58,20 +43,6 @@
 		}
 		return adData.stitchedFrames;
 	});
-
-	const syncAttributes = async () => {
-		if (!auth.token) return {};
-		try {
-			isUpdatingAttributes = true;
-			const attributes = await fetchAttributes(adData, auth.token);
-			return attributes;
-		} catch (error) {
-			console.error(error);
-			return {};
-		} finally {
-			isUpdatingAttributes = false;
-		}
-	};
 
 	const setAttribute = async (key: string, value: any) => {
 		// Optimistically update the attributes state
@@ -100,8 +71,10 @@
 			console.error(error);
 			return;
 		}
-		// Update the attributes state with the true value
-		adData.attributes = await syncAttributes();
+		// Update the attributes state with the actual value online
+		session.ads.enrich(adData, ['attributes'], {
+			preferCache: false
+		});
 	};
 
 	let completed = $state(false);

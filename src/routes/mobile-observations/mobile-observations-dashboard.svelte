@@ -2,7 +2,7 @@
 	import 'ag-grid-community/styles/ag-grid.css'; // Core grid CSS, always needed
 	import 'ag-grid-community/styles/ag-theme-alpine.css'; // Optional theme CSS
 	import type { DateRange } from 'bits-ui';
-	import { dateToCalendarDate } from './utils';
+	import { dateToCalendarDate } from '../../lib/api/session/ads/utils';
 	import type { BasicAdData } from './types';
 	import ObservationsTimeline from './components/observations-timeline.svelte';
 	import ObserversTable from './components/observers-table.svelte';

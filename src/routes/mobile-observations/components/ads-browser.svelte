@@ -2,7 +2,7 @@
 	import type { DateRange } from 'bits-ui';
 	import type { BasicAdData, RichAdData } from '../types';
 	import AdCard, { type Props as AdCardProps } from './ad-card.svelte';
-	import { dateToCalendarDate } from '../utils';
+	import { dateToCalendarDate } from '../../../lib/api/session/ads/utils';
 	import Accordion from '$lib/components/accordion/accordion.svelte';
 	import { ChevronDown, ChevronRight } from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';

@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { json } from '@codemirror/lang-json';
-	import type { MediaSource, RichDataObject } from '../../rich-data-object-type';
+	import type {
+		MediaSource,
+		RichDataObject
+	} from '../../../../lib/api/session/ads/rich-data-object-type';
 	import Codemirror from 'svelte-codemirror-editor';
 	import Accordion from '$lib/components/accordion/accordion.svelte';
 	import {
@@ -17,7 +20,7 @@
 	import { flip } from 'svelte/animate';
 	import { data } from '../../../users/columns.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import { fetchMedia, formatTimestamp } from '../../utils';
+	import { fetchMedia, formatTimestamp } from '../../../../lib/api/session/ads/utils';
 	import { auth } from '$lib/api/auth/auth.svelte';
 
 	const {

@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { auth } from '$lib/api/auth/auth.svelte';
-	import { getAdFrameUrls } from '$lib/api/mobile-observations';
 	import { Slider } from '$lib/components/ui/slider';
 	import { twMerge } from 'tailwind-merge';
-	import type { RichDataObject } from '../../rich-data-object-type';
-	import { fetchStitchFrames, formatTimestamp } from '../../utils';
+	import type { RichDataObject } from '../../../../lib/api/session/ads/rich-data-object-type';
+	import { fetchStitchFrames, formatTimestamp } from '../../../../lib/api/session/ads/utils';
 
 	type Keyframe = RichDataObject['observation']['keyframes'][0];
 	type AdDimension = RichDataObject['observation']['ad_dimensions'];

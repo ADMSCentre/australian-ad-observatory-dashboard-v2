@@ -1,6 +1,6 @@
-import { enrichAllAds, parseAdsIndex } from './session/ads/utils';
-import { client, runWithCache, generateCacheKey } from '$lib/api/client';
-import type { IndexGroupType, ExpandType, RichAdData, ObservationIndex } from './session/ads/types';
+import { runWithCache, generateCacheKey, client } from '$lib/api/client';
+import { parseAdsIndex, enrichAllAds } from './utils';
+import type { ExpandType, IndexGroupType, ObservationIndex, RichAdData } from './types';
 
 const parseAdPath = (path: string) => {
 	const parts = path.split('/');
@@ -52,11 +52,6 @@ export const listAllAds = async (
 	return ads.filter((ad) => filters.every((filter) => filter(ad)));
 };
 
-export interface QuickAccessCacheResponse {
-	success: boolean;
-	data: ObservationIndex;
-}
-
 export const listAdsForObserver = async (
 	token: string,
 	observer: string,
@@ -91,44 +86,4 @@ export const listAdsForObserver = async (
 		ads = await enrichAllAds(ads, token, expand);
 	}
 	return ads.filter((ad) => filters.every((filter) => filter(ad)));
-};
-
-export const getAdFrameUrls = async (
-	token: string,
-	adData: {
-		observer: string;
-		timestamp: number;
-		adId: string;
-	}
-) => {
-	const url = '/ads/{observer_id}/{timestamp}.{ad_id}/frames';
-	const options = {
-		headers: {
-			Authorization: `Bearer ${token}`
-		},
-		params: {
-			path: {
-				observer_id: adData.observer,
-				timestamp: adData.timestamp.toString(),
-				ad_id: adData.adId
-			}
-		}
-	};
-
-	return await runWithCache<string[]>({
-		cacheKey: generateCacheKey(url, options),
-		run: async () => {
-			const { data, error } = await client.GET(url, options);
-			if (!data?.success || !data.presigned_urls || error) {
-				return [];
-			}
-			return data.presigned_urls;
-		},
-		cache: async (data) => {
-			const urlParams = new URLSearchParams(data[0]);
-			const expireAt = urlParams.get('Expires') || -1;
-			const expireAtMs = expireAt !== -1 && +expireAt * 1000;
-			return { data, expireAt: +expireAtMs };
-		}
-	});
 };

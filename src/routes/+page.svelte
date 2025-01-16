@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { auth } from '$lib/api/auth/auth.svelte';
-	import { listAllAds } from '$lib/api/mobile-observations';
 	import { withBase } from '$lib/utils';
 	import { CalendarDaysIcon, Database, Hourglass, User } from 'lucide-svelte';
 	import type { RichAdData } from './mobile-observations/types';
+	import { session } from '$lib/api/session/session.svelte';
 
-	const ads = $derived(auth.token ? listAllAds(auth.token) : []);
+	const ads = $derived(session.ads.getAll());
 
 	const summarise = (ads: RichAdData[]) => {
 		// Number of ads in the last 24 hours

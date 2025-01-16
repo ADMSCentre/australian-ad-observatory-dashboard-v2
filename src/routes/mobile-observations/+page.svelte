@@ -1,23 +1,16 @@
 <script lang="ts">
-	import { auth } from '$lib/api/auth/auth.svelte';
+	import { session } from '$lib/api/session/session.svelte';
 	import { Circle } from 'svelte-loading-spinners';
-	import { listAllAds } from '$lib/api/mobile-observations';
 	import MobileObservationsDashboard from './mobile-observations-dashboard.svelte';
-	import type { RichAdData } from './types';
+	import type { RichAdData } from '$lib/api/session/ads/types';
 	import { theme } from '$lib/states/theme.svelte';
 
-	// import { parseAdsIndex } from './utils';
 	let ads = $state<RichAdData[]>([]);
 	let isLoading = $state(true);
 
-	const fetchAdsIndex = async () => {
-		if (!auth.token) return [];
-		return await listAllAds(auth.token);
-	};
-
 	$effect(() => {
 		(async () => {
-			ads = await fetchAdsIndex();
+			ads = await session.ads.getAll();
 			isLoading = false;
 		})();
 	});

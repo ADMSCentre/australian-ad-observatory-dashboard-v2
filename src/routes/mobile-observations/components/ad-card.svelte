@@ -14,7 +14,7 @@
 		ScanSearch
 	} from 'lucide-svelte/icons';
 	import ImagesGif from '../observer/images-gif.svelte';
-	import type { BasicAdData, RichAdData } from '../types';
+	import type { BasicAdData, RichAdData } from '$lib/api/session/ads/types';
 	import { auth } from '$lib/api/auth/auth.svelte';
 	import IntersectionObserverSvelte from 'svelte-intersection-observer/IntersectionObserver.svelte';
 	import { withBase } from '$lib/utils';

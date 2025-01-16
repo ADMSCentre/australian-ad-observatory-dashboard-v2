@@ -10,10 +10,9 @@
 		Share2,
 		Square
 	} from 'lucide-svelte/icons';
-	import { listAdsForObserver } from '$lib/api/mobile-observations';
 	import { auth } from '$lib/api/auth/auth.svelte';
 	import { Circle } from 'svelte-loading-spinners';
-	import type { RichAdData } from '../types';
+	import type { RichAdData } from '$lib/api/session/ads/types';
 	import AdsBrowser from '../components/ads-browser.svelte';
 	import ObservationsTimeline from '../components/observations-timeline.svelte';
 	import { withBase } from '$lib/utils';
@@ -27,6 +26,7 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import { guestSessions } from '$lib/api/auth/guest-sessions.svelte';
 	import ShareSessionForm from './share-session-form.svelte';
+	import { session } from '$lib/api/session/session.svelte';
 
 	const participantId = $page.url.searchParams.get('observer_id') || '';
 	const pageUrl = $page.url.href;
@@ -40,14 +40,9 @@
 		return [(ad: RichAdData) => !ad.attributes?.hidden?.value];
 	});
 
-	const fetchAdsIndex = async () => {
-		if (!auth.token) return [];
-		return await listAdsForObserver(auth.token, participantId);
-	};
-
 	$effect(() => {
 		(async () => {
-			ads = await fetchAdsIndex();
+			ads = await session.ads.getByObserver(participantId);
 		})();
 	});
 

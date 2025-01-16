@@ -5,12 +5,13 @@
 	import Codemirror from 'svelte-codemirror-editor';
 	import { json } from '@codemirror/lang-json';
 
-	import type { RichAdData } from '../../types';
-	import { fetchRichDataObject } from '../../utils';
+	import { fetchRichDataObject } from '../../../../lib/api/session/ads/utils';
 	import AdCardBody from '../ad-card-body.svelte';
 	import OcrView from './ocr-view.svelte';
 	import CandidatesView from './candidates-view.svelte';
-	import type { MediaSource } from '../../rich-data-object-type';
+	import type { MediaSource } from '../../../../lib/api/session/ads/rich-data-object-type';
+	import type { RichAdData } from '$lib/api/session/ads/types';
+	import { session } from '$lib/api/session/session.svelte';
 
 	let {
 		richViewExpanded = $bindable(false),
@@ -21,10 +22,8 @@
 	} = $props();
 
 	$effect(() => {
-		(async () => {
-			if (!currentAd || !auth.token) return;
-			currentAd.richDataObject = await fetchRichDataObject(currentAd, auth.token);
-		})();
+		if (!currentAd) return;
+		session.ads.enrich(currentAd, ['richDataObject']);
 	});
 
 	const keyframes = $derived(currentAd?.richDataObject?.observation.keyframes || null);
@@ -61,7 +60,7 @@
 				.ad_scrape_sources
 		};
 		return Object.entries(scrapeSources).reduce(
-			(acc, [path, mediaObj]) => {
+			(acc, [path, mediaObj]: [string, any]) => {
 				const mediaUrl = mediaObj.media_url;
 				const fullPath = `${scrapeReference.observer_uuid}/meta_adlibrary_scrape/${scrapeReference.tentative_ad}/${path}`;
 				acc[mediaUrl] = { ...mediaObj, filename: path, fullPath };

@@ -1,9 +1,14 @@
-import type { ObservationIndex } from '$lib/api/mobile-observations';
 import { CalendarDate } from '@internationalized/date';
-import type { BasicAdData, RichAdData } from './types';
 import { client, generateCacheKey, runWithCache } from '$lib/api/client';
-import rdo from './rdo.json';
+import rdo from '../../../../routes/mobile-observations/rdo.json';
 import type { RichDataObject } from './rich-data-object-type';
+import type {
+	IndexGroupType,
+	ExpandType,
+	BasicAdData,
+	RichAdData,
+	ObservationIndex
+} from './types';
 
 export const dateToCalendarDate = (date: Date) => {
 	return new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
@@ -25,8 +30,11 @@ export const formatTimestamp = (
 	return new Intl.DateTimeFormat('en-GB', opts).format(date);
 };
 
-export const parseAdsIndex = (index: ObservationIndex) => {
-	const adsIndex = index['ads_passed_restitch']
+export const parseAdsIndex = (
+	index: ObservationIndex,
+	type: IndexGroupType = 'ads_passed_restitch'
+) => {
+	const adsIndex = index[type]
 		.map((ad) => {
 			// Convert timestamp to date (DD/MM/YYYY) and time (HH:MM:SS.SSS)
 			const date = new Date(+ad.timestamp).toLocaleDateString('en-US', {
@@ -50,8 +58,6 @@ export const parseAdsIndex = (index: ObservationIndex) => {
 		.toSorted((a, b) => b.timestamp - a.timestamp);
 	return adsIndex;
 };
-
-export type ExpandType = 'attributes' | 'richDataObject';
 
 export const enrichAllAds = async (
 	ads: BasicAdData[],

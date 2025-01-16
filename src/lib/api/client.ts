@@ -31,14 +31,14 @@ export const setCache = async (cacheKey: string, data: unknown, expireAt: number
  * Run a function and cache the result. Optionally provide a cache function to transform the result of the run function before caching.
  * @typeParam T The type of the data returned by the run function
  * @param cacheKey The key to use for caching
- * @param runFn The function to retrieve the data to cache
- * @param cacheFn A function to transform the data before caching, can be used to add an expiry time
+ * @param run The function to retrieve the data to cache
+ * @param cache A function to transform the data before caching, can be used to add an expiry time
  * @returns The data returned by the run function, or the cached data if it exists
  */
 export const runWithCache = async <T>({
 	cacheKey,
-	run: runFn,
-	cache: cacheFn = async (data: T) => ({ data, expireAt: -1 })
+	run,
+	cache = async (data: T) => ({ data, expireAt: -1 })
 }: {
 	cacheKey: string;
 	run: () => Promise<T>;
@@ -51,8 +51,8 @@ export const runWithCache = async <T>({
 	if (data) {
 		return data;
 	}
-	const result = await runFn();
-	const { data: dataToCache, expireAt } = await cacheFn(result);
+	const result = await run();
+	const { data: dataToCache, expireAt } = await cache(result);
 	await setCache(cacheKey, dataToCache, expireAt);
 	return result;
 };

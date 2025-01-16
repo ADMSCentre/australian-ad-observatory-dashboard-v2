@@ -4,1643 +4,1644 @@
  */
 
 export interface paths {
-    "/auth/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Log the user in and return a JSON web token.
-         * @description Log the user in and create a JSON web token for the user, which can be used to authenticate the user in future requests.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        username?: string;
-                        password?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description A successful login */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            token?: string;
-                        };
-                    };
-                };
-                /** @description A failed login */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/verify": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Verify the JSON web token.
-         * @description Return whether the JSON web token is valid.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        token?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description A successful verification */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                        };
-                    };
-                };
-                /** @description A failed verification */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example VERIFY_FAILED */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/logout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Log the user out.
-         * @description Log the user out and disable the JSON web token to prevent further authentication using the same token.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        token?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description A successful logout */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                        };
-                    };
-                };
-                /** @description A failed logout */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example LOGOUT_FAILED */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/refresh": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Refresh the JSON web token.
-         * @description Refresh the JSON web token to extend the session.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        token?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description A successful refresh */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            token?: string;
-                        };
-                    };
-                };
-                /** @description A failed refresh */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example REFRESH_FAILED */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Returns a list of users from the database (admin only) [allows - admin]
-         * @description Returns a list of users stored in the database.
-         *
-         *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            username?: string;
-                            enabled?: boolean;
-                            password?: string;
-                            full_name?: string;
-                            role?: string;
-                        }[];
-                    };
-                };
-                /** @description A failed response */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            comment?: string;
-                        };
-                    };
-                };
-                /** @description Unauthorized access */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example UNAUTHORISED */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create a new user (admin only) [allows - admin]
-         * @description Create a new user in the database.
-         *
-         *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        username: string;
-                        enabled: boolean;
-                        password: string;
-                        full_name: string;
-                        role: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description User created successfully */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            comment?: string;
-                        };
-                    };
-                };
-                /** @description User creation failed */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example User already exists */
-                            comment?: string;
-                        };
-                    };
-                };
-                /** @description Unauthorized access */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example UNAUTHORISED */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/{username}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a user from the database (self or admin only) [allows - user, admin]
-         * @description Get a user's information stored in the database.
-         *
-         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The username of the user to get */
-                    username: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            username?: string;
-                            enabled?: boolean;
-                            password?: string;
-                            full_name?: string;
-                            role?: string;
-                        };
-                    };
-                };
-                /** @description A failed response */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example User not found */
-                            comment?: string;
-                        };
-                    };
-                };
-                /** @description Unauthorized access */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example UNAUTHORISED */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete a user (admin only) [allows - admin]
-         * @description Delete a user by moving their data to the recycle bin.
-         *
-         *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The username of the user to delete */
-                    username: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description User deleted successfully */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            comment?: string;
-                        };
-                    };
-                };
-                /** @description User deletion failed */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example User not found */
-                            comment?: string;
-                        };
-                    };
-                };
-                /** @description Unauthorized access */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example UNAUTHORISED */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /**
-         * Edit a user's information (self or admin only) [allows - user, admin]
-         * @description Edit a user's information. All fields are optional, and only the fields provided will be updated.
-         *
-         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The username of the user to edit */
-                    username: string;
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        enabled?: boolean;
-                        password?: string;
-                        full_name?: string;
-                        role?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description A successful edit */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            comment?: string;
-                        };
-                    };
-                };
-                /** @description A failed edit */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example User not found */
-                            comment?: string;
-                        };
-                    };
-                };
-                /** @description Unauthorized edit */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example UNAUTHORISED */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/users/self": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the current user's information [allows - user, admin]
-         * @description Get the information of the user making the request.
-         *
-         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            username?: string;
-                            enabled?: boolean;
-                            password?: string;
-                            full_name?: string;
-                            role?: string;
-                        };
-                    };
-                };
-                /** @description A failed response */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example User not found */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ads/{observer_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve the access cache for an observer.
-         * @description Retrieve the quick access cache for the specified observer.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    observer_id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            data?: Record<string, never>;
-                        };
-                    };
-                };
-                /** @description A failed response */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example OBSERVER_NOT_PROVIDED_IN_PATH */
-                            comment?: string;
-                        };
-                    };
-                };
-                /** @description No cache found for observer */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example NO_CACHE_FOUND_FOR_OBSERVER */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ads/{observer_id}/{timestamp}.{ad_id}/stitching/frames": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the presigned URLs for the frames of an ad's stitching.
-         * @description Retrieve presigned URLs for the frames of the specified ad's stitching, which is the cropped version of the ad that removes the irrelevant parts.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    observer_id: string;
-                    timestamp: string;
-                    ad_id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            frame_paths?: string[];
-                            presigned_urls?: string[];
-                        };
-                    };
-                };
-                /** @description A failed response */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example PATH_NOT_PROVIDED */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ads/{observer_id}/{timestamp}.{ad_id}/frames": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the presigned URLs for the frames of an ad.
-         * @description Retrieve presigned URLs for the frames of the specified ad.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    observer_id: string;
-                    timestamp: string;
-                    ad_id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            frame_paths?: string[];
-                            presigned_urls?: string[];
-                        };
-                    };
-                };
-                /** @description A failed response */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example PATH_NOT_PROVIDED */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ads": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve the ads stream index.
-         * @description Retrieve the ads stream index from the S3 bucket, or recompute it if it is older than 24 hours.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            presigned_url?: string;
-                        };
-                    };
-                };
-                /** @description A failed response */
-                500: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example FAILED_TO_COMPUTE_ADS_STREAM_INDEX */
-                            comment?: string;
-                            error?: string;
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/observers": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List all observers. [allows - user, admin]
-         * @description Retrieve a list of all observers from the S3 bucket.
-         *
-         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": string[];
-                    };
-                };
-                /** @description A failed response */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ads/{observer_id}/{timestamp}.{ad_id}/attributes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve all attributes for an ad.
-         * @description Retrieve all custom attributes for the specified ad.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    observer_id: string;
-                    timestamp: string;
-                    ad_id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            ad_id?: string;
-                            observer?: string;
-                            timestamp?: number;
-                            attributes?: {
-                                [key: string]: {
-                                    value?: string;
-                                    created_at?: number;
-                                    created_by?: string;
-                                    modified_at?: number;
-                                    modified_by?: string;
-                                };
-                            };
-                        };
-                    };
-                };
-                /** @description A failed response */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example ERROR_RETRIEVING_ATTRIBUTES */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        /**
-         * Add or update ad attributes in the database. [allows - user, admin]
-         * @description Add or update custom attributes for the specified ad in the database.
-         *
-         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
-         */
-        put: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    observer_id: string;
-                    timestamp: string;
-                    ad_id: string;
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        attribute?: {
-                            key?: string;
-                            value?: string;
-                        };
-                    };
-                };
-            };
-            responses: {
-                /** @description A successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            comment?: string;
-                        };
-                    };
-                };
-                /** @description A failed response */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example AD_NOT_FOUND */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ads/{observer_id}/{timestamp}.{ad_id}/attributes/{attribute_key}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a single attribute for an ad.
-         * @description Retrieve a specific custom attribute for the specified ad.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    observer_id: string;
-                    timestamp: string;
-                    ad_id: string;
-                    attribute_key: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            key?: string;
-                            value?: string;
-                            created_at?: number;
-                            created_by?: string;
-                            modified_at?: number;
-                            modified_by?: string;
-                        };
-                    };
-                };
-                /** @description A failed response */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example ATTRIBUTE_NOT_FOUND */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete ad attributes from the database. [allows - user, admin]
-         * @description Delete custom attributes for the specified ad in the database.
-         *
-         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    observer_id: string;
-                    timestamp: string;
-                    ad_id: string;
-                    attribute_key: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            comment?: string;
-                        };
-                    };
-                };
-                /** @description A failed response */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example ERROR_DELETING_ATTRIBUTE */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/medias": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a media file from S3 from a given path in the query string.
-         * @description The path should be a key in the S3 bucket.
-         */
-        get: {
-            parameters: {
-                query: {
-                    /** @description The path to the media file in the S3 bucket */
-                    path: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example true */
-                            success?: boolean;
-                            path?: string;
-                            url?: string;
-                        };
-                    };
-                };
-                /** @description File not found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example FILE_NOT_FOUND */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/guests": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List all guest sessions. [allows - admin, user]
-         * @description This endpoint requires the authenticated user to have one of the following roles: **admin, user**.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A JSON array containing session data */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            key?: string;
-                            data?: Record<string, never>;
-                        }[];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * Create a guest session. [allows - admin, user]
-         * @description This endpoint requires the authenticated user to have one of the following roles: **admin, user**.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        /** @description A unique identifier for the session. */
-                        key?: string;
-                        /** @description The time in seconds until the session expires. */
-                        expiration_time?: number;
-                        /** @description A description of the session. */
-                        description?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description A JSON object containing the session token */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            token?: string;
-                        };
-                    };
-                };
-                /** @description A JSON object containing an error message */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/guests/{key}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Retrieve a guest session. */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The key of the session. */
-                    key: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A JSON object containing the session token */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            token?: string;
-                        };
-                    };
-                };
-                /** @description A JSON object containing an error message */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete a guest session. [allows - admin, user]
-         * @description This endpoint requires the authenticated user to have one of the following roles: **admin, user**.
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The key of the session. */
-                    key: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A JSON object indicating success */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            comment?: string;
-                        };
-                    };
-                };
-                /** @description A JSON object containing an error message */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        /**
-         * Update a guest session. [allows - admin, user]
-         * @description This endpoint requires the authenticated user to have one of the following roles: **admin, user**.
-         */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description The key of the session. */
-                    key: string;
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        /** @description A new description for the session. */
-                        description?: string;
-                        /** @description A new expiration time for the session in seconds. */
-                        expiration_time?: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description A JSON object indicating success */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            comment?: string;
-                        };
-                    };
-                };
-                /** @description A JSON object containing an error message */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        trace?: never;
-    };
-    "/reflect": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Reflect the event back to the client.
-         * @description Return the event object as the response.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-            responses: {
-                /** @description A successful reflection */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": Record<string, never>;
-                    };
-                };
-                /** @description A failed reflection */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/hello": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/hello/{user_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    user_id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
+	'/auth/login': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/**
+		 * Log the user in and return a JSON web token.
+		 * @description Log the user in and create a JSON web token for the user, which can be used to authenticate the user in future requests.
+		 */
+		post: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path?: never;
+				cookie?: never;
+			};
+			requestBody: {
+				content: {
+					'application/json': {
+						username?: string;
+						password?: string;
+					};
+				};
+			};
+			responses: {
+				/** @description A successful login */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							token?: string;
+						};
+					};
+				};
+				/** @description A failed login */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/auth/verify': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/**
+		 * Verify the JSON web token.
+		 * @description Return whether the JSON web token is valid.
+		 */
+		post: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path?: never;
+				cookie?: never;
+			};
+			requestBody: {
+				content: {
+					'application/json': {
+						token?: string;
+					};
+				};
+			};
+			responses: {
+				/** @description A successful verification */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+						};
+					};
+				};
+				/** @description A failed verification */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example VERIFY_FAILED */
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/auth/logout': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/**
+		 * Log the user out.
+		 * @description Log the user out and disable the JSON web token to prevent further authentication using the same token.
+		 */
+		post: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path?: never;
+				cookie?: never;
+			};
+			requestBody: {
+				content: {
+					'application/json': {
+						token?: string;
+					};
+				};
+			};
+			responses: {
+				/** @description A successful logout */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+						};
+					};
+				};
+				/** @description A failed logout */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example LOGOUT_FAILED */
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/auth/refresh': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/**
+		 * Refresh the JSON web token.
+		 * @description Refresh the JSON web token to extend the session.
+		 */
+		post: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path?: never;
+				cookie?: never;
+			};
+			requestBody: {
+				content: {
+					'application/json': {
+						token?: string;
+					};
+				};
+			};
+			responses: {
+				/** @description A successful refresh */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							token?: string;
+						};
+					};
+				};
+				/** @description A failed refresh */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example REFRESH_FAILED */
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/users': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * Returns a list of users from the database (admin only) [allows - admin]
+		 * @description Returns a list of users stored in the database.
+		 *
+		 *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
+		 */
+		get: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path?: never;
+				cookie?: never;
+			};
+			requestBody?: never;
+			responses: {
+				/** @description A successful response */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							username?: string;
+							enabled?: boolean;
+							password?: string;
+							full_name?: string;
+							role?: string;
+						}[];
+					};
+				};
+				/** @description A failed response */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							comment?: string;
+						};
+					};
+				};
+				/** @description Unauthorized access */
+				403: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example UNAUTHORISED */
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		put?: never;
+		/**
+		 * Create a new user (admin only) [allows - admin]
+		 * @description Create a new user in the database.
+		 *
+		 *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
+		 */
+		post: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path?: never;
+				cookie?: never;
+			};
+			requestBody: {
+				content: {
+					'application/json': {
+						username: string;
+						enabled: boolean;
+						password: string;
+						full_name: string;
+						role: string;
+					};
+				};
+			};
+			responses: {
+				/** @description User created successfully */
+				201: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							comment?: string;
+						};
+					};
+				};
+				/** @description User creation failed */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example User already exists */
+							comment?: string;
+						};
+					};
+				};
+				/** @description Unauthorized access */
+				403: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example UNAUTHORISED */
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/users/{username}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * Get a user from the database (self or admin only) [allows - user, admin]
+		 * @description Get a user's information stored in the database.
+		 *
+		 *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
+		 */
+		get: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path: {
+					/** @description The username of the user to get */
+					username: string;
+				};
+				cookie?: never;
+			};
+			requestBody?: never;
+			responses: {
+				/** @description A successful response */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							username?: string;
+							enabled?: boolean;
+							password?: string;
+							full_name?: string;
+							role?: string;
+						};
+					};
+				};
+				/** @description A failed response */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example User not found */
+							comment?: string;
+						};
+					};
+				};
+				/** @description Unauthorized access */
+				403: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example UNAUTHORISED */
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		put?: never;
+		post?: never;
+		/**
+		 * Delete a user (admin only) [allows - admin]
+		 * @description Delete a user by moving their data to the recycle bin.
+		 *
+		 *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
+		 */
+		delete: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path: {
+					/** @description The username of the user to delete */
+					username: string;
+				};
+				cookie?: never;
+			};
+			requestBody?: never;
+			responses: {
+				/** @description User deleted successfully */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							comment?: string;
+						};
+					};
+				};
+				/** @description User deletion failed */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example User not found */
+							comment?: string;
+						};
+					};
+				};
+				/** @description Unauthorized access */
+				403: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example UNAUTHORISED */
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		options?: never;
+		head?: never;
+		/**
+		 * Edit a user's information (self or admin only) [allows - user, admin]
+		 * @description Edit a user's information. All fields are optional, and only the fields provided will be updated.
+		 *
+		 *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
+		 */
+		patch: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path: {
+					/** @description The username of the user to edit */
+					username: string;
+				};
+				cookie?: never;
+			};
+			requestBody: {
+				content: {
+					'application/json': {
+						enabled?: boolean;
+						password?: string;
+						full_name?: string;
+						role?: string;
+					};
+				};
+			};
+			responses: {
+				/** @description A successful edit */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							comment?: string;
+						};
+					};
+				};
+				/** @description A failed edit */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example User not found */
+							comment?: string;
+						};
+					};
+				};
+				/** @description Unauthorized edit */
+				403: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example UNAUTHORISED */
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		trace?: never;
+	};
+	'/users/self': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * Get the current user's information [allows - user, admin]
+		 * @description Get the information of the user making the request.
+		 *
+		 *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
+		 */
+		get: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path?: never;
+				cookie?: never;
+			};
+			requestBody?: never;
+			responses: {
+				/** @description A successful response */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							username?: string;
+							enabled?: boolean;
+							password?: string;
+							full_name?: string;
+							role?: string;
+						};
+					};
+				};
+				/** @description A failed response */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example User not found */
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/ads/{observer_id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * Retrieve the access cache for an observer.
+		 * @description Retrieve the quick access cache for the specified observer.
+		 */
+		get: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path: {
+					observer_id: string;
+				};
+				cookie?: never;
+			};
+			requestBody?: never;
+			responses: {
+				/** @description A successful response */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							data?: Record<string, never>;
+						};
+					};
+				};
+				/** @description A failed response */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example OBSERVER_NOT_PROVIDED_IN_PATH */
+							comment?: string;
+						};
+					};
+				};
+				/** @description No cache found for observer */
+				404: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example NO_CACHE_FOUND_FOR_OBSERVER */
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/ads/{observer_id}/{timestamp}.{ad_id}/stitching/frames': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * Get the presigned URLs for the frames of an ad's stitching.
+		 * @description Retrieve presigned URLs for the frames of the specified ad's stitching, which is the cropped version of the ad that removes the irrelevant parts.
+		 */
+		get: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path: {
+					observer_id: string;
+					timestamp: string;
+					ad_id: string;
+				};
+				cookie?: never;
+			};
+			requestBody?: never;
+			responses: {
+				/** @description A successful response */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							frame_paths?: string[];
+							presigned_urls?: string[];
+						};
+					};
+				};
+				/** @description A failed response */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example PATH_NOT_PROVIDED */
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/ads/{observer_id}/{timestamp}.{ad_id}/frames': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * Get the presigned URLs for the frames of an ad.
+		 * @description Retrieve presigned URLs for the frames of the specified ad.
+		 */
+		get: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path: {
+					observer_id: string;
+					timestamp: string;
+					ad_id: string;
+				};
+				cookie?: never;
+			};
+			requestBody?: never;
+			responses: {
+				/** @description A successful response */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							frame_paths?: string[];
+							presigned_urls?: string[];
+						};
+					};
+				};
+				/** @description A failed response */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example PATH_NOT_PROVIDED */
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/ads': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * Retrieve the ads stream index.
+		 * @description Retrieve the ads stream index from the S3 bucket, or recompute it if it is older than 24 hours.
+		 */
+		get: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path?: never;
+				cookie?: never;
+			};
+			requestBody?: never;
+			responses: {
+				/** @description A successful response */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							presigned_url?: string;
+						};
+					};
+				};
+				/** @description A failed response */
+				500: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example FAILED_TO_COMPUTE_ADS_STREAM_INDEX */
+							comment?: string;
+							error?: string;
+						};
+					};
+				};
+			};
+		};
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/observers': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * List all observers. [allows - user, admin]
+		 * @description Retrieve a list of all observers from the S3 bucket.
+		 *
+		 *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
+		 */
+		get: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path?: never;
+				cookie?: never;
+			};
+			requestBody?: never;
+			responses: {
+				/** @description A successful response */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': string[];
+					};
+				};
+				/** @description A failed response */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/ads/{observer_id}/{timestamp}.{ad_id}/attributes': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * Retrieve all attributes for an ad.
+		 * @description Retrieve all custom attributes for the specified ad.
+		 */
+		get: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path: {
+					observer_id: string;
+					timestamp: string;
+					ad_id: string;
+				};
+				cookie?: never;
+			};
+			requestBody?: never;
+			responses: {
+				/** @description A successful response */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							ad_id?: string;
+							observer?: string;
+							timestamp?: number;
+							attributes?: {
+								[key: string]: {
+									value?: string;
+									created_at?: number;
+									created_by?: string;
+									modified_at?: number;
+									modified_by?: string;
+								};
+							};
+						};
+					};
+				};
+				/** @description A failed response */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example ERROR_RETRIEVING_ATTRIBUTES */
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		/**
+		 * Add or update ad attributes in the database. [allows - user, admin]
+		 * @description Add or update custom attributes for the specified ad in the database.
+		 *
+		 *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
+		 */
+		put: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path: {
+					observer_id: string;
+					timestamp: string;
+					ad_id: string;
+				};
+				cookie?: never;
+			};
+			requestBody: {
+				content: {
+					'application/json': {
+						attribute?: {
+							key?: string;
+							value?: string;
+						};
+					};
+				};
+			};
+			responses: {
+				/** @description A successful response */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							comment?: string;
+						};
+					};
+				};
+				/** @description A failed response */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example AD_NOT_FOUND */
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/ads/{observer_id}/{timestamp}.{ad_id}/attributes/{attribute_key}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * Retrieve a single attribute for an ad.
+		 * @description Retrieve a specific custom attribute for the specified ad.
+		 */
+		get: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path: {
+					observer_id: string;
+					timestamp: string;
+					ad_id: string;
+					attribute_key: string;
+				};
+				cookie?: never;
+			};
+			requestBody?: never;
+			responses: {
+				/** @description A successful response */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							key?: string;
+							value?: string;
+							created_at?: number;
+							created_by?: string;
+							modified_at?: number;
+							modified_by?: string;
+						};
+					};
+				};
+				/** @description A failed response */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example ATTRIBUTE_NOT_FOUND */
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		put?: never;
+		post?: never;
+		/**
+		 * Delete ad attributes from the database. [allows - user, admin]
+		 * @description Delete custom attributes for the specified ad in the database.
+		 *
+		 *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
+		 */
+		delete: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path: {
+					observer_id: string;
+					timestamp: string;
+					ad_id: string;
+					attribute_key: string;
+				};
+				cookie?: never;
+			};
+			requestBody?: never;
+			responses: {
+				/** @description A successful response */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							comment?: string;
+						};
+					};
+				};
+				/** @description A failed response */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example ERROR_DELETING_ATTRIBUTE */
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/medias': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * Get a media file from S3 from a given path in the query string.
+		 * @description The path should be a key in the S3 bucket.
+		 */
+		get: {
+			parameters: {
+				query: {
+					/** @description The path to the media file in the S3 bucket */
+					path: string;
+				};
+				header?: never;
+				path?: never;
+				cookie?: never;
+			};
+			requestBody?: never;
+			responses: {
+				/** @description A successful response */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							presigned_url: any;
+							/** @example true */
+							success?: boolean;
+							path?: string;
+							url?: string;
+						};
+					};
+				};
+				/** @description File not found */
+				404: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							/** @example false */
+							success?: boolean;
+							/** @example FILE_NOT_FOUND */
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/guests': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/**
+		 * List all guest sessions. [allows - admin, user]
+		 * @description This endpoint requires the authenticated user to have one of the following roles: **admin, user**.
+		 */
+		get: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path?: never;
+				cookie?: never;
+			};
+			requestBody?: never;
+			responses: {
+				/** @description A JSON array containing session data */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							key?: string;
+							data?: Record<string, never>;
+						}[];
+					};
+				};
+			};
+		};
+		put?: never;
+		/**
+		 * Create a guest session. [allows - admin, user]
+		 * @description This endpoint requires the authenticated user to have one of the following roles: **admin, user**.
+		 */
+		post: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path?: never;
+				cookie?: never;
+			};
+			requestBody: {
+				content: {
+					'application/json': {
+						/** @description A unique identifier for the session. */
+						key?: string;
+						/** @description The time in seconds until the session expires. */
+						expiration_time?: number;
+						/** @description A description of the session. */
+						description?: string;
+					};
+				};
+			};
+			responses: {
+				/** @description A JSON object containing the session token */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							token?: string;
+						};
+					};
+				};
+				/** @description A JSON object containing an error message */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/guests/{key}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/** Retrieve a guest session. */
+		get: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path: {
+					/** @description The key of the session. */
+					key: string;
+				};
+				cookie?: never;
+			};
+			requestBody?: never;
+			responses: {
+				/** @description A JSON object containing the session token */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							token?: string;
+						};
+					};
+				};
+				/** @description A JSON object containing an error message */
+				404: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		put?: never;
+		post?: never;
+		/**
+		 * Delete a guest session. [allows - admin, user]
+		 * @description This endpoint requires the authenticated user to have one of the following roles: **admin, user**.
+		 */
+		delete: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path: {
+					/** @description The key of the session. */
+					key: string;
+				};
+				cookie?: never;
+			};
+			requestBody?: never;
+			responses: {
+				/** @description A JSON object indicating success */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							comment?: string;
+						};
+					};
+				};
+				/** @description A JSON object containing an error message */
+				404: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		options?: never;
+		head?: never;
+		/**
+		 * Update a guest session. [allows - admin, user]
+		 * @description This endpoint requires the authenticated user to have one of the following roles: **admin, user**.
+		 */
+		patch: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path: {
+					/** @description The key of the session. */
+					key: string;
+				};
+				cookie?: never;
+			};
+			requestBody: {
+				content: {
+					'application/json': {
+						/** @description A new description for the session. */
+						description?: string;
+						/** @description A new expiration time for the session in seconds. */
+						expiration_time?: number;
+					};
+				};
+			};
+			responses: {
+				/** @description A JSON object indicating success */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							comment?: string;
+						};
+					};
+				};
+				/** @description A JSON object containing an error message */
+				404: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		trace?: never;
+	};
+	'/reflect': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get?: never;
+		put?: never;
+		/**
+		 * Reflect the event back to the client.
+		 * @description Return the event object as the response.
+		 */
+		post: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path?: never;
+				cookie?: never;
+			};
+			requestBody?: {
+				content: {
+					'application/json': Record<string, never>;
+				};
+			};
+			responses: {
+				/** @description A successful reflection */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': Record<string, never>;
+					};
+				};
+				/** @description A failed reflection */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content: {
+						'application/json': {
+							success?: boolean;
+							comment?: string;
+						};
+					};
+				};
+			};
+		};
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/hello': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path?: never;
+				cookie?: never;
+			};
+			requestBody?: never;
+			responses: {
+				/** @description OK */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content?: never;
+				};
+				/** @description Bad Request */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content?: never;
+				};
+			};
+		};
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
+	'/hello/{user_id}': {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		get: {
+			parameters: {
+				query?: never;
+				header?: never;
+				path: {
+					user_id: string;
+				};
+				cookie?: never;
+			};
+			requestBody?: never;
+			responses: {
+				/** @description OK */
+				200: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content?: never;
+				};
+				/** @description Bad Request */
+				400: {
+					headers: {
+						[name: string]: unknown;
+					};
+					content?: never;
+				};
+			};
+		};
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: never;
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+	schemas: never;
+	responses: never;
+	parameters: never;
+	requestBodies: never;
+	headers: never;
+	pathItems: never;
 }
 export type $defs = Record<string, never>;
 export type operations = Record<string, never>;
