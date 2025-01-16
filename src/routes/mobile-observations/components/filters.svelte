@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { type DateRange } from 'bits-ui';
 	import DateRangePicker from '$lib/components/ui/date-range-picker/date-range-picker.svelte';
-	import type { BasicAdData } from '../types';
+	import type { BasicAdData } from '$lib/api/session/ads/types';
 	import { dateToCalendarDate } from '../../../lib/api/session/ads/utils';
 	import { Button } from '$lib/components/ui/button';
 	import Dropdown from '$lib/components/dropdown/dropdown.svelte';
+	import { untrack } from 'svelte';
 
 	let {
 		ads,
@@ -64,6 +65,7 @@
 					label: 'All time'
 				}
 			]}
+			selected={'-1'}
 			onSelected={(value) => {
 				quickSelectDateRange(+value);
 				console.log('Selected completed', value);

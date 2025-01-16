@@ -70,7 +70,6 @@
 	<div class="size-full" bind:this={element}>
 		{#each images as image, index}
 			<img
-				loading="lazy"
 				src={image}
 				alt="GIF frame"
 				class={twMerge(

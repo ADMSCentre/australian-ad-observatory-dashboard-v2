@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { DateRange } from 'bits-ui';
 	import type { BasicAdData, RichAdData } from '$lib/api/session/ads/types';
-	import AdCard, { type Props as AdCardProps } from './ad-card.svelte';
+	import AdCard, { type Props as AdCardProps, type AdElement } from './ad-card.svelte';
 	import { dateToCalendarDate } from '../../../lib/api/session/ads/utils';
 	import Accordion from '$lib/components/accordion/accordion.svelte';
 	import { ChevronDown, ChevronRight } from 'lucide-svelte';
@@ -163,7 +163,7 @@
 	});
 
 	// If group by date, do not include date
-	const exclude = $derived.by(() => {
+	const exclude = $derived.by<AdElement[]>(() => {
 		const options = cardOptions.exclude || [];
 		if (groupBy.value === 'date') return [...options, 'date'];
 		return options;

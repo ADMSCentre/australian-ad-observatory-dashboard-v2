@@ -9,6 +9,7 @@
 	import { twMerge } from 'tailwind-merge';
 	import { withBase } from '$lib/utils';
 	import { page } from '$app/stores';
+	import GuestTimer from '../guest-timer.svelte';
 
 	const onLogout = () => {
 		auth.logout();
@@ -66,6 +67,13 @@
 		<span>
 			{#if !auth.isGuest}
 				<Sidebar.Trigger />
+			{:else}
+				<GuestTimer
+					class="font-bold"
+					onExpire={() => {
+						location.reload();
+					}}
+				/>
 			{/if}
 		</span>
 		<div class="flex items-center gap-4">

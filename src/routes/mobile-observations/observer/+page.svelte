@@ -27,6 +27,8 @@
 	import { guestSessions } from '$lib/api/auth/guest-sessions.svelte';
 	import ShareSessionForm from './share-session-form.svelte';
 	import { session } from '$lib/api/session/session.svelte';
+	import { jwtDecode } from 'jwt-decode';
+	import Timer from '$lib/components/timer.svelte';
 
 	const participantId = $page.url.searchParams.get('observer_id') || '';
 	const pageUrl = $page.url.href;
@@ -117,6 +119,7 @@
 
 	<!-- Main content -->
 	<h1>{participantId}</h1>
+
 	<!-- <ObserverOverview observerId={participantId} /> -->
 	{#if !ads || ads.length === 0}
 		<div class="flex size-full items-center justify-center">

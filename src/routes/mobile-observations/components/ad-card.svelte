@@ -23,7 +23,7 @@
 	import { twMerge } from 'tailwind-merge';
 	import AdCardBody from './ad-card-body.svelte';
 
-	type AdElement = 'adId' | 'time' | 'date' | 'observer';
+	export type AdElement = 'adId' | 'time' | 'date' | 'observer';
 
 	export type Props = {
 		adData: RichAdData;

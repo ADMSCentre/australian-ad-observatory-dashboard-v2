@@ -9,6 +9,7 @@
 	import Tiptap from '$lib/components/tiptap.svelte';
 	import Dropdown from '$lib/components/dropdown/dropdown.svelte';
 	import Timer from '$lib/components/timer.svelte';
+	import { debug } from '$lib/states/debug.svelte';
 
 	let {
 		guestSessionToken = $bindable(),
@@ -56,11 +57,12 @@
 				<label for="expiration" class="font-bold">Expires In</label>
 				<Dropdown
 					options={[
+						...(debug.enabled ? [{ label: '10 seconds', value: (10).toString() }] : []),
 						{ label: '1 hour', value: (60 * 60).toString() },
 						{ label: '1 day', value: (60 * 60 * 24).toString() },
 						{ label: '1 week', value: (60 * 60 * 24 * 7).toString() },
-						{ label: '1 month', value: (60 * 60 * 24 * 30).toString() },
-						{ label: '1 year', value: (60 * 60 * 24 * 365).toString() }
+						{ label: '30 days', value: (60 * 60 * 24 * 30).toString() },
+						{ label: '365 days', value: (60 * 60 * 24 * 365).toString() }
 					]}
 					selected={(60 * 60).toString()}
 					onSelected={(value: string) => {
@@ -74,8 +76,18 @@
 
 <Dialog.Root>
 	<Dialog.Trigger>
-		<Button size="icon" variant={guestSessionToken ? 'destructive' : 'outline'}>
+		<Button variant={guestSessionToken ? 'destructive' : 'outline'}>
 			<Share2 />
+			{#if guestSessionToken}
+				<Timer
+					exp={(sessionDataForm?.expirationTime || 0) * 1000}
+					onExpire={() => {
+						guestSessions.delete(guestKey).then(syncGuestToken);
+					}}
+				/>
+			{:else}
+				Share
+			{/if}
 		</Button>
 	</Dialog.Trigger>
 	<Dialog.Content>
@@ -105,7 +117,12 @@
 							</div>
 							<div class="flex flex-row items-center gap-2">
 								<label for="expiration" class="font-bold">Expires In</label>
-								<Timer exp={sessionDataForm.expirationTime * 1000} />
+								<Timer
+									exp={sessionDataForm.expirationTime * 1000}
+									onExpire={() => {
+										guestSessions.delete(guestKey).then(syncGuestToken);
+									}}
+								/>
 							</div>
 						</div>
 					{/if}

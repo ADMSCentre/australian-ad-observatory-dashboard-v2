@@ -2,13 +2,22 @@
 	import { onDestroy } from 'svelte';
 
 	const {
-		exp
+		exp,
+		onExpire = () => {},
+		class: className = ''
 	}: {
 		exp: number;
+		onExpire?: () => void;
+		class?: string;
 	} = $props();
 
 	let timeLeft = $state(exp - Date.now());
 	const interval = setInterval(() => {
+		if (timeLeft <= 0) {
+			clearInterval(interval);
+			onExpire();
+			return;
+		}
 		timeLeft = exp - Date.now();
 	}, 1000);
 
@@ -17,6 +26,7 @@
 	});
 
 	function formatTime(ms: number) {
+		if (ms <= 0) return '00:00:00';
 		const totalSeconds = Math.floor(ms / 1000);
 		const days = Math.floor(totalSeconds / (3600 * 24));
 		const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
@@ -31,6 +41,6 @@
 	}
 </script>
 
-<span>
+<span class={className}>
 	{formatTime(timeLeft)}
 </span>
