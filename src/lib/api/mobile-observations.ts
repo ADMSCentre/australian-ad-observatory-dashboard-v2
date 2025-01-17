@@ -1,6 +1,6 @@
-import { enrichAllAds, parseAdsIndex } from './session/ads/utils';
+import { parseAdsIndex } from './session/ads/utils';
 import { client, runWithCache, generateCacheKey } from '$lib/api/client';
-import type { IndexGroupType, ExpandType, RichAdData, ObservationIndex } from './session/ads/types';
+import type { IndexGroupType, RichAdData, ObservationIndex } from './session/ads/types';
 
 const parseAdPath = (path: string) => {
 	const parts = path.split('/');
@@ -13,7 +13,7 @@ const parseAdPath = (path: string) => {
 export const listAllAds = async (
 	token: string,
 	filters: ((ad: RichAdData) => boolean)[] = [],
-	type: IndexGroupType = 'ads_passed_restitch'
+	types: IndexGroupType[] = ['ads_passed_restitch']
 ) => {
 	const url = '/ads';
 	const options = {
@@ -48,7 +48,7 @@ export const listAllAds = async (
 		return acc;
 	}, {} as ObservationIndex);
 
-	const ads = parseAdsIndex(index, type) as RichAdData[];
+	const ads = parseAdsIndex(index, types) as RichAdData[];
 	return ads.filter((ad) => filters.every((filter) => filter(ad)));
 };
 
@@ -60,9 +60,8 @@ export interface QuickAccessCacheResponse {
 export const listAdsForObserver = async (
 	token: string,
 	observer: string,
-	expand: ExpandType[] = [],
 	filters: ((ad: RichAdData) => boolean)[] = [],
-	type: IndexGroupType = 'ads_passed_restitch'
+	types: IndexGroupType[] = ['ads_passed_restitch']
 ) => {
 	const { data, error } = await client.GET('/ads/{observer_id}', {
 		headers: {
@@ -86,10 +85,7 @@ export const listAdsForObserver = async (
 		acc[category] = raw[category].map((path: string) => parseAdPath(path));
 		return acc;
 	}, {} as ObservationIndex);
-	let ads = parseAdsIndex(index, type) as RichAdData[];
-	if (expand.length > 0) {
-		ads = await enrichAllAds(ads, token, expand);
-	}
+	const ads = parseAdsIndex(index, types) as RichAdData[];
 	return ads.filter((ad) => filters.every((filter) => filter(ad)));
 };
 

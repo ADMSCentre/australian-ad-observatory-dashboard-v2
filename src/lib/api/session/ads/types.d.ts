@@ -31,6 +31,7 @@ export type BasicAdData = {
 	time: string;
 	observer: string;
 	path: string;
+	types: string[];
 };
 
 export type RichAdData = BasicAdData & {

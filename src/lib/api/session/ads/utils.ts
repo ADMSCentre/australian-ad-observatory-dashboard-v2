@@ -32,30 +32,60 @@ export const formatTimestamp = (
 
 export const parseAdsIndex = (
 	index: ObservationIndex,
-	type: IndexGroupType = 'ads_passed_restitch'
+	types: IndexGroupType[] = ['ads_passed_restitch']
 ) => {
-	const adsIndex = index[type]
-		.map((ad) => {
-			// Convert timestamp to date (DD/MM/YYYY) and time (HH:MM:SS.SSS)
-			const date = new Date(+ad.timestamp).toLocaleDateString('en-GB', {
+	const adsDict = {} as Record<string, BasicAdData>;
+
+	types.forEach((type) => {
+		const ads = index[type];
+		if (!ads) return;
+		ads.forEach((ad) => {
+			const { observer, timestamp, adId, path } = ad;
+			const types = [type];
+			const date = new Date(+timestamp).toLocaleDateString('en-GB', {
 				month: 'long',
 				day: 'numeric',
 				year: 'numeric'
 			});
-			const time = new Date(+ad.timestamp).toLocaleTimeString('en-GB', {
+			const time = new Date(+timestamp).toLocaleTimeString('en-GB', {
 				hour: '2-digit',
 				minute: '2-digit',
 				second: '2-digit',
 				fractionalSecondDigits: 3
 			});
-			return {
-				...ad,
-				timestamp: +ad.timestamp,
-				date,
-				time
-			};
-		})
-		.toSorted((a, b) => b.timestamp - a.timestamp);
+			if (adsDict[adId]) {
+				adsDict[adId].types.push(type);
+				return;
+			}
+			adsDict[adId] = { observer, timestamp: +timestamp, adId, path, types, date, time };
+		});
+	});
+
+	const adsIndex = Object.values(adsDict).toSorted((a, b) => b.timestamp - a.timestamp);
+
+	// const adsIndex = index[types[0]]
+	// 	.map((ad) => {
+	// 		// Convert timestamp to date (DD/MM/YYYY) and time (HH:MM:SS.SSS)
+	// 		const date = new Date(+ad.timestamp).toLocaleDateString('en-GB', {
+	// 			month: 'long',
+	// 			day: 'numeric',
+	// 			year: 'numeric'
+	// 		});
+	// 		const time = new Date(+ad.timestamp).toLocaleTimeString('en-GB', {
+	// 			hour: '2-digit',
+	// 			minute: '2-digit',
+	// 			second: '2-digit',
+	// 			fractionalSecondDigits: 3
+	// 		});
+	// 		return {
+	// 			...ad,
+	// 			timestamp: +ad.timestamp,
+	// 			date,
+	// 			time,
+	// 			types
+	// 		};
+	// 	})
+	// 	.toSorted((a, b) => b.timestamp - a.timestamp);
 	return adsIndex;
 };
 

@@ -4,6 +4,7 @@
 	import { twMerge } from 'tailwind-merge';
 	import type { RichDataObject } from '../../../../lib/api/session/ads/rich-data-object-type';
 	import { fetchStitchFrames, formatTimestamp } from '../../../../lib/api/session/ads/utils';
+	import OcrTextBox from './ocr-text-box.svelte';
 
 	type Keyframe = RichDataObject['observation']['keyframes'][0];
 	type AdDimension = RichDataObject['observation']['ad_dimensions'];
@@ -94,14 +95,6 @@
 			.toSorted((a, b) => b.containingFrames.length - a.containingFrames.length);
 	});
 
-	const confidenceColor = (confidence: number) => {
-		// Hue from red to green
-		const startHue = 0; // red
-		const endHue = 120; // green
-		const hue = startHue + (endHue - startHue) * confidence;
-		return `hsl(${hue}, 100%, 50%)`;
-	};
-
 	let frames = $state<string[]>([]);
 
 	$effect(() => {
@@ -125,50 +118,6 @@
 	const isLinked = (text: string) => linkedTexts.includes(text);
 </script>
 
-{#snippet textbox({
-	x,
-	y,
-	w,
-	h,
-	text,
-	confidence
-}: {
-	x: number;
-	y: number;
-	w: number;
-	h: number;
-	text: string;
-	confidence: number;
-})}
-	<div
-		class={twMerge(
-			'group absolute box-border border-2 bg-brand bg-opacity-0 hover:bg-opacity-15',
-			isLinked(text) && 'bg-opacity-15'
-		)}
-		style={`left: ${x}%; top: ${y}%; width: ${w}%; height: ${h}%; border-color: ${confidenceColor(confidence)};`}
-	>
-		<div
-			class={twMerge(
-				'pointer-events-none absolute top-full z-20 size-full border-foreground bg-background text-center text-xs text-foreground opacity-0 shadow group-hover:opacity-100',
-				isLinked(text) && 'opacity-100'
-			)}
-		>
-			{text}
-		</div>
-
-		<!-- confidence label -->
-		<div
-			class="absolute left-full top-0 z-10 flex items-center rounded-r border-2 px-0.5 text-3xs text-foreground"
-			style={`border-color: ${confidenceColor(confidence)};`}
-		>
-			<div class="absolute left-0 top-0 size-full bg-background opacity-85"></div>
-			<span class="z-[11]">
-				{(confidence * 100).toFixed(0)}%
-			</span>
-		</div>
-	</div>
-{/snippet}
-
 <span>
 	The following text is extracted from the ad using Optical Character Recognition (OCR).
 </span>
@@ -189,7 +138,7 @@
 			{#if frames && frames.length && frames.length > 0}
 				<img src={frames[currentIndex]} alt="Ad frame" class="object-cover" />
 				{#each scaledOcrData as ocrBox}
-					{@render textbox(ocrBox)}
+					<OcrTextBox {...ocrBox} {isLinked} />
 				{/each}
 			{/if}
 		</div>

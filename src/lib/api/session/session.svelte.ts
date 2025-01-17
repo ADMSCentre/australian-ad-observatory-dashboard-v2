@@ -5,44 +5,54 @@ import { RichDataBuilder } from './ads/enricher';
 import type { ExpandType, IndexGroupType, RichAdData } from './ads/types';
 import { fetchAttributes, fetchRichDataObject, fetchStitchFrames } from './ads/utils';
 
+export const INDEX_GROUP_TYPES: {
+	value: IndexGroupType;
+	label: string;
+	description: string;
+}[] = [
+	{
+		value: 'ads_passed_restitch',
+		label: 'Cropped',
+		description: "Ads that have been cropped for to only show the ad's content"
+	},
+	{
+		value: 'ads_passed_relation',
+		label: 'Matched',
+		description: 'Ads that have been matched to a known ad in the Meta Ads Library'
+	}
+];
+
 export class Session {
-	indexGroupType = $state<IndexGroupType>('ads_passed_restitch');
+	indexGroupTypes = $state<IndexGroupType[]>(['ads_passed_restitch', 'ads_passed_relation']);
 	authHeader = $derived.by(() => {
 		return { Authorization: `Bearer ${auth.token}` };
 	});
+	allAds = $state<Record<string, RichAdData>>({});
 	enrichedAds = $state<Record<string, RichAdData>>({});
 
 	ads = $derived({
 		getAll: async ({
 			filters = [],
-			type = null
+			types = null
 		}: Partial<{
 			filters: ((ad: RichAdData) => boolean)[];
-			type: IndexGroupType | null;
+			types: IndexGroupType[] | null;
 		}> = {}) => {
 			if (!auth.token) return [];
-			return await listAllAds(auth.token, filters, type ?? this.indexGroupType);
+			return await listAllAds(auth.token, filters, types ?? this.indexGroupTypes);
 		},
 		getByObserver: async (
 			observer: string,
 			{
 				filters = [],
-				expands = [],
-				type = null
+				types = null
 			}: Partial<{
 				filters?: ((ad: RichAdData) => boolean)[];
-				expands?: ExpandType[];
-				type: IndexGroupType | null;
+				types: IndexGroupType[] | null;
 			}> = {}
 		) => {
 			if (!auth.token) return [];
-			return await listAdsForObserver(
-				auth.token,
-				observer,
-				expands,
-				filters,
-				type ?? this.indexGroupType
-			);
+			return await listAdsForObserver(auth.token, observer, filters, types ?? this.indexGroupTypes);
 		},
 		enrich: async (
 			ad: RichAdData,

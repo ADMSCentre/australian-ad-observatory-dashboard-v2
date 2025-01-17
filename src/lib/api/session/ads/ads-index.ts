@@ -1,6 +1,6 @@
 import { runWithCache, generateCacheKey, client } from '$lib/api/client';
-import { parseAdsIndex, enrichAllAds } from './utils';
-import type { ExpandType, IndexGroupType, ObservationIndex, RichAdData } from './types';
+import { parseAdsIndex } from './utils';
+import type { IndexGroupType, ObservationIndex, RichAdData } from './types';
 
 const parseAdPath = (path: string) => {
 	const parts = path.split('/');
@@ -13,7 +13,7 @@ const parseAdPath = (path: string) => {
 export const listAllAds = async (
 	token: string,
 	filters: ((ad: RichAdData) => boolean)[] = [],
-	type: IndexGroupType = 'ads_passed_restitch'
+	types: IndexGroupType[] = ['ads_passed_restitch']
 ) => {
 	const url = '/ads';
 	const options = {
@@ -48,16 +48,15 @@ export const listAllAds = async (
 		return acc;
 	}, {} as ObservationIndex);
 
-	const ads = parseAdsIndex(index, type) as RichAdData[];
+	const ads = parseAdsIndex(index, types) as RichAdData[];
 	return ads.filter((ad) => filters.every((filter) => filter(ad)));
 };
 
 export const listAdsForObserver = async (
 	token: string,
 	observer: string,
-	expand: ExpandType[] = [],
 	filters: ((ad: RichAdData) => boolean)[] = [],
-	type: IndexGroupType = 'ads_passed_restitch'
+	types: IndexGroupType[] = ['ads_passed_restitch']
 ) => {
 	const { data, error } = await client.GET('/ads/{observer_id}', {
 		headers: {
@@ -81,9 +80,6 @@ export const listAdsForObserver = async (
 		acc[category] = raw[category].map((path: string) => parseAdPath(path));
 		return acc;
 	}, {} as ObservationIndex);
-	let ads = parseAdsIndex(index, type) as RichAdData[];
-	if (expand.length > 0) {
-		ads = await enrichAllAds(ads, token, expand);
-	}
+	const ads = parseAdsIndex(index, types) as RichAdData[];
 	return ads.filter((ad) => filters.every((filter) => filter(ad)));
 };

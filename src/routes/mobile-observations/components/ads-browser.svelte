@@ -77,6 +77,11 @@
 				const date = new Date(ad.timestamp);
 				return date.toLocaleString('default', { month: 'long', year: 'numeric' });
 			}
+		},
+		{
+			value: 'none',
+			label: 'None',
+			getKey: (ad: RichAdData) => 'All'
 		}
 	];
 	const sortOptions = [

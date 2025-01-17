@@ -11,10 +11,11 @@
 		GalleryHorizontal,
 		SquareBottomDashedScissors,
 		CircleEllipsis,
-		ScanSearch
+		ScanSearch,
+		Check
 	} from 'lucide-svelte/icons';
 	import ImagesGif from '../observer/images-gif.svelte';
-	import type { BasicAdData, RichAdData } from '$lib/api/session/ads/types';
+	import type { BasicAdData, IndexGroupType, RichAdData } from '$lib/api/session/ads/types';
 	import { auth } from '$lib/api/auth/auth.svelte';
 	import IntersectionObserverSvelte from 'svelte-intersection-observer/IntersectionObserver.svelte';
 	import { withBase } from '$lib/utils';
@@ -22,6 +23,7 @@
 	import { client } from '$lib/api/client';
 	import { twMerge } from 'tailwind-merge';
 	import AdCardBody from './ad-card-body.svelte';
+	import { INDEX_GROUP_TYPES } from '$lib/api/session/session.svelte';
 
 	export type AdElement = 'adId' | 'time' | 'date' | 'observer';
 
@@ -46,6 +48,12 @@
 	const isIncluded = (key: AdElement) => !exclude.includes(key);
 
 	// let attributes = $state<Awaited<ReturnType<typeof fetchAttributes>>>();
+	const EXCLUDED_TYPES: IndexGroupType[] = ['ads_passed_restitch'];
+	const fullTypes = INDEX_GROUP_TYPES.filter((type) => !EXCLUDED_TYPES.includes(type.value)).filter(
+		(type) => {
+			return adData.types.includes(type.value);
+		}
+	);
 </script>
 
 <IntersectionObserverSvelte {element} threshold={0.25} once bind:intersecting>
@@ -109,7 +117,7 @@
 		<AdCardBody {adData} visible={intersecting} {framesMode} />
 
 		<!-- Footer -->
-		<div class="flex items-center justify-between gap-2">
+		<div class="flex flex-col gap-2">
 			{#if !auth.isGuest}
 				<div class="w-full text-2xs">
 					{#if framesMode === 'raw'}
@@ -135,6 +143,18 @@
 					{/if}
 				</div>
 			{/if}
+			<div class="flex w-fit gap-1 text-sm">
+				{#each fullTypes as type}
+					<div
+						class="flex items-center gap-2 rounded-full bg-zinc-300 px-2 py-1 text-xs font-light dark:bg-zinc-700"
+					>
+						<span>
+							{type.label}
+						</span>
+						<Check size={10} />
+					</div>
+				{/each}
+			</div>
 		</div>
 	</div>
 </IntersectionObserverSvelte>
