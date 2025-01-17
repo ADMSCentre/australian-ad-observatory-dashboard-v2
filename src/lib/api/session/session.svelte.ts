@@ -1,6 +1,7 @@
 // This is used to manage interactions with the API, and automatically handle authorisation
 import { auth } from '$lib/api/auth/auth.svelte';
 import { getAdFrameUrls, listAdsForObserver, listAllAds } from '../mobile-observations';
+import { RichDataBuilder } from './ads/enricher';
 import type { ExpandType, IndexGroupType, RichAdData } from './ads/types';
 import { fetchAttributes, fetchRichDataObject, fetchStitchFrames } from './ads/utils';
 
@@ -52,10 +53,12 @@ export class Session {
 				preferCache?: boolean;
 			}> = {}
 		) => {
+			if (!auth.token) return;
 			const getCache = (type: ExpandType) => {
 				if (!preferCache) return null;
 				return this.enrichedAds?.[ad.adId]?.[type];
 			};
+			const enricher = new RichDataBuilder(auth.token, ad);
 			Promise.all(
 				expands.map(async (expand) => {
 					switch (expand) {
@@ -75,7 +78,14 @@ export class Session {
 							if (auth.token)
 								ad.richDataObject = getCache(expand) ?? (await fetchRichDataObject(ad, auth.token));
 							break;
+						case 'ocrData':
+							ad.ocrData = getCache(expand) ?? (await enricher.getOcrData());
+							break;
+						case 'dimensions':
+							ad.dimensions = getCache(expand) ?? (await enricher.getDimensions());
+							break;
 					}
+					console.log('Enriched', ad.adId, expand, ad[expand]);
 				})
 			);
 		}

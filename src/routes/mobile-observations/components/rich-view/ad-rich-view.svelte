@@ -23,11 +23,11 @@
 
 	$effect(() => {
 		if (!currentAd) return;
-		session.ads.enrich(currentAd, ['richDataObject']);
+		session.ads.enrich(currentAd, ['richDataObject', 'ocrData', 'dimensions']);
 	});
 
-	const keyframes = $derived(currentAd?.richDataObject?.observation.keyframes || null);
-	const adDimension = $derived(currentAd?.richDataObject?.observation.ad_dimensions || null);
+	const keyframes = $derived(currentAd?.ocrData || null);
+	const adDimension = $derived(currentAd?.dimensions || null);
 	// const imagePath = $derived.by(() => {
 	// 	if (!currentAd || !currentAd.richDataObject) return null;
 	// 	return `${currentAd?.richDataObject.observer.uuid}/tempt/${currentAd?.richDataObject.observation.uuid}/`;
@@ -135,7 +135,12 @@
 				</Tabs.Content>
 				<Tabs.Content value="ocr-data">
 					{#if keyframes && adDimension && observationId && observerId}
-						<OcrView {keyframes} {adDimension} {observationId} {observerId} />
+						<OcrView
+							{keyframes}
+							{adDimension}
+							observationId={`${currentAd.timestamp}.${currentAd.adId}`}
+							observerId={currentAd.observer}
+						/>
 					{/if}
 				</Tabs.Content>
 				<Tabs.Content value="candidate-ads">

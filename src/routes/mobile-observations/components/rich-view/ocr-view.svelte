@@ -38,13 +38,17 @@
 			(value / (dimension === 'w' ? adDimension.w : adDimension.h)) * 100;
 
 		// Convert all values to percentage for responsiveness
-		return currentKeyframe.ocr_data.map((ocrBox) => ({
-			...ocrBox,
-			x: scale(ocrBox.x),
-			y: scale(ocrBox.y, 'h'),
-			w: scale(ocrBox.w),
-			h: scale(ocrBox.h, 'h')
-		}));
+		return currentKeyframe.ocr_data
+			.map((ocrBox) => ({
+				...ocrBox,
+				x: scale(ocrBox.x),
+				y: scale(ocrBox.y, 'h'),
+				w: scale(ocrBox.w),
+				h: scale(ocrBox.h, 'h')
+			}))
+			.filter((box) => {
+				return box.y >= 0 && box.y <= 100;
+			});
 	});
 
 	// Count all the text values in all the frames
@@ -60,27 +64,31 @@
 		if (!keyframes) return [];
 		return keyframes
 			.reduce((acc, keyframe, index) => {
-				keyframe.ocr_data.forEach((ocrBox) => {
-					const existing = acc.find((text) => text.text === ocrBox.text);
-					if (existing) {
-						existing.containingFrames.push({
-							url: keyframe.screenshot_cropped,
-							index,
-							confidence: ocrBox.confidence
-						});
-					} else {
-						acc.push({
-							text: ocrBox.text,
-							containingFrames: [
-								{
-									url: keyframe.screenshot_cropped,
-									index,
-									confidence: ocrBox.confidence
-								}
-							]
-						});
-					}
-				});
+				keyframe.ocr_data
+					.filter((ocrBox) => {
+						return ocrBox.y >= 0 && ocrBox.y <= adDimension.h;
+					})
+					.forEach((ocrBox) => {
+						const existing = acc.find((text) => text.text === ocrBox.text);
+						if (existing) {
+							existing.containingFrames.push({
+								url: keyframe.screenshot_cropped,
+								index,
+								confidence: ocrBox.confidence
+							});
+						} else {
+							acc.push({
+								text: ocrBox.text,
+								containingFrames: [
+									{
+										url: keyframe.screenshot_cropped,
+										index,
+										confidence: ocrBox.confidence
+									}
+								]
+							});
+						}
+					});
 				return acc;
 			}, [] as TextAppearance[])
 			.toSorted((a, b) => b.containingFrames.length - a.containingFrames.length);
@@ -150,27 +158,30 @@
 
 		<!-- confidence label -->
 		<div
-			class="absolute left-full top-0 z-10 rounded-r border-2 px-0.5 text-3xs text-foreground"
+			class="absolute left-full top-0 z-10 flex items-center rounded-r border-2 px-0.5 text-3xs text-foreground"
 			style={`border-color: ${confidenceColor(confidence)};`}
 		>
-			{(confidence * 100).toFixed(0)}%
-			<div
-				class="absolute left-0 top-0 size-full opacity-15"
-				style={`background-color: ${confidenceColor(confidence)};`}
-			></div>
+			<div class="absolute left-0 top-0 size-full bg-background opacity-85"></div>
+			<span class="z-[11]">
+				{(confidence * 100).toFixed(0)}%
+			</span>
 		</div>
 	</div>
 {/snippet}
 
+<span>
+	The following text is extracted from the ad using Optical Character Recognition (OCR).
+</span>
+
 <div class="flex max-w-md flex-col gap-2">
-	<span>
+	<!-- <span>
 		{formatTimestamp((currentKeyframe?.observed_at || 0) * 1000, {
 			hour: 'numeric',
 			minute: 'numeric',
 			second: 'numeric',
 			fractionalSecondDigits: 1
 		})}
-	</span>
+	</span> -->
 
 	<!-- Keyframes player -->
 	<div class="contents">
@@ -183,15 +194,17 @@
 			{/if}
 		</div>
 
-		<Slider
-			type="multiple"
-			min={0}
-			max={keyframes.length - 1}
-			step={1}
-			onValueChange={onSliderChange}
-			value={[currentIndex]}
-			class="accent-back flex-1"
-		/>
+		{#if frames.length > 1}
+			<Slider
+				type="multiple"
+				min={0}
+				max={keyframes.length - 1}
+				step={1}
+				onValueChange={onSliderChange}
+				value={[currentIndex]}
+				class="accent-back flex-1"
+			/>
+		{/if}
 	</div>
 
 	<!-- Extracted text -->
