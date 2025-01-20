@@ -19,11 +19,19 @@ export const INDEX_GROUP_TYPES: {
 		value: 'ads_passed_mass_download',
 		label: 'Matched',
 		description: 'Ads that have been matched to a known ad in the Meta Ads Library'
+	},
+	{
+		value: 'ads_passed_rdo_construction',
+		label: 'RDO',
+		description: 'Ads that have been processed to create a Rich Data Object'
 	}
 ];
 
 export class Session {
-	indexGroupTypes = $state<IndexGroupType[]>(['ads_passed_mass_download']);
+	indexGroupTypes = $state<IndexGroupType[]>([
+		'ads_passed_mass_download',
+		'ads_passed_rdo_construction'
+	]);
 	authHeader = $derived.by(() => {
 		return { Authorization: `Bearer ${auth.token}` };
 	});

@@ -123,12 +123,16 @@
 	let sortMode = $state<SortMode>(sortOptions[0].value);
 
 	const richCandidates: RichCandidate[] = $derived(
-		candidates.map((candidate) => ({
-			...candidate,
-			ranking: getRanking(candidate?.ad_library_scrape_candidates_i)
-		}))
+		candidates.map((candidate) => {
+			return {
+				...candidate,
+				ranking: getRanking(candidate?.ad_library_scrape_candidates_i)
+			};
+		})
 		// .slice(0, 2)
 	);
+
+	$inspect({ richCandidates });
 
 	const orderedCandidates = $derived(
 		richCandidates.toSorted(sortOptions.find((option) => option.value === sortMode)!.sortFn)
@@ -401,7 +405,7 @@
 								<div
 									class=" flex flex-col items-center justify-center gap-2 whitespace-pre-wrap border border-muted-foreground p-2 sm:flex-row sm:items-start sm:justify-start"
 								>
-									<div class="max-w-48">
+									<div class="max-w-sm">
 										{#each candidate.data.snapshot.videos as video}
 											{@const medias = mapMedia(video, ['video_sd_url'])}
 											{#each medias as media}
@@ -445,14 +449,14 @@
 									</span>
 								{/snippet}
 								<div
-									class=" flex flex-col items-center justify-center gap-2 whitespace-pre-wrap border border-muted-foreground p-2"
+									class=" flex flex-col items-center justify-center gap-2 whitespace-pre-wrap border border-muted-foreground p-2 sm:items-start sm:justify-start"
 								>
 									{#each candidate.data.snapshot.cards as card}
 										{@const medias = mapMedia(card, ['resized_image_url', 'video_sd_url'])}
 										<div
 											class="flex flex-col items-center justify-center gap-2 sm:flex-row sm:items-start sm:justify-start"
 										>
-											<div class="max-w-48">
+											<div class=" max-w-sm">
 												{#each medias as media}
 													{#await getMediaUrl(media.src.original) then src}
 														{#if media.kind === 'resized_image_url'}

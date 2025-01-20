@@ -14,7 +14,8 @@ export type IndexGroupType =
 	| 'ads_passed_ad_scrape'
 	| 'ads_passed_mass_download'
 	| 'ads_passed_restitch'
-	| 'ads_passed_relation';
+	| 'ads_passed_relation'
+	| 'ads_passed_rdo_construction';
 
 export type ObservationIndex = {
 	[key: string]: { observer: string; timestamp: string; adId: string; path: string }[];

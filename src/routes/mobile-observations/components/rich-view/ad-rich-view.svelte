@@ -9,7 +9,11 @@
 	import AdCardBody from '../ad-card-body.svelte';
 	import OcrView from './ocr-view.svelte';
 	import CandidatesView from './candidates-view.svelte';
-	import type { MediaSource, RichDataObject } from '$lib/api/session/ads/rich-data-object-type';
+	import type {
+		MediaSource,
+		Ranking,
+		RichDataObject
+	} from '$lib/api/session/ads/rich-data-object-type';
 	import type { RichAdData } from '$lib/api/session/ads/types';
 	import { session } from '$lib/api/session/session.svelte';
 
@@ -45,8 +49,9 @@
 	// 	return currentAd.richDataObject.enrichment.meta_adlibrary_scrape.candidates;
 	// });
 	const candidates = $derived(
-		(currentAd?.metaLibraryScrape?.candidates.map((c) => {
+		(currentAd?.metaLibraryScrape?.candidates.map((c, index) => {
 			return {
+				ad_library_scrape_candidates_i: index,
 				data: c
 			};
 		}) as RichDataObject['enrichment']['meta_adlibrary_scrape']['candidates']) || null
@@ -55,7 +60,7 @@
 	// 	if (!currentAd || !currentAd.richDataObject) return null;
 	// 	return currentAd.richDataObject.enrichment.meta_adlibrary_scrape.rankings;
 	// });
-	const rankings = $derived(currentAd?.metaLibraryScrape?.rankings || null);
+	const rankings = $derived((currentAd?.metaLibraryScrape?.rankings as Ranking[]) || null);
 	// const mediaMapping = $derived.by(() => {
 	// 	if (!currentAd || !currentAd.richDataObject) return null;
 	// 	const scrapeReference =
@@ -93,7 +98,7 @@
 		);
 	});
 
-	$inspect({ mediaMapping, rawMapping: currentAd?.metaLibraryScrape?.mediaPaths });
+	$inspect({ rankings, candidates });
 </script>
 
 {#if currentAd}
@@ -170,7 +175,7 @@
 				</Tabs.Content>
 				<Tabs.Content value="candidate-ads">
 					{#if candidates && rankings && mediaMapping}
-						<CandidatesView {candidates} rankings={null} {mediaMapping} />
+						<CandidatesView {candidates} {rankings} {mediaMapping} />
 					{/if}
 				</Tabs.Content>
 				<Tabs.Content value="rich-data">

@@ -4,7 +4,7 @@
 	import AdCard, { type Props as AdCardProps, type AdElement } from './ad-card.svelte';
 	import { dateToCalendarDate } from '../../../lib/api/session/ads/utils';
 	import Accordion from '$lib/components/accordion/accordion.svelte';
-	import { ChevronDown, ChevronRight } from 'lucide-svelte';
+	import { ChevronDown, ChevronRight, SearchIcon } from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
 	import { scale, slide } from 'svelte/transition';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
@@ -15,6 +15,9 @@
 	import { untrack } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import Dropdown from '$lib/components/dropdown/dropdown.svelte';
+	import Input from '$lib/components/ui/input/input.svelte';
+	import { page } from '$app/stores';
+	import { goto, replaceState } from '$app/navigation';
 
 	type Props = {
 		ads: RichAdData[];
@@ -38,6 +41,10 @@
 		filters = [],
 		richViewExpanded = $bindable(false)
 	}: Props = $props();
+
+	const defaultSearchKey = $page.url.searchParams.get('search') || '';
+	const sortParam = $page.url.searchParams.get('sort');
+	const groupParam = $page.url.searchParams.get('group');
 
 	// For expanded (rich) view
 	let currentAd = $state<RichAdData | null>(null);
@@ -97,11 +104,30 @@
 		}
 	];
 
-	let groupBy = $state(groups[0]);
-	let sortBy = $state(sortOptions[0]);
+	let groupBy = $state(groups.find((g) => g.value === groupParam) || groups[0]);
+	let sortBy = $state(sortOptions.find((s) => s.value === sortParam) || sortOptions[0]);
+	let searchKey = $state(defaultSearchKey);
+
+	const debounce = (fn: Function, delay: number) => {
+		let timeout: NodeJS.Timeout;
+		return (...args: any[]) => {
+			clearTimeout(timeout);
+			timeout = setTimeout(() => fn(...args), delay);
+		};
+	};
+	const searchDebounce = debounce((value: string) => {
+		searchKey = value;
+		if (searchKey.length > 0) $page.url.searchParams.set('search', searchKey);
+		else $page.url.searchParams.delete('search');
+		replaceState($page.url, $page.state);
+	}, 300);
 
 	const groupedAds = $derived.by(() => {
-		console.log('Filtering ads');
+		const searchFilter = (ad: RichAdData) => {
+			if (!searchKey) return true;
+			return ad.adId.toLowerCase().includes(searchKey.toLowerCase());
+		};
+
 		// Filter ads by date range
 		const filteredAds = ads
 			.filter((ad) => {
@@ -123,6 +149,8 @@
 			) => {
 				const key = groupBy.getKey(ad);
 				if (!acc[key]) acc[key] = [];
+				// Attempt to filter here as we still want to keep the group
+				if (!searchFilter(ad)) return acc;
 				acc[key].push(ad);
 				return acc;
 			},
@@ -178,27 +206,47 @@
 <div class="relative flex flex-col gap-4" bind:clientWidth>
 	<!-- Controls (grouping, ordering) -->
 	<div
-		class="flex flex-col items-end gap-2 text-sm sm:flex-row sm:items-center sm:justify-end sm:gap-4"
+		class="flex flex-col items-end gap-2 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4"
 	>
-		<div class="flex items-center gap-2">
-			<p>Group by:</p>
-			<Dropdown
-				options={groups}
-				selected={groupBy.value}
-				onSelected={(option: string) => {
-					groupBy = groups.find((g) => g.value === option) || groups[0];
+		<div class="relative flex items-center gap-2">
+			<Input
+				placeholder="Search by Ad ID..."
+				value={searchKey}
+				oninput={(e) => {
+					const target = e.target as HTMLInputElement;
+					searchDebounce(target.value);
 				}}
+				class="pl-8"
 			/>
+			<SearchIcon class="absolute left-2 top-1/2 -translate-y-1/2 transform" size={20} />
 		</div>
 		<div class="flex items-center gap-2">
-			<p>Sort by:</p>
-			<Dropdown
-				options={sortOptions}
-				selected={sortBy.value}
-				onSelected={(option: string) => {
-					sortBy = sortOptions.find((s) => s.value === option) || sortOptions[0];
-				}}
-			/>
+			<div class="flex items-center gap-2">
+				<p>Group by:</p>
+				<Dropdown
+					options={groups}
+					selected={groupBy.value}
+					onSelected={(option: string) => {
+						groupBy = groups.find((g) => g.value === option) || groups[0];
+						// Update URL
+						$page.url.searchParams.set('group', groupBy.value);
+						replaceState($page.url, $page.state);
+					}}
+				/>
+			</div>
+			<div class="flex items-center gap-2">
+				<p>Sort by:</p>
+				<Dropdown
+					options={sortOptions}
+					selected={sortBy.value}
+					onSelected={(option: string) => {
+						sortBy = sortOptions.find((s) => s.value === option) || sortOptions[0];
+						// Update URL
+						$page.url.searchParams.set('sort', sortBy.value);
+						replaceState($page.url, $page.state);
+					}}
+				/>
+			</div>
 		</div>
 	</div>
 
@@ -219,7 +267,7 @@
 					></div>
 				</div>
 			{/snippet}
-			<div transition:slide class="p-4">
+			<div transition:slide class={twMerge(adData.length > 0 ? 'p-4' : '')}>
 				<!-- {#each adData as adData, i}
 					<AdCard
 						adData={ads[getIndex(adData)]}
