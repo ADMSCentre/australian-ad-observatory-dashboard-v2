@@ -249,6 +249,12 @@
 	</div>
 {/snippet}
 
+{#snippet videoPlayer(src: string)}
+	<video {src} controls preload="metadata">
+		<track kind="captions" />
+	</video>
+{/snippet}
+
 <!-- <pre>{JSON.stringify(rankings, null, 2)}</pre> -->
 
 <div class="flex flex-col items-end gap-1">
@@ -393,31 +399,37 @@
 									</span>
 								{/snippet}
 								<div
-									class=" flex flex-col gap-2 whitespace-pre-wrap border border-muted-foreground p-2"
+									class=" flex flex-col items-center justify-center gap-2 whitespace-pre-wrap border border-muted-foreground p-2 sm:flex-row sm:items-start sm:justify-start"
 								>
-									{#each candidate.data.snapshot.videos as video}
-										{@const medias = mapMedia(video, ['video_sd_url'])}
-										{#each medias as media}
-											{#await getMediaUrl(media.src.original) then src}
-												<video {src} controls preload="none">
-													<track kind="captions" />
-												</video>
-											{/await}
+									<div class="max-w-48">
+										{#each candidate.data.snapshot.videos as video}
+											{@const medias = mapMedia(video, ['video_sd_url'])}
+											{#each medias as media}
+												{#await getMediaUrl(media.src.original) then src}
+													{@render videoPlayer(src)}
+												{/await}
+											{/each}
+											{#if medias.length === 0}
+												<div>
+													Unable to load video <pre>{JSON.stringify(video, null, 2)}</pre>
+												</div>
+											{/if}
+											<!-- <pre>{JSON.stringify(mapMedia(video), null, 2)}</pre> -->
 										{/each}
-										<!-- <pre>{JSON.stringify(mapMedia(video), null, 2)}</pre> -->
-									{/each}
-
-									{#each candidate.data.snapshot.images as image}
-										{@const medias = mapMedia(image, ['resized_image_url'])}
-										{#each medias as media}
-											{#await getMediaUrl(media.src.original) then src}
-												<img {src} alt={media.kind} />
-											{/await}
+										{#each candidate.data.snapshot.images as image}
+											{@const medias = mapMedia(image, ['resized_image_url'])}
+											{#each medias as media}
+												{#await getMediaUrl(media.src.original) then src}
+													<img {src} alt={media.kind} />
+												{/await}
+											{/each}
+											<!-- <pre>{JSON.stringify(mapMedia(image), null, 2)}</pre> -->
 										{/each}
-										<!-- <pre>{JSON.stringify(mapMedia(image), null, 2)}</pre> -->
-									{/each}
+									</div>
 
-									{@html candidate.data.snapshot.body.text}
+									<div class="w-full">
+										{@html candidate.data.snapshot.body.text}
+									</div>
 								</div>
 							</Accordion>
 						{:else}
@@ -433,20 +445,20 @@
 									</span>
 								{/snippet}
 								<div
-									class=" flex flex-col gap-2 whitespace-pre-wrap border border-muted-foreground p-2"
+									class=" flex flex-col items-center justify-center gap-2 whitespace-pre-wrap border border-muted-foreground p-2"
 								>
 									{#each candidate.data.snapshot.cards as card}
 										{@const medias = mapMedia(card, ['resized_image_url', 'video_sd_url'])}
-										<div class="flex gap-2">
+										<div
+											class="flex flex-col items-center justify-center gap-2 sm:flex-row sm:items-start sm:justify-start"
+										>
 											<div class="max-w-48">
 												{#each medias as media}
 													{#await getMediaUrl(media.src.original) then src}
 														{#if media.kind === 'resized_image_url'}
 															<img {src} alt={media.kind} class=" object-contain" />
 														{:else if media.kind === 'video_sd_url'}
-															<video {src} controls preload="none" autoplay>
-																<track kind="captions" />
-															</video>
+															{@render videoPlayer(src)}
 														{/if}
 													{/await}
 												{/each}
