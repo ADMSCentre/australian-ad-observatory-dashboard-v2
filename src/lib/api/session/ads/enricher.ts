@@ -57,4 +57,31 @@ export class RichDataBuilder {
 		}
 		return data.dimensions || {};
 	}
+
+	async getCandidates() {
+		const { data, error } = await client.GET(
+			'/ads/{observer_id}/{timestamp}.{ad_id}/rdo/candidates',
+			{
+				headers: {
+					...this.authHeader
+				},
+				params: {
+					path: {
+						observer_id: this.ad.observer,
+						timestamp: this.ad.timestamp.toString(),
+						ad_id: this.ad.adId
+					}
+				}
+			}
+		);
+		if (error) {
+			console.error(error);
+			return {};
+		}
+		return {
+			candidates: data.candidates || [],
+			mediaPaths: data.media_paths || {},
+			rankings: data.rankings || []
+		};
+	}
 }

@@ -5,11 +5,11 @@
 	import Codemirror from 'svelte-codemirror-editor';
 	import { json } from '@codemirror/lang-json';
 
-	import { fetchRichDataObject } from '../../../../lib/api/session/ads/utils';
+	import { fetchRichDataObject } from '$lib/api/session/ads/utils';
 	import AdCardBody from '../ad-card-body.svelte';
 	import OcrView from './ocr-view.svelte';
 	import CandidatesView from './candidates-view.svelte';
-	import type { MediaSource } from '../../../../lib/api/session/ads/rich-data-object-type';
+	import type { MediaSource, RichDataObject } from '$lib/api/session/ads/rich-data-object-type';
 	import type { RichAdData } from '$lib/api/session/ads/types';
 	import { session } from '$lib/api/session/session.svelte';
 
@@ -23,7 +23,7 @@
 
 	$effect(() => {
 		if (!currentAd) return;
-		session.ads.enrich(currentAd, ['richDataObject', 'ocrData', 'dimensions']);
+		session.ads.enrich(currentAd, ['richDataObject', 'ocrData', 'dimensions', 'metaLibraryScrape']);
 	});
 
 	const keyframes = $derived(currentAd?.ocrData || null);
@@ -40,35 +40,60 @@
 		if (!currentAd || !currentAd.richDataObject) return null;
 		return currentAd.richDataObject.observer.uuid;
 	});
-	const candidates = $derived.by(() => {
-		if (!currentAd || !currentAd.richDataObject) return null;
-		return currentAd.richDataObject.enrichment.meta_adlibrary_scrape.candidates;
-	});
-	const rankings = $derived.by(() => {
-		if (!currentAd || !currentAd.richDataObject) return null;
-		return currentAd.richDataObject.enrichment.meta_adlibrary_scrape.rankings;
-	});
-	const mediaMapping = $derived.by(() => {
-		if (!currentAd || !currentAd.richDataObject) return null;
-		const scrapeReference =
-			currentAd.richDataObject.enrichment.meta_adlibrary_scrape.reference.scrape;
+	// const candidates = $derived.by(() => {
+	// 	if (!currentAd || !currentAd.richDataObject) return null;
+	// 	return currentAd.richDataObject.enrichment.meta_adlibrary_scrape.candidates;
+	// });
+	const candidates = $derived(
+		(currentAd?.metaLibraryScrape?.candidates.map((c) => {
+			return {
+				data: c
+			};
+		}) as RichDataObject['enrichment']['meta_adlibrary_scrape']['candidates']) || null
+	);
+	// const rankings = $derived.by(() => {
+	// 	if (!currentAd || !currentAd.richDataObject) return null;
+	// 	return currentAd.richDataObject.enrichment.meta_adlibrary_scrape.rankings;
+	// });
+	const rankings = $derived(currentAd?.metaLibraryScrape?.rankings || null);
+	// const mediaMapping = $derived.by(() => {
+	// 	if (!currentAd || !currentAd.richDataObject) return null;
+	// 	const scrapeReference =
+	// 		currentAd.richDataObject.enrichment.meta_adlibrary_scrape.reference.scrape;
 
-		const scrapeSources = {
-			...currentAd.richDataObject.enrichment.meta_adlibrary_scrape.comparisons.image
-				.ad_scrape_sources,
-			...currentAd.richDataObject.enrichment.meta_adlibrary_scrape.comparisons.video
-				.ad_scrape_sources
-		};
-		return Object.entries(scrapeSources).reduce(
-			(acc, [path, mediaObj]: [string, any]) => {
-				const mediaUrl = mediaObj.media_url;
-				const fullPath = `${scrapeReference.observer_uuid}/meta_adlibrary_scrape/${scrapeReference.tentative_ad}/${path}`;
-				acc[mediaUrl] = { ...mediaObj, filename: path, fullPath };
+	// 	const scrapeSources = {
+	// 		...currentAd.richDataObject.enrichment.meta_adlibrary_scrape.comparisons.image
+	// 			.ad_scrape_sources,
+	// 		...currentAd.richDataObject.enrichment.meta_adlibrary_scrape.comparisons.video
+	// 			.ad_scrape_sources
+	// 	};
+	// 	return Object.entries(scrapeSources).reduce(
+	// 		(acc, [path, mediaObj]: [string, any]) => {
+	// 			const mediaUrl = mediaObj.media_url;
+	// 			const fullPath = `${scrapeReference.observer_uuid}/meta_adlibrary_scrape/${scrapeReference.tentative_ad}/${path}`;
+	// 			acc[mediaUrl] = { filename: path, fullPath };
+	// 			return acc;
+	// 		},
+	// 		{} as Record<string, { filename: string; fullPath: string }>
+	// 	);
+	// });
+
+	const mediaMapping = $derived.by(() => {
+		if (!currentAd || !currentAd.metaLibraryScrape?.mediaPaths) return null;
+		const observerId = currentAd.observer;
+		const observationId = `${currentAd.timestamp}.${currentAd.adId}`;
+
+		return Object.entries(currentAd.metaLibraryScrape.mediaPaths).reduce(
+			(acc, [originalUrl, path]: [string, string]) => {
+				const fullPath = `${observerId}/meta_adlibrary_scrape/${observationId}/${path}`;
+				acc[originalUrl] = { filename: path, fullPath };
 				return acc;
 			},
-			{} as Record<string, MediaSource & { filename: string; fullPath: string }>
+			{} as Record<string, { filename: string; fullPath: string }>
 		);
 	});
+
+	$inspect({ mediaMapping, rawMapping: currentAd?.metaLibraryScrape?.mediaPaths });
 </script>
 
 {#if currentAd}
@@ -136,7 +161,7 @@
 				<Tabs.Content value="ocr-data">
 					{#if keyframes && adDimension && observationId && observerId}
 						<OcrView
-							{keyframes}
+							keyframes={keyframes as any}
 							{adDimension}
 							observationId={`${currentAd.timestamp}.${currentAd.adId}`}
 							observerId={currentAd.observer}
@@ -145,7 +170,7 @@
 				</Tabs.Content>
 				<Tabs.Content value="candidate-ads">
 					{#if candidates && rankings && mediaMapping}
-						<CandidatesView {candidates} {rankings} {mediaMapping} />
+						<CandidatesView {candidates} rankings={null} {mediaMapping} />
 					{/if}
 				</Tabs.Content>
 				<Tabs.Content value="rich-data">

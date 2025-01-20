@@ -34,20 +34,6 @@
 
 	const scaleX = $derived(boxWidth / textWidth);
 	const scaleY = $derived(Math.max(boxHeight, 16) / textHeight);
-
-	$inspect({
-		x,
-		y,
-		w,
-		h,
-		text,
-		confidence,
-		isLinked,
-		confidenceColor,
-		boxWidth,
-		textWidth,
-		scaleX
-	});
 </script>
 
 <div

@@ -4,6 +4,7 @@ export type ExpandType =
 	| 'rawFrames'
 	| 'stitchedFrames'
 	| 'dimensions'
+	| 'metaLibraryScrape'
 	| 'ocrData';
 
 export type IndexGroupType =
@@ -63,5 +64,12 @@ export type RichAdData = BasicAdData & {
 	dimensions: {
 		w: number;
 		h: number;
+	};
+	metaLibraryScrape?: {
+		candidates: unknown[];
+		mediaPaths: {
+			[key: string]: string;
+		};
+		rankings: unknown[];
 	};
 };

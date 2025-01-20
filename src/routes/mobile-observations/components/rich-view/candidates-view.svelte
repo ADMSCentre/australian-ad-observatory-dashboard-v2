@@ -25,12 +25,12 @@
 
 	const {
 		candidates,
-		rankings,
+		rankings = null,
 		mediaMapping
 	}: {
 		candidates: RichDataObject['enrichment']['meta_adlibrary_scrape']['candidates'];
-		rankings: RichDataObject['enrichment']['meta_adlibrary_scrape']['rankings'];
-		mediaMapping: Record<string, MediaSource & { filename: string; fullPath: string }>;
+		rankings: RichDataObject['enrichment']['meta_adlibrary_scrape']['rankings'] | null;
+		mediaMapping: Record<string, { filename: string; fullPath: string }>;
 	} = $props();
 
 	type RichCandidate = RichDataObject['enrichment']['meta_adlibrary_scrape']['candidates'][0] & {
@@ -45,14 +45,18 @@
 		| 'end-date-desc'
 		| 'end-date-asc';
 
+	$inspect({ candidates });
+
 	const sortOptions: {
 		value: SortMode;
 		label: string;
+		available: boolean;
 		sortFn: (a: RichCandidate, b: RichCandidate) => number;
 	}[] = [
 		{
 			value: 'overall-ranking-desc',
 			label: 'Highest Overall Score',
+			available: !!rankings,
 			sortFn: (a: RichCandidate, b: RichCandidate) => {
 				const aScore = calculateOverallRankingScore(a.ranking);
 				const bScore = calculateOverallRankingScore(b.ranking);
@@ -62,6 +66,7 @@
 		{
 			value: 'overall-ranking-asc',
 			label: 'Lowest Overall Score',
+			available: !!rankings,
 			sortFn: (a: RichCandidate, b: RichCandidate) => {
 				const aScore = calculateOverallRankingScore(a.ranking);
 				const bScore = calculateOverallRankingScore(b.ranking);
@@ -71,6 +76,7 @@
 		{
 			value: 'start-date-desc',
 			label: 'Newest Start Date',
+			available: true,
 			sortFn: (a: RichCandidate, b: RichCandidate) => {
 				return new Date(b.data.start_date).getTime() - new Date(a.data.start_date).getTime();
 			}
@@ -78,6 +84,7 @@
 		{
 			value: 'start-date-asc',
 			label: 'Oldest Start Date',
+			available: true,
 			sortFn: (a: RichCandidate, b: RichCandidate) => {
 				return new Date(a.data.start_date).getTime() - new Date(b.data.start_date).getTime();
 			}
@@ -85,6 +92,7 @@
 		{
 			value: 'end-date-desc',
 			label: 'Newest End Date',
+			available: true,
 			sortFn: (a: RichCandidate, b: RichCandidate) => {
 				return new Date(b.data.end_date).getTime() - new Date(a.data.end_date).getTime();
 			}
@@ -92,13 +100,15 @@
 		{
 			value: 'end-date-asc',
 			label: 'Oldest End Date',
+			available: true,
 			sortFn: (a: RichCandidate, b: RichCandidate) => {
 				return new Date(a.data.end_date).getTime() - new Date(b.data.end_date).getTime();
 			}
 		}
-	];
+	].filter((option) => option.available) as typeof sortOptions;
 
 	const getRanking = (candidateId: number) => {
+		if (!rankings) return null;
 		const index = rankings.findIndex(
 			(ranking) => ranking.this_selected_candidate_i === candidateId
 		);
@@ -110,12 +120,12 @@
 				};
 	};
 
-	let sortMode = $state<SortMode>('overall-ranking-desc');
+	let sortMode = $state<SortMode>(sortOptions[0].value);
 
 	const richCandidates: RichCandidate[] = $derived(
 		candidates.map((candidate) => ({
 			...candidate,
-			ranking: getRanking(candidate.ad_library_scrape_candidates_i)
+			ranking: getRanking(candidate?.ad_library_scrape_candidates_i)
 		}))
 		// .slice(0, 2)
 	);
@@ -389,7 +399,7 @@
 										{@const medias = mapMedia(video, ['video_sd_url'])}
 										{#each medias as media}
 											{#await getMediaUrl(media.src.original) then src}
-												<video {src} controls preload="none" autoplay muted>
+												<video {src} controls preload="none">
 													<track kind="captions" />
 												</video>
 											{/await}
@@ -475,6 +485,10 @@
 				</Accordion>
 			</div>
 		{/each}
+
+		{#if orderedCandidates.length === 0}
+			<p>No candidates found for this advertisement.</p>
+		{/if}
 	</div>
 </div>
 

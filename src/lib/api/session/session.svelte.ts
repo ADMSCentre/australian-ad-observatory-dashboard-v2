@@ -16,14 +16,14 @@ export const INDEX_GROUP_TYPES: {
 		description: "Ads that have been cropped for to only show the ad's content"
 	},
 	{
-		value: 'ads_passed_relation',
+		value: 'ads_passed_mass_download',
 		label: 'Matched',
 		description: 'Ads that have been matched to a known ad in the Meta Ads Library'
 	}
 ];
 
 export class Session {
-	indexGroupTypes = $state<IndexGroupType[]>(['ads_passed_restitch', 'ads_passed_relation']);
+	indexGroupTypes = $state<IndexGroupType[]>(['ads_passed_mass_download']);
 	authHeader = $derived.by(() => {
 		return { Authorization: `Bearer ${auth.token}` };
 	});
@@ -94,8 +94,10 @@ export class Session {
 						case 'dimensions':
 							ad.dimensions = getCache(expand) ?? (await enricher.getDimensions());
 							break;
+						case 'metaLibraryScrape':
+							ad.metaLibraryScrape = getCache(expand) ?? (await enricher.getCandidates());
+							break;
 					}
-					console.log('Enriched', ad.adId, expand, ad[expand]);
 				})
 			);
 		}

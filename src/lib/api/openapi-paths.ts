@@ -1042,6 +1042,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/ads/{observer_id}/{timestamp}.{ad_id}/rdo/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve meta candidates for an ad.
+         * @description Retrieve meta candidates for the specified ad, including media paths and rankings.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    observer_id: string;
+                    timestamp: string;
+                    ad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            candidates?: Record<string, never>[];
+                            media_paths?: {
+                                [key: string]: string;
+                            };
+                            rankings?: Record<string, never>;
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example MISSING_PARAMETERS: observer_id, timestamp, ad_id */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/observers": {
         parameters: {
             query?: never;
