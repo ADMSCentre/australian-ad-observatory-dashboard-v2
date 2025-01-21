@@ -104,11 +104,11 @@
 </script>
 
 <!-- Body -->
-<div class="flex max-h-full w-fit flex-col gap-2">
+<div class="flex max-h-full flex-col gap-2">
 	<!-- Main image -->
 	<div
 		class={twMerge(
-			'group flex min-h-40  max-w-full flex-auto transform flex-col gap-2 overflow-hidden rounded border-4 border-transparent shadow-lg transition-transform hover:border-inherit dark:shadow-zinc-800',
+			'group flex min-h-40 w-full max-w-full flex-auto transform flex-col gap-2 overflow-hidden rounded border-4 border-transparent shadow-lg transition-transform hover:border-inherit dark:shadow-zinc-800',
 			className
 		)}
 	>

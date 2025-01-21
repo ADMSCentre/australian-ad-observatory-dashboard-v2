@@ -1,16 +1,12 @@
 <script lang="ts">
 	import type { Query } from '../const';
-	import treeToString, { buildTree } from '../utils/query-builder';
+	import treeToString, { buildTree, queryToString } from '../utils/query-builder';
 	import CodeMirror from 'svelte-codemirror-editor';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { twMerge } from 'tailwind-merge';
 	import { sql } from '@codemirror/lang-sql';
 
 	let { query = $bindable(), class: className = '' }: { query: Query; class?: string } = $props();
-
-	const queryToString = (query: Query): string => {
-		return treeToString(query).replace(/^\((.*)\)$/, '$1');
-	};
 
 	let queryStr = $state(queryToString(query));
 	let tokens = $state<Query>();
@@ -29,24 +25,20 @@
 	};
 
 	const onSave = () => {
-		console.log('Saving', queryStr);
 		query = buildTree(queryStr);
 		isEditing = false;
 	};
 
 	$effect(() => {
 		const nextQueryStr = queryToString(query);
-		console.log('nextQueryStr', nextQueryStr);
 		if (queryStr === nextQueryStr) return;
-		console.log('isEditing', isEditing);
 		if (isEditing) return;
-		console.log('isValid', isValid);
 		if (!isValid) return;
 		queryStr = nextQueryStr;
 	});
 </script>
 
-<div class="flex flex-row gap-2">
+<div class="flex flex-row items-center gap-2">
 	<CodeMirror
 		bind:value={queryStr}
 		class={twMerge('w-full', className)}

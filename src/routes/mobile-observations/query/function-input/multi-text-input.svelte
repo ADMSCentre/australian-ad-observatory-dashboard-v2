@@ -23,12 +23,32 @@
 			}, 0);
 		}
 	};
+
+	const onInputChange = (i: number) => (e: Event) => {
+		const target = e.target as HTMLInputElement;
+		console.log('input change', i, target.value);
+		if (target.value.trim() === '') {
+			console.log('removing', i);
+			query.args.splice(i, 1);
+			inputRefs.splice(i, 1);
+		} else {
+			query.args[i] = target.value;
+		}
+	};
 </script>
 
-{#each query.args as arg, i}
-	<input type="text" bind:this={inputRefs[i]} bind:value={query.args[i]} placeholder="+" />
-{/each}
-<input type="text" bind:value={newInputValue} oninput={onNewInputChange} placeholder="..." />
+<div class="text-sm">
+	{#each query.args as arg, i}
+		<input
+			type="text"
+			bind:this={inputRefs[i]}
+			bind:value={query.args[i]}
+			oninput={onInputChange(i)}
+			placeholder="+"
+		/>
+	{/each}
+	<input type="text" bind:value={newInputValue} oninput={onNewInputChange} placeholder="..." />
+</div>
 
 <style>
 	input {

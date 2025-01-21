@@ -10,6 +10,26 @@ const parseAdPath = (path: string) => {
 	return { observer, timestamp, adId, path };
 };
 
+export const parseRawAdPaths = (rawAds: string[]) => {
+	return rawAds
+		.map((path) => parseAdPath(path))
+		.map((ad) => {
+			const { observer, timestamp, adId, path } = ad;
+			const date = new Date(+timestamp).toLocaleDateString('en-GB', {
+				month: 'long',
+				day: 'numeric',
+				year: 'numeric'
+			});
+			const time = new Date(+timestamp).toLocaleTimeString('en-GB', {
+				hour: '2-digit',
+				minute: '2-digit',
+				second: '2-digit',
+				fractionalSecondDigits: 3
+			});
+			return { observer, timestamp: +timestamp, adId, path, date, time, types: [] };
+		}) as unknown as RichAdData[];
+};
+
 export const listAllAds = async (
 	token: string,
 	filters: ((ad: RichAdData) => boolean)[] = [],

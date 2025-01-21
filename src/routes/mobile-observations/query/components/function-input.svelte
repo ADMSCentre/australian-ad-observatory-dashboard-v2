@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Query } from '../const';
+	import DatetimeInput from '../function-input/datetime-input.svelte';
 	import MultiTextInput from '../function-input/multi-text-input.svelte';
 
 	let {
@@ -14,8 +15,10 @@
 
 	const Component = $derived.by(() => {
 		switch (type) {
-			case 'multi-text-input':
+			case 'multi-text':
 				return MultiTextInput;
+			case 'datetime':
+				return DatetimeInput;
 			default:
 				return null;
 		}

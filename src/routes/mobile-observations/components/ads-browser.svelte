@@ -26,6 +26,7 @@
 		cardOptions?: Omit<AdCardProps, 'adData'>;
 		filters?: ((ad: RichAdData) => boolean)[];
 		richViewExpanded?: boolean;
+		syncQueryParams?: boolean;
 	};
 
 	let {
@@ -39,7 +40,8 @@
 			exclude: []
 		},
 		filters = [],
-		richViewExpanded = $bindable(false)
+		richViewExpanded = $bindable(false),
+		syncQueryParams = true
 	}: Props = $props();
 
 	const defaultSearchKey = $page.url.searchParams.get('search') || '';
@@ -117,6 +119,7 @@
 	};
 	const searchDebounce = debounce((value: string) => {
 		searchKey = value;
+		if (!syncQueryParams) return;
 		if (searchKey.length > 0) $page.url.searchParams.set('search', searchKey);
 		else $page.url.searchParams.delete('search');
 		replaceState($page.url, $page.state);
@@ -229,6 +232,7 @@
 					onSelected={(option: string) => {
 						groupBy = groups.find((g) => g.value === option) || groups[0];
 						// Update URL
+						if (!syncQueryParams) return;
 						$page.url.searchParams.set('group', groupBy.value);
 						replaceState($page.url, $page.state);
 					}}
@@ -242,6 +246,7 @@
 					onSelected={(option: string) => {
 						sortBy = sortOptions.find((s) => s.value === option) || sortOptions[0];
 						// Update URL
+						if (!syncQueryParams) return;
 						$page.url.searchParams.set('sort', sortBy.value);
 						replaceState($page.url, $page.state);
 					}}

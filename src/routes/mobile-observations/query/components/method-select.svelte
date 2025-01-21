@@ -10,10 +10,10 @@
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import * as Command from '$lib/components/ui/command/index.js';
 	import { buttonVariants } from '$lib/components/ui/button/index.js';
-	import { AND, EXACT_MATCH, MATCH, NOT, OR, type Method } from '../const';
+	import { METHODS, type Method } from '../const';
 	import { Icon } from 'lucide-svelte';
 
-	const statuses: Method[] = [AND, OR, NOT, MATCH, EXACT_MATCH];
+	const statuses: Method[] = Object.values(METHODS);
 
 	let open = $state(false);
 	let { value = $bindable() }: { value: string } = $props();
@@ -67,6 +67,16 @@
 								</span>
 							</Command.Item>
 						{/each}
+						<hr class="my-2 border-t" />
+						<Command.Item
+							value=""
+							onSelect={() => {
+								value = '';
+								closeAndFocusTrigger(triggerId);
+							}}
+						>
+							<span> Clear </span>
+						</Command.Item>
 					</Command.Group>
 				</Command.List>
 			</Command.Root>

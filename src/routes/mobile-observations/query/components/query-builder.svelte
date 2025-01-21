@@ -5,6 +5,7 @@
 	import QueryBuilder from './query-builder.svelte';
 	import { twMerge } from 'tailwind-merge';
 	import FunctionInput from './function-input.svelte';
+	import { METHODS } from '../const';
 
 	let { query = $bindable(), class: className = '' }: { query: Query; class?: string } = $props();
 	const methodType = $derived(getMethodType(query.method));
@@ -19,7 +20,7 @@
 			}
 			query.args = [
 				{
-					method: 'MATCH',
+					method: 'OBSERVER_ID_CONTAINS',
 					args: []
 				}
 			];
@@ -34,7 +35,7 @@
 					continue;
 				}
 				query.args[i] = {
-					method: 'MATCH',
+					method: 'OBSERVER_ID_CONTAINS',
 					args: []
 				};
 			}
@@ -51,14 +52,7 @@
 
 	const functionInputType = $derived.by(() => {
 		if (methodType !== 'function') return null;
-		switch (query.method) {
-			case 'MATCH':
-				return 'multi-text-input';
-			case 'EXACT MATCH':
-				return 'multi-text-input';
-			default:
-				return null;
-		}
+		return Object.values(METHODS).find((m) => m.value === query.method)?.inputType || null;
 	});
 
 	/**
@@ -68,16 +62,22 @@
 	const addAnd = () => {
 		query = {
 			method: 'AND',
-			args: [query, { method: 'MATCH', args: [] }]
+			args: [query, { method: 'OBSERVER_ID_CONTAINS', args: [] }]
 		};
 	};
 
 	const addOr = () => {
 		query = {
 			method: 'OR',
-			args: [query, { method: 'MATCH', args: [] }]
+			args: [query, { method: 'OBSERVER_ID_CONTAINS', args: [] }]
 		};
 	};
+
+	$effect(() => {
+		if (query.method === '' && query.args.length > 0 && typeof query.args[0] === 'object') {
+			query = query.args[0] as Query;
+		}
+	});
 </script>
 
 <div class="flex w-fit flex-col items-center gap-1">

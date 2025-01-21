@@ -24,6 +24,10 @@ export default function treeToString(tree: Query): string {
 	return '';
 }
 
+export const queryToString = (query: Query): string => {
+	return treeToString(query).replace(/^\((.*)\)$/, '$1');
+};
+
 function parseString(token: string): string {
 	return token.replace(/^"|"$/g, '');
 }
@@ -151,6 +155,7 @@ export function buildTree(queryStr: string): Query {
 		if (!token) break;
 		if (isFunction(token) || isBinaryOp(token) || isUnaryOp(token)) {
 			// console.log(stack, token);
+			console.log('Function found');
 			console.log(structuredClone(stack), structuredClone(token));
 		}
 		if (isUnaryOp(token)) {
@@ -209,7 +214,10 @@ export function buildTree(queryStr: string): Query {
 	}
 	console.log(stack);
 	const indexOfQuery = stack.findIndex((item) => typeof item === 'object');
-	if (indexOfQuery === -1) throw new Error('Invalid query');
+	if (indexOfQuery === -1) {
+		console.error(stack);
+		throw new Error('Invalid query');
+	}
 	return stack[indexOfQuery] as Query;
 	// if (typeof stack[0] !== 'object') throw new Error('Invalid query');
 	// return stack[0] as Query;

@@ -1,5 +1,7 @@
 // This is used to manage interactions with the API, and automatically handle authorisation
 import { auth } from '$lib/api/auth/auth.svelte';
+import type { Query } from '../../../routes/mobile-observations/query/const';
+import { client } from '../client';
 import { getAdFrameUrls, listAdsForObserver, listAllAds } from '../mobile-observations';
 import { RichDataBuilder } from './ads/enricher';
 import type { ExpandType, IndexGroupType, RichAdData } from './ads/types';
@@ -61,6 +63,14 @@ export class Session {
 		) => {
 			if (!auth.token) return [];
 			return await listAdsForObserver(auth.token, observer, filters, types ?? this.indexGroupTypes);
+		},
+		query: async (query: Query) => {
+			const { data, error } = await client.POST('/ads/query', {
+				headers: this.authHeader,
+				body: query as Record<string, unknown>
+			});
+			if (error) throw error;
+			return data;
 		},
 		enrich: async (
 			ad: RichAdData,
