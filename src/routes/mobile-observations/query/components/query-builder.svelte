@@ -80,8 +80,8 @@
 	});
 </script>
 
-<div class="flex w-fit flex-col items-center gap-1">
-	<div class="relative flex items-center gap-1">
+<div class="relative flex w-fit flex-col items-center gap-1">
+	<div class=" flex items-center gap-1">
 		<div
 			class={twMerge(
 				'relative flex w-fit items-center gap-1 rounded border border-dashed p-2 pb-3 pr-8',
@@ -103,17 +103,29 @@
 				<FunctionInput type={functionInputType} bind:query bind:inputRefs />
 			{/if}
 		</div>
-		<Button
-			variant="link"
-			class="absolute right-0 size-fit p-0.5 text-[10px] opacity-25 hover:opacity-100"
-			size="sm"
-			onclick={addAnd}>+ AND</Button
+		<div
+			class="pointer-events-none absolute left-full z-10 size-fit -translate-x-2/3 -translate-y-1 p-0.5"
 		>
-		<Button
-			variant="link"
-			class="absolute bottom-0 size-fit w-full text-center text-[10px] opacity-25 hover:opacity-100"
-			size="sm"
-			onclick={addOr}>+ OR</Button
+			<Button
+				variant="link"
+				size="sm"
+				class="pointer-events-auto size-fit text-2xs opacity-10 hover:opacity-100"
+				onclick={addAnd}
+			>
+				+ AND
+			</Button>
+		</div>
+		<div
+			class="pointer-events-none absolute bottom-0 z-10 size-fit w-full translate-y-1 text-center"
 		>
+			<Button
+				variant="link"
+				class="pointer-events-auto size-fit text-2xs opacity-10 hover:opacity-100"
+				size="sm"
+				onclick={addOr}
+			>
+				+ OR
+			</Button>
+		</div>
 	</div>
 </div>

@@ -37,22 +37,32 @@
 	};
 </script>
 
-<div class="text-sm">
+<div class="flex flex-wrap gap-1 text-sm">
 	{#each query.args as arg, i}
 		<input
 			type="text"
+			class="bg-background text-foreground"
 			bind:this={inputRefs[i]}
 			bind:value={query.args[i]}
 			oninput={onInputChange(i)}
 			placeholder="+"
 		/>
+		{#if i < query.args.length - 1}
+			<span class="text-foreground">,</span>
+		{/if}
 	{/each}
-	<input type="text" bind:value={newInputValue} oninput={onNewInputChange} placeholder="..." />
+	<input
+		type="text"
+		class="bg-background text-foreground"
+		bind:value={newInputValue}
+		oninput={onNewInputChange}
+		placeholder="..."
+	/>
 </div>
 
 <style>
 	input {
 		field-sizing: content;
-		@apply rounded border-b px-1 focus:outline-none;
+		@apply rounded border-b focus:outline-none;
 	}
 </style>

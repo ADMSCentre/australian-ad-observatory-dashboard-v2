@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Input from '$lib/components/ui/input/input.svelte';
 	import type { Query } from '../const';
 	import { getLocalTimeZone } from '@internationalized/date';
 
@@ -33,10 +34,15 @@
 	};
 </script>
 
-<input type="datetime-local" class="text-sm" step="60" bind:value {onchange} />
+<Input type="datetime-local" class="text-sm" step="60" bind:value {onchange} />
 
 <style>
-	::-webkit-calendar-picker-indicator {
+	:global(::-webkit-calendar-picker-indicator) {
 		margin-left: -1.25rem;
+	}
+	:global(.dark) {
+		:global(::-webkit-calendar-picker-indicator) {
+			color-scheme: dark;
+		}
 	}
 </style>
