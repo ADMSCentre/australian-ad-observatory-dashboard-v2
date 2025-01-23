@@ -78,14 +78,29 @@
 			query = query.args[0] as Query;
 		}
 	});
+
+	let showAndOr = $state(false);
+
+	const toggleShowAndOr = (e: MouseEvent, show: boolean) => {
+		// Check if the event is coming from a child element
+		if (e.target !== e.currentTarget) return;
+		e.preventDefault();
+		e.stopPropagation();
+		showAndOr = show;
+	};
 </script>
 
-<div class="relative flex w-fit flex-col items-center gap-1">
+<label
+	class="relative flex w-fit flex-col items-center gap-1"
+	onmouseenter={(e) => toggleShowAndOr(e, true)}
+	onmouseleave={(e) => toggleShowAndOr(e, false)}
+>
 	<div class=" flex items-center gap-1">
 		<div
 			class={twMerge(
-				'relative flex w-fit items-center gap-1 rounded border border-dashed p-2 pb-3 pr-8',
+				'relative flex w-fit items-center gap-2 rounded border border-dashed p-2',
 				flexDirection,
+				methodType === 'function' && 'border-none',
 				className
 			)}
 		>
@@ -103,29 +118,29 @@
 				<FunctionInput type={functionInputType} bind:query bind:inputRefs />
 			{/if}
 		</div>
-		<div
-			class="pointer-events-none absolute left-full z-10 size-fit -translate-x-2/3 -translate-y-1 p-0.5"
-		>
+		{#if showAndOr}
+			<div class="z-10 -ml-5 flex size-fit items-center justify-center">
+				<Button
+					variant="link"
+					size="sm"
+					class="pointer-events-auto size-fit p-0 text-2xs opacity-10 hover:opacity-100"
+					onclick={addAnd}
+				>
+					+ AND
+				</Button>
+			</div>
+		{/if}
+	</div>
+	{#if showAndOr}
+		<div class="z-10 -mt-5 size-fit">
 			<Button
 				variant="link"
-				size="sm"
-				class="pointer-events-auto size-fit text-2xs opacity-10 hover:opacity-100"
-				onclick={addAnd}
-			>
-				+ AND
-			</Button>
-		</div>
-		<div
-			class="pointer-events-none absolute bottom-0 z-10 size-fit w-full translate-y-1 text-center"
-		>
-			<Button
-				variant="link"
-				class="pointer-events-auto size-fit text-2xs opacity-10 hover:opacity-100"
+				class="pointer-events-auto size-fit p-0 text-2xs opacity-10 hover:opacity-100"
 				size="sm"
 				onclick={addOr}
 			>
 				+ OR
 			</Button>
 		</div>
-	</div>
-</div>
+	{/if}
+</label>

@@ -56,7 +56,7 @@
 		class="bg-background text-foreground"
 		bind:value={newInputValue}
 		oninput={onNewInputChange}
-		placeholder="..."
+		placeholder="......."
 	/>
 </div>
 

@@ -114,7 +114,7 @@
 			</div>
 		</div>
 
-		<AdCardBody {adData} visible={intersecting} {framesMode} />
+		<AdCardBody {adData} visible={intersecting} bind:framesMode />
 
 		<!-- Footer -->
 		<div class="flex flex-col gap-2">

@@ -34,7 +34,13 @@
 	};
 </script>
 
-<Input type="datetime-local" class="text-sm" step="60" bind:value {onchange} />
+<input
+	type="datetime-local"
+	class="border-b text-sm outline-none"
+	step="60"
+	bind:value
+	{onchange}
+/>
 
 <style>
 	:global(::-webkit-calendar-picker-indicator) {

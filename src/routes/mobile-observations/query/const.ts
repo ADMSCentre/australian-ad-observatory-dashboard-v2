@@ -65,6 +65,14 @@ export const METHODS: {
 		precedence: 4,
 		associativity: 'right',
 		inputType: 'multi-text'
+	},
+	OBSERVATION_ID_CONTAINS: {
+		label: 'OBSERVATION_ID_CONTAINS',
+		value: 'OBSERVATION_ID_CONTAINS',
+		type: 'function',
+		precedence: 4,
+		associativity: 'right',
+		inputType: 'multi-text'
 	}
 };
 

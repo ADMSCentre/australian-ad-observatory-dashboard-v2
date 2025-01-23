@@ -62,7 +62,7 @@ export type RichAdData = BasicAdData & {
 			confidence?: number;
 		}[];
 	}[];
-	dimensions: {
+	dimensions?: {
 		w: number;
 		h: number;
 	};

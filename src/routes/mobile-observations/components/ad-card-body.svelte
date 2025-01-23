@@ -23,26 +23,33 @@
 	let {
 		adData = $bindable(),
 		visible = true,
-		framesMode = 'stitched',
+		framesMode = $bindable('stitched'),
 		class: className = ''
 	}: Props = $props();
 
 	let isUpdatingAttributes = $state(false);
 	let autoPlay = $state(true);
 	let currentIndex = $state(0);
+	let loading = $state(true);
 
 	$effect(() => {
-		(async () => {
-			session.ads.enrich(adData, ['rawFrames', 'stitchedFrames', 'attributes']);
-		})();
+		session.ads.enrich(adData, ['rawFrames', 'stitchedFrames', 'attributes']).then(() => {
+			loading = false;
+			console.log('Ad data enriched', adData);
+		});
 	});
 
-	let frames = $derived.by(() => {
+	const frames = $derived.by(() => {
+		if (loading) {
+			return [];
+		}
 		if (framesMode === 'raw') {
 			return adData.rawFrames;
 		}
 		return adData.stitchedFrames;
 	});
+
+	$inspect({ adData, frames, loading });
 
 	const setAttribute = async (key: string, value: any) => {
 		// Optimistically update the attributes state
@@ -115,6 +122,26 @@
 		<!-- <img class="h-fit object-cover" src="https://placehold.co/400x600" alt="Ad image" /> -->
 		{#if frames && frames.length && frames.length > 0}
 			<ImagesGif images={frames} bind:completed bind:currentIndex bind:autoPlay />
+		{:else if loading}
+			<div class="flex h-full w-full items-center justify-center bg-foreground text-white">
+				Loading...
+			</div>
+		{:else}
+			<div class="flex size-full items-center justify-center bg-foreground text-white">
+				<span class="text-center">
+					No frames available.
+					{#if !auth.isGuest}
+						Try <button
+							class="inline text-wrap underline"
+							onclick={() => {
+								framesMode = framesMode === 'raw' ? 'stitched' : 'raw';
+							}}
+						>
+							switching to {framesMode === 'raw' ? 'Cropped' : 'Full'} mode
+						</button>.
+					{/if}
+				</span>
+			</div>
 		{/if}
 
 		<!-- Replay button (center, overlay) -->

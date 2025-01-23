@@ -14,6 +14,9 @@
 	import AdsBrowser from '../components/ads-browser.svelte';
 	import Accordion from '$lib/components/accordion/accordion.svelte';
 	import { twMerge } from 'tailwind-merge';
+	import Timeline from '../components/timeline.svelte';
+	import ObservationsTimeline from '../components/observations-timeline.svelte';
+	import QueryResults from './components/query-results.svelte';
 
 	let queryObj = $state<Query | null>(null);
 	let promise = $state<Promise<unknown>>();
@@ -29,7 +32,7 @@
 		}
 		queryObj = {
 			method: 'OBSERVER_ID_CONTAINS',
-			args: ['']
+			args: []
 		};
 	});
 
@@ -135,7 +138,7 @@
 				<strong>Results:</strong>
 				{#if (queryResult as any)?.result}
 					{@const adData = parseRawAdPaths((queryResult as any).result)}
-					<AdsBrowser ads={adData} syncQueryParams={false} open />
+					<QueryResults {adData} />
 				{/if}
 				<Accordion>
 					{#snippet summary(open)}

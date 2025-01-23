@@ -87,7 +87,7 @@ export class Session {
 				return this.enrichedAds?.[ad.adId]?.[type];
 			};
 			const enricher = new RichDataBuilder(auth.token, ad);
-			Promise.all(
+			await Promise.all(
 				expands.map(async (expand) => {
 					switch (expand) {
 						case 'rawFrames':
