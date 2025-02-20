@@ -6,7 +6,7 @@ const protectedRoutes = [
 	'/users',
 	'/users/self',
 	'/mobile-observations/query',
-	'/projects' // Added /projects to protected routes
+	'/mobile-observations/projects' // Added /projects to protected routes
 ];
 
 export const isRouteProtected = (path: string) => {
