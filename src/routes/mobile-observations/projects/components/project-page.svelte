@@ -24,7 +24,9 @@
 		<h2 class="text-xl font-semibold">Project Observations</h2>
 		{#each project.cells as cell, index (cell.id)}
 			<div class="group flex h-full flex-col gap-2" animate:flip={{ duration: 300 }}>
-				<div class="flex w-full items-center justify-center opacity-0 hover:opacity-100">
+				<div
+					class="flex w-full items-center justify-center opacity-0 transition-opacity hover:opacity-100"
+				>
 					<CellCreateMenu {index} />
 				</div>
 				<div class="relative size-full flex-1">
@@ -37,7 +39,9 @@
 				</div>
 			</div>
 		{/each}
-		<div class="flex w-full items-center justify-center opacity-0 hover:opacity-100">
+		<div
+			class="flex w-full items-center justify-center opacity-0 transition-opacity hover:opacity-100"
+		>
 			<CellCreateMenu index={project.cells.length} />
 		</div>
 	</div>

@@ -1,11 +1,12 @@
 <script lang="ts">
 	import type { Project } from '../types';
 	import { goto } from '$app/navigation';
+	import { withBase } from '$lib/utils';
 
 	const { project }: { project: Project } = $props();
 
 	function navigateToProject() {
-		goto(`/mobile-observations/projects?project_id=${project.id}`);
+		goto(withBase(`/mobile-observations/projects?project_id=${project.id}`));
 	}
 </script>
 
