@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Query } from '../const';
+	import type { Query } from '../query';
 	import treeToString, { buildTree, queryToString } from '../utils/query-builder';
 	import CodeMirror from 'svelte-codemirror-editor';
 	import Button from '$lib/components/ui/button/button.svelte';

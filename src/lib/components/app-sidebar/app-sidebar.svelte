@@ -13,7 +13,8 @@
 		ChevronRight,
 		User,
 		Edit,
-		Users
+		Users,
+		Folder // Import Folder icon
 	} from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
 	import { auth } from '$lib/api/auth/auth.svelte';
@@ -38,6 +39,12 @@
 					title: 'Query',
 					icon: Search,
 					url: withBase(`mobile-observations/query`),
+					visible: true
+				},
+				{
+					title: 'Projects (Experimental)', // Added Projects section
+					url: withBase('mobile-observations/projects'),
+					icon: Folder,
 					visible: true
 				}
 			]
@@ -118,10 +125,10 @@
 									<Collapsible.Content>
 										<Sidebar.MenuSub>
 											{#each item.subItems as sub (sub.title)}
-												<Sidebar.MenuSubItem>
+												<Sidebar.MenuSubItem class="relative">
 													{#if sub.active}
 														<div
-															class="absolute left-0 flex h-1/2 w-fit -translate-x-1/2 items-center justify-center"
+															class="absolute left-0 top-1/2 flex h-1/2 w-fit -translate-x-4 -translate-y-1/2 items-center justify-center"
 														>
 															<Circle size={10} fill="currentColor" />
 														</div>

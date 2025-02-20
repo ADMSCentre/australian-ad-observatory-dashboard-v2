@@ -7,7 +7,7 @@
 	import QueryTextEditor from './components/query-text-editor.svelte';
 	import CodeMirror from 'svelte-codemirror-editor';
 	import { json } from '@codemirror/lang-json';
-	import { type Query } from './const';
+	import { type Query } from './query';
 	import { theme } from '$lib/states/theme.svelte';
 	import { session } from '$lib/api/session/session.svelte';
 	import { parseRawAdPaths } from '$lib/api/session/ads/ads-index';
@@ -31,9 +31,8 @@
 			return;
 		}
 		queryObj = {
-			method: 'OBSERVER_ID_CONTAINS',
 			args: []
-		};
+		} as unknown as Query;
 	});
 
 	$effect(() => {
@@ -48,7 +47,7 @@
 		return JSON.stringify(queryObj, null, 2);
 	};
 
-	const executeQuery = () => {
+	const executeQuery = async () => {
 		loading = true;
 		// promise = fetchData().then((res) => {
 		// 	loading = false;
@@ -88,7 +87,7 @@
 						Text
 					</Button>
 				</div>
-				<Button class="w-24" onclick={executeQuery} disabled={loading}>
+				<Button class="w-24" onclick={executeQuery} disabled={loading || !queryObj.method}>
 					{#if loading}
 						<Circle size={20} color={theme.colors.background} />
 					{:else}

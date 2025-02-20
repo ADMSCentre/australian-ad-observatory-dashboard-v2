@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Query } from '../const';
+	import type { Query } from '../query';
 
 	let {
 		query = $bindable(),

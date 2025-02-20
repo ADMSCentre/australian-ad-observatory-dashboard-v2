@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Input from '$lib/components/ui/input/input.svelte';
-	import type { Query } from '../const';
+	import { untrack } from 'svelte';
+	import type { Query } from '../query';
 	import { getLocalTimeZone } from '@internationalized/date';
 
 	let {
@@ -8,7 +9,7 @@
 		inputRefs = $bindable()
 	}: { query: Query; inputRefs: (HTMLInputElement | null)[] } = $props();
 
-	const currentTimeStamp = Math.round(new Date().getTime() / 60000) * 60000;
+	// const currentTimeStamp = Math.round(new Date().getTime() / 60000) * 60000;
 
 	const timestampToDate = (timestamp: string) => {
 		const date = new Date(parseInt(timestamp));
@@ -24,7 +25,14 @@
 		return dateStr;
 	};
 
-	let value = $state(timestampToDate((query.args[0] as string) || currentTimeStamp.toString()));
+	let value = $state();
+
+	$effect(() => {
+		untrack(() => {
+			if (!query.args[0]) return;
+			value = timestampToDate(query.args[0] as string);
+		});
+	});
 
 	const onchange = (e: Event) => {
 		const target = e.target as HTMLInputElement;

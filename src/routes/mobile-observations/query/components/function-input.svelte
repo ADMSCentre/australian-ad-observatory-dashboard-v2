@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { Query } from '../const';
 	import DatetimeInput from '../function-input/datetime-input.svelte';
 	import MultiTextInput from '../function-input/multi-text-input.svelte';
+	import type { Query } from '../query';
 
 	let {
 		type,

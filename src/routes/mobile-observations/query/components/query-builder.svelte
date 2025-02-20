@@ -1,11 +1,11 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
-	import { getMethodType, type Query } from '../const';
+	import { DEFAULT_QUERY, getMethodType, type Query } from '../query';
 	import MethodSelect from './method-select.svelte';
 	import QueryBuilder from './query-builder.svelte';
 	import { twMerge } from 'tailwind-merge';
 	import FunctionInput from './function-input.svelte';
-	import { METHODS } from '../const';
+	import { METHODS } from '../query';
 
 	let { query = $bindable(), class: className = '' }: { query: Query; class?: string } = $props();
 	const methodType = $derived(getMethodType(query.method));
@@ -18,12 +18,7 @@
 			if (query.args.length === 1 && typeof query.args[0] === 'object') {
 				return;
 			}
-			query.args = [
-				{
-					method: 'OBSERVER_ID_CONTAINS',
-					args: []
-				}
-			];
+			query.args = [DEFAULT_QUERY];
 		} else if (methodType === 'binary') {
 			// If the args already exist, and are valid Query objects, do nothing
 			if (query.args.length === 2 && query.args.every((arg) => typeof arg === 'object')) {
@@ -34,10 +29,7 @@
 				if (query.args[i] && typeof query.args[i] === 'object') {
 					continue;
 				}
-				query.args[i] = {
-					method: 'OBSERVER_ID_CONTAINS',
-					args: []
-				};
+				query.args[i] = DEFAULT_QUERY;
 			}
 		}
 	});
@@ -62,20 +54,27 @@
 	const addAnd = () => {
 		query = {
 			method: 'AND',
-			args: [query, { method: 'OBSERVER_ID_CONTAINS', args: [] }]
+			args: [query, DEFAULT_QUERY]
 		};
 	};
 
 	const addOr = () => {
 		query = {
 			method: 'OR',
-			args: [query, { method: 'OBSERVER_ID_CONTAINS', args: [] }]
+			args: [query, DEFAULT_QUERY]
 		};
 	};
 
 	$effect(() => {
+		// For monitoring changes in the query method (switching from a method to another)
+
+		// Clearing a method with queries as their args make the first query the new query
 		if (query.method === '' && query.args.length > 0 && typeof query.args[0] === 'object') {
 			query = query.args[0] as Query;
+		}
+		// Clear the args when deleting the method
+		if (query.method === '' && query.args.length > 0) {
+			query.args = [];
 		}
 	});
 
@@ -107,7 +106,7 @@
 			{#if methodType === 'binary' && query.args.length > 1}
 				<QueryBuilder bind:query={query.args[0] as Query} />
 			{/if}
-			<MethodSelect bind:value={query.method} />
+			<MethodSelect bind:query />
 			{#if methodType === 'unary' && query.args.length > 0}
 				<QueryBuilder bind:query={query.args[0] as Query} />
 			{/if}

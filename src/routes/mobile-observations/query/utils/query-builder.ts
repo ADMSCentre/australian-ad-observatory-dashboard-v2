@@ -1,4 +1,4 @@
-import { type Query, getMethodType, getMethodByValue } from '../const';
+import { type Query, getMethodType, getMethodByValue } from '../query';
 
 export default function treeToString(tree: Query): string {
 	if (typeof tree === 'string') {

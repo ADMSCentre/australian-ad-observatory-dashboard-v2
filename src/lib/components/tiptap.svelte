@@ -11,7 +11,19 @@
 	import { createEditor, Editor, EditorContent, FloatingMenu, BubbleMenu } from 'svelte-tiptap';
 	import type { Readable } from 'svelte/store';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group/index.js';
-	import { Bold, Italic, List, ListOrdered, Strikethrough, UnderlineIcon } from 'lucide-svelte';
+	import {
+		Bold,
+		Heading,
+		Heading1,
+		Heading2,
+		Heading3,
+		Heading4,
+		Italic,
+		List,
+		ListOrdered,
+		Strikethrough,
+		UnderlineIcon
+	} from 'lucide-svelte';
 
 	let editor = $state() as Readable<Editor>;
 	let isLoading = $state(true);
@@ -20,13 +32,11 @@
 		value = $bindable(),
 		placeholder = 'Enter text...',
 		class: className = '',
-		readonly = false,
 		menus = { bubble: true, floating: true, toolbar: true },
 		oninput = () => {}
 	}: {
 		value?: string;
 		placeholder?: string;
-		readonly?: boolean;
 		class?: string;
 		menus?: {
 			bubble?: boolean;
@@ -38,7 +48,6 @@
 
 	onMount(() => {
 		editor = createEditor({
-			editable: !readonly,
 			extensions: [
 				StarterKit,
 				Placeholder.configure({
@@ -51,6 +60,11 @@
 				}),
 				Underline
 			],
+			editorProps: {
+				attributes: {
+					class: 'flex-1 h-full'
+				}
+			},
 			content: value,
 			onTransaction: () => {
 				if (!$editor || isLoading) return;
@@ -149,6 +163,44 @@
 					isActive: () => $editor.isActive('orderedList')
 				}
 			]
+		},
+		{
+			groupMode: 'single',
+			formats: [
+				...[
+					{
+						level: 1,
+						icon: Heading1
+					},
+					{
+						level: 2,
+						icon: Heading2
+					},
+					{
+						level: 3,
+						icon: Heading3
+					},
+					{
+						level: 4,
+						icon: Heading4
+					}
+				].map(({ level, icon }: { level: any; icon: any }) => {
+					return {
+						name: `heading${level}`,
+						icon,
+						label: `Toggle heading ${level}`,
+						commands: {
+							set: () =>
+								!$editor.isActive('heading', { level }) &&
+								$editor.chain().focus().toggleHeading({ level }).run(),
+							unset: () =>
+								$editor.isActive('heading', { level }) &&
+								$editor.chain().focus().toggleHeading({ level }).run()
+						},
+						isActive: () => $editor.isActive('heading', { level })
+					};
+				})
+			]
 		}
 	]);
 
@@ -204,13 +256,16 @@
 
 <!-- <div class={twMerge('relative size-full rounded border p-2', className)} bind:this={element}></div> -->
 
-<div class={twMerge('relative flex size-full flex-col rounded border', className)}>
+<div class={twMerge('relative flex size-full flex-col border ', className)}>
 	{#if $editor}
-		<EditorContent editor={$editor} class="max-h-full flex-1 overflow-y-auto p-2" />
+		<EditorContent editor={$editor} class="box-border h-full flex-1 overflow-y-auto p-2" />
 		{#if menus.toolbar}
 			<ToggleGroup.Root
 				type="multiple"
-				class={twMerge(' flex w-fit flex-wrap justify-start', !isFocused && 'hidden ')}
+				class={twMerge(
+					'absolute top-0 flex w-fit -translate-y-1/2 flex-wrap justify-start gap-1 border bg-background p-1',
+					!isFocused && 'pointer-events-none invisible'
+				)}
 				value={formatGroups.flatMap((group) =>
 					group.formats.filter((format) => format.isActive()).map((format) => format.name)
 				)}
@@ -218,7 +273,11 @@
 			>
 				{#each formatGroups as group}
 					{#each group.formats as format}
-						<ToggleGroup.Item value={format.name} aria-label={format.label} class="mt-0.5">
+						<ToggleGroup.Item
+							value={format.name}
+							aria-label={format.label}
+							class="!inline !size-fit min-w-0 flex-grow-0 !p-1"
+						>
 							<format.icon />
 						</ToggleGroup.Item>
 					{/each}

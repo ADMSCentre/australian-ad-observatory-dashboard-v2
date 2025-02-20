@@ -10,15 +10,15 @@
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import * as Command from '$lib/components/ui/command/index.js';
 	import { buttonVariants } from '$lib/components/ui/button/index.js';
-	import { METHODS, type Method } from '../const';
+	import { METHODS, type Method, type Query } from '../query';
 	import { Icon } from 'lucide-svelte';
 
-	const statuses: Method[] = Object.values(METHODS);
+	const methods: Method[] = Object.values(METHODS);
 
 	let open = $state(false);
-	let { value = $bindable() }: { value: string } = $props();
+	let { query = $bindable() }: { query: Query } = $props();
 
-	const selectedStatus = $derived(statuses.find((s) => s.value === value));
+	const selectedMethod = $derived(methods.find((s) => s.value === query.method));
 
 	// We want to refocus the trigger button when the user selects
 	// an item from the list so users can continue navigating the
@@ -42,28 +42,32 @@
 				class: 'size-fit justify-start px-0'
 			})}
 		>
-			{#if selectedStatus}
-				{selectedStatus.label}
+			{#if selectedMethod}
+				{selectedMethod.label}
 			{:else}
-				Method
+				Select a filter
 			{/if}
 		</Popover.Trigger>
-		<Popover.Content class="w-40 p-0" side="bottom" align="start">
+		<Popover.Content class="min-w-40 p-0" side="bottom" align="start">
 			<Command.Root>
 				<Command.Input placeholder="Filter method..." />
 				<Command.List>
 					<Command.Empty>No results found.</Command.Empty>
 					<Command.Group>
-						{#each statuses as status}
+						{#each methods as currentMethod}
 							<Command.Item
-								value={status.value}
+								value={currentMethod.value}
 								onSelect={() => {
-									value = status.value;
+									// If the inputType are incompatible, reset the args
+									if (currentMethod.inputType !== selectedMethod?.inputType) {
+										query.args = [];
+									}
+									query.method = currentMethod.value;
 									closeAndFocusTrigger(triggerId);
 								}}
 							>
 								<span>
-									{status.label}
+									{currentMethod.label}
 								</span>
 							</Command.Item>
 						{/each}
@@ -71,7 +75,7 @@
 						<Command.Item
 							value=""
 							onSelect={() => {
-								value = '';
+								query.method = '';
 								closeAndFocusTrigger(triggerId);
 							}}
 						>

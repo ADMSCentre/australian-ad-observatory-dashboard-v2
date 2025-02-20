@@ -2,10 +2,11 @@ import { withBase } from '$lib/utils';
 
 const protectedRoutes = [
 	'/mobile-observations',
-	// '/mobile-observations/observer',
 	'/web-observations',
 	'/users',
-	'/users/self'
+	'/users/self',
+	'/mobile-observations/query',
+	'/projects' // Added /projects to protected routes
 ];
 
 export const isRouteProtected = (path: string) => {

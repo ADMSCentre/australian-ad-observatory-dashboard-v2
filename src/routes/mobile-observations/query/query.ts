@@ -76,6 +76,11 @@ export const METHODS: {
 	}
 };
 
+export const DEFAULT_QUERY: Query = {
+	method: 'OBSERVER_ID_CONTAINS',
+	args: []
+};
+
 // export const AND: Method = {
 // 	label: 'AND',
 // 	value: 'AND',

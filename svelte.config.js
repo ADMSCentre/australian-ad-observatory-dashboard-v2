@@ -20,6 +20,9 @@ const config = {
 			precompress: false,
 			strict: true
 		}),
+		alias: {
+			'mobile-observations': 'src/routes/mobile-observations'
+		},
 		paths: {
 			base: process.argv.includes('dev') ? '' : process.env.BASE_PATH
 		}

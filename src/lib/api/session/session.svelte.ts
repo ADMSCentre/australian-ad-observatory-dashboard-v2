@@ -1,6 +1,6 @@
 // This is used to manage interactions with the API, and automatically handle authorisation
 import { auth } from '$lib/api/auth/auth.svelte';
-import type { Query } from '../../../routes/mobile-observations/query/const';
+import type { Query } from '../../../routes/mobile-observations/query/query';
 import { client } from '../client';
 import { getAdFrameUrls, listAdsForObserver, listAllAds } from '../mobile-observations';
 import { RichDataBuilder } from './ads/enricher';
