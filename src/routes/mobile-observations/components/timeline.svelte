@@ -36,13 +36,15 @@
 	const labels = $derived(Object.keys(bins));
 	const data = $derived(Object.values(bins));
 
+	const chartId = Math.random().toString(36).substring(7);
+
 	$effect(() => {
 		// Clear the chart before creating a new one
-		let chartStatus = Chart.getChart('myChart'); // <canvas> id
+		let chartStatus = Chart.getChart(chartId); // <canvas> id
 		if (chartStatus != undefined) {
 			chartStatus.destroy();
 		}
-		const canvas = document.getElementById('myChart') as HTMLCanvasElement;
+		const canvas = document.getElementById(chartId) as HTMLCanvasElement;
 		const ctx = canvas.getContext('2d');
 		if (!ctx) return;
 
@@ -85,7 +87,7 @@
 </script>
 
 <svelte:window bind:innerWidth />
-<canvas id="myChart"></canvas>
+<canvas id={chartId}></canvas>
 
 <style>
 	canvas {
