@@ -6,11 +6,13 @@
 	let {
 		type,
 		query = $bindable(),
-		inputRefs = $bindable()
+		inputRefs = $bindable(),
+		debouncedOnChange
 	}: {
 		type: string;
 		query: Query;
 		inputRefs: (HTMLInputElement | null)[];
+		debouncedOnChange?: (query: Query) => void;
 	} = $props();
 
 	const Component = $derived.by(() => {
@@ -26,5 +28,5 @@
 </script>
 
 {#if Component}
-	<Component bind:query bind:inputRefs />
+	<Component bind:query bind:inputRefs {debouncedOnChange} />
 {/if}

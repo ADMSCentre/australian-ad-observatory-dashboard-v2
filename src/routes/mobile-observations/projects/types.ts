@@ -2,7 +2,7 @@ import type { Query } from '../query/query';
 
 export interface TeamMember {
 	username: string;
-	role: 'admin' | 'viewer';
+	role: 'admin' | 'editor' | 'viewer';
 }
 
 export interface TextCell {
@@ -39,6 +39,7 @@ export interface Project {
 	id: string;
 	name: string;
 	description: string;
+	ownerId: string;
 	team: TeamMember[];
 	cells: Cell[];
 }

@@ -14,6 +14,13 @@ export class ProjectManager {
 		this.project = project;
 	}
 
+	async update() {
+		if (!this.project) {
+			throw new Error('Project not found');
+		}
+		await session.projects.updateProject(this.project);
+	}
+
 	async runCell(cellId: string) {
 		const cell = this.getCell(cellId);
 		if (cell?.type !== 'query') throw new Error('Cell is not runnable');

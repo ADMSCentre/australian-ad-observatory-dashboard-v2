@@ -18,7 +18,7 @@
 
 	let editorMode: 'visual' | 'text' = $state('visual');
 
-	const projectManager = getContext(PROJECT_MANAGER) as ProjectManager | undefined;
+	const projectManager = (getContext(PROJECT_MANAGER) as () => ProjectManager | undefined)();
 	if (!projectManager)
 		throw new Error(
 			'Project Manager not found. This component must be rendered inside a ProjectPage component.'
@@ -35,9 +35,21 @@
 
 <div class="relative flex w-full flex-col gap-2 rounded border p-4 shadow">
 	{#if editorMode === 'visual'}
-		<QueryBuilder bind:query={cell.content.query} class="border-none p-0" />
+		<QueryBuilder
+			bind:query={cell.content.query}
+			class="border-none p-0"
+			onchange={() => {
+				projectManager.update();
+			}}
+		/>
 	{:else}
-		<QueryTextEditor bind:query={cell.content.query} class="text-lg" />
+		<QueryTextEditor
+			bind:query={cell.content.query}
+			class="text-lg"
+			onsaved={() => {
+				projectManager.update();
+			}}
+		/>
 	{/if}
 	<!-- Query controls -->
 	<div class="flex justify-end gap-2">

@@ -6,8 +6,13 @@
 
 	let {
 		query = $bindable(),
-		inputRefs = $bindable()
-	}: { query: Query; inputRefs: (HTMLInputElement | null)[] } = $props();
+		inputRefs = $bindable(),
+		debouncedOnChange
+	}: {
+		query: Query;
+		inputRefs: (HTMLInputElement | null)[];
+		debouncedOnChange?: (query: Query) => void;
+	} = $props();
 
 	// const currentTimeStamp = Math.round(new Date().getTime() / 60000) * 60000;
 
@@ -39,6 +44,7 @@
 		const timestamp = new Date(target.value).getTime();
 		// query.args[0] = target.value;
 		query.args[0] = timestamp.toString();
+		debouncedOnChange?.(query);
 	};
 </script>
 

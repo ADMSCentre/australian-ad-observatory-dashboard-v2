@@ -7,7 +7,17 @@
 	import FunctionInput from './function-input.svelte';
 	import { METHODS } from '../query';
 
-	let { query = $bindable(), class: className = '' }: { query: Query; class?: string } = $props();
+	let {
+		query = $bindable(),
+		class: className = '',
+		onchange,
+		debouncedOnChange
+	}: {
+		query: Query;
+		class?: string;
+		onchange?: (query: Query) => void;
+		debouncedOnChange?: (query: Query) => void;
+	} = $props();
 	const methodType = $derived(getMethodType(query.method));
 	let inputRefs = $state<(HTMLInputElement | null)[]>([]);
 
@@ -78,6 +88,29 @@
 		}
 	});
 
+	const debounced = (fn: (query: Query) => void, delay = 1000) => {
+		let timeoutId: ReturnType<typeof setTimeout>;
+		return (query: Query) => {
+			clearTimeout(timeoutId);
+			timeoutId = setTimeout(() => {
+				fn(query);
+			}, delay);
+		};
+	};
+	// const debouncedOnChange = debounced((query) => {
+	// 	onchange?.(query);
+	// }, 300);
+	if (!debouncedOnChange) {
+		debouncedOnChange = debounced((query) => {
+			onchange?.(query);
+		}, 300);
+	}
+
+	$effect(() => {
+		console.log('Query changed');
+		debouncedOnChange(query);
+	});
+
 	let showAndOr = $state(false);
 
 	const toggleShowAndOr = (e: MouseEvent, show: boolean) => {
@@ -104,17 +137,17 @@
 			)}
 		>
 			{#if methodType === 'binary' && query.args.length > 1}
-				<QueryBuilder bind:query={query.args[0] as Query} />
+				<QueryBuilder bind:query={query.args[0] as Query} {debouncedOnChange} />
 			{/if}
 			<MethodSelect bind:query />
 			{#if methodType === 'unary' && query.args.length > 0}
-				<QueryBuilder bind:query={query.args[0] as Query} />
+				<QueryBuilder bind:query={query.args[0] as Query} {debouncedOnChange} />
 			{/if}
 			{#if methodType === 'binary' && query.args.length > 1}
-				<QueryBuilder bind:query={query.args[1] as Query} />
+				<QueryBuilder bind:query={query.args[1] as Query} {debouncedOnChange} />
 			{/if}
 			{#if methodType !== 'unary' && methodType !== 'binary' && functionInputType}
-				<FunctionInput type={functionInputType} bind:query bind:inputRefs />
+				<FunctionInput type={functionInputType} bind:query bind:inputRefs {debouncedOnChange} />
 			{/if}
 		</div>
 		{#if showAndOr}

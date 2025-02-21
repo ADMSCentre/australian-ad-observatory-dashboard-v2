@@ -6,7 +6,11 @@
 	import { twMerge } from 'tailwind-merge';
 	import { sql } from '@codemirror/lang-sql';
 
-	let { query = $bindable(), class: className = '' }: { query: Query; class?: string } = $props();
+	let {
+		query = $bindable(),
+		class: className = '',
+		onsaved
+	}: { query: Query; class?: string; onsaved?: (query: Query) => void } = $props();
 
 	let queryStr = $state(queryToString(query));
 	let tokens = $state<Query>();
@@ -27,6 +31,7 @@
 	const onSave = () => {
 		query = buildTree(queryStr);
 		isEditing = false;
+		onsaved?.(query);
 	};
 
 	$effect(() => {

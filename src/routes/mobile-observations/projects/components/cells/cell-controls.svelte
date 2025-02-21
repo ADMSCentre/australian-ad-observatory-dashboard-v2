@@ -23,15 +23,15 @@
 		cell: Cell;
 	} = $props();
 
-	const projectManager = getContext(PROJECT_MANAGER) as ProjectManager | undefined;
+	const projectManager = (getContext(PROJECT_MANAGER) as () => ProjectManager | undefined)();
 	if (!projectManager)
 		throw new Error(
 			'Project Manager not found. This component must be rendered inside a ProjectPage component.'
 		);
 
 	let isDeleting = $state(false);
+	$inspect({ cell, projectManager });
 	const queryResult = $derived(projectManager.queryResults[cell.id]);
-	$inspect({ queryResult });
 </script>
 
 {#snippet actionButton(props: { iconComponent: any; tooltip: string; onclick: () => void })}

@@ -3,8 +3,13 @@
 
 	let {
 		query = $bindable(),
-		inputRefs = $bindable()
-	}: { query: Query; inputRefs: (HTMLInputElement | null)[] } = $props();
+		inputRefs = $bindable(),
+		debouncedOnChange
+	}: {
+		query: Query;
+		inputRefs: (HTMLInputElement | null)[];
+		debouncedOnChange?: (query: Query) => void;
+	} = $props();
 
 	const onAddSearchTerm = () => {
 		query.args[query.args.length] = newInputValue;
@@ -34,6 +39,7 @@
 		} else {
 			query.args[i] = target.value;
 		}
+		debouncedOnChange?.(query);
 	};
 </script>
 

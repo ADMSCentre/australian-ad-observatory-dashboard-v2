@@ -46,6 +46,17 @@
 		oninput?: (text: string) => void;
 	} = $props();
 
+	const debounced = (fn: (value: string) => void, delay: number) => {
+		let timeoutId: ReturnType<typeof setTimeout>;
+		return (value: string) => {
+			clearTimeout(timeoutId);
+			timeoutId = setTimeout(() => {
+				fn(value);
+			}, delay);
+		};
+	};
+	const oninputDebounced = debounced((value: string) => oninput(value), 500);
+
 	onMount(() => {
 		editor = createEditor({
 			extensions: [
@@ -72,10 +83,9 @@
 			onUpdate: ({ editor }) => {
 				editor.getHTML();
 				value = editor.getHTML() ?? '';
-				oninput(value);
+				oninputDebounced(value);
 			}
 		});
-
 		isLoading = false;
 	});
 

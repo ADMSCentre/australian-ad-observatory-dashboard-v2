@@ -6,6 +6,7 @@
 	import type { QueryCell, TextCell } from 'mobile-observations/projects/types';
 	import { DEFAULT_QUERY } from 'mobile-observations/query/query';
 	import { twMerge } from 'tailwind-merge';
+	import { session } from '$lib/api/session/session.svelte';
 
 	const {
 		class: className = '',
@@ -15,7 +16,7 @@
 		index: number;
 	} = $props();
 
-	const projectManager = getContext(PROJECT_MANAGER) as ProjectManager | undefined;
+	const projectManager = (getContext(PROJECT_MANAGER) as () => ProjectManager | undefined)();
 	if (!projectManager)
 		throw new Error(
 			'Project Manager not found. This component must be rendered inside a ProjectPage component.'
@@ -28,6 +29,7 @@
 			content: ''
 		};
 		projectManager.insertCell(newCell, index);
+		projectManager.update();
 	};
 
 	const insertQueryCell = () => {
@@ -40,6 +42,7 @@
 			}
 		};
 		projectManager.insertCell(newCell, index);
+		projectManager.update();
 	};
 </script>
 

@@ -88,6 +88,9 @@
 	body {
 		@apply bg-background text-foreground;
 	}
+	.dark *[class*=' shadow'] {
+		@apply !shadow-zinc-700;
+	}
 }
 
 @layer base {
