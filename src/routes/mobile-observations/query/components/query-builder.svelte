@@ -6,6 +6,7 @@
 	import { twMerge } from 'tailwind-merge';
 	import FunctionInput from './function-input.svelte';
 	import { METHODS } from '../query';
+	import { slide } from 'svelte/transition';
 
 	let {
 		query = $bindable(),
@@ -115,22 +116,26 @@
 
 	const toggleShowAndOr = (e: MouseEvent, show: boolean) => {
 		// Check if the event is coming from a child element
-		if (e.target !== e.currentTarget) return;
-		e.preventDefault();
 		e.stopPropagation();
 		showAndOr = show;
 	};
 </script>
 
-<label
-	class="relative flex w-fit flex-col items-center gap-1"
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div
+	class="relative flex w-fit flex-col items-center gap-1 p-2"
 	onmouseenter={(e) => toggleShowAndOr(e, true)}
 	onmouseleave={(e) => toggleShowAndOr(e, false)}
+	onclick={(e) => {
+		e.stopPropagation();
+		e.preventDefault();
+	}}
 >
 	<div class=" flex items-center gap-1">
 		<div
 			class={twMerge(
-				'relative flex w-fit items-center gap-2 rounded border border-dashed p-2',
+				'relative flex w-fit items-center gap-2 rounded border border-dashed',
 				flexDirection,
 				methodType === 'function' && 'border-none',
 				className
@@ -151,7 +156,10 @@
 			{/if}
 		</div>
 		{#if showAndOr}
-			<div class="z-10 -ml-5 flex size-fit items-center justify-center">
+			<div
+				class="z-10 flex size-fit items-center justify-center"
+				transition:slide={{ duration: 150, axis: 'x' }}
+			>
 				<Button
 					variant="link"
 					size="sm"
@@ -164,7 +172,7 @@
 		{/if}
 	</div>
 	{#if showAndOr}
-		<div class="z-10 -mt-5 size-fit">
+		<div class="z-10 -mt-3 size-fit" transition:slide={{ duration: 150, axis: 'y' }}>
 			<Button
 				variant="link"
 				class="pointer-events-auto size-fit p-0 text-2xs opacity-10 hover:opacity-100"
@@ -175,4 +183,4 @@
 			</Button>
 		</div>
 	{/if}
-</label>
+</div>

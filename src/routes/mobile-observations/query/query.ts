@@ -42,8 +42,16 @@ export const METHODS: {
 		precedence: 3,
 		associativity: 'right'
 	},
+	ANYTHING_CONTAINS: {
+		label: 'ANYTHING CONTAINS',
+		value: 'ANYTHING_CONTAINS',
+		type: 'function',
+		precedence: 4,
+		associativity: 'right',
+		inputType: 'multi-text'
+	},
 	DATETIME_AFTER: {
-		label: 'DATETIME_AFTER',
+		label: 'TIME AFTER',
 		value: 'DATETIME_AFTER',
 		type: 'function',
 		precedence: 4,
@@ -51,7 +59,7 @@ export const METHODS: {
 		inputType: 'datetime'
 	},
 	DATETIME_BEFORE: {
-		label: 'DATETIME_BEFORE',
+		label: 'TIME BEFORE',
 		value: 'DATETIME_BEFORE',
 		type: 'function',
 		precedence: 4,
@@ -59,7 +67,7 @@ export const METHODS: {
 		inputType: 'datetime'
 	},
 	OBSERVER_ID_CONTAINS: {
-		label: 'OBSERVER_ID_CONTAINS',
+		label: 'OBSERVER ID CONTAINS',
 		value: 'OBSERVER_ID_CONTAINS',
 		type: 'function',
 		precedence: 4,
@@ -67,8 +75,24 @@ export const METHODS: {
 		inputType: 'multi-text'
 	},
 	OBSERVATION_ID_CONTAINS: {
-		label: 'OBSERVATION_ID_CONTAINS',
+		label: 'OBSERVATION ID CONTAINS',
 		value: 'OBSERVATION_ID_CONTAINS',
+		type: 'function',
+		precedence: 4,
+		associativity: 'right',
+		inputType: 'multi-text'
+	},
+	CATEGORIES_CONTAINS: {
+		label: 'CATEGORIES CONTAINS',
+		value: 'CATEGORIES_CONTAINS',
+		type: 'function',
+		precedence: 4,
+		associativity: 'right',
+		inputType: 'multi-text'
+	},
+	PAGE_NAME_CONTAINS: {
+		label: 'PAGE NAME CONTAINS',
+		value: 'PAGE_NAME_CONTAINS',
 		type: 'function',
 		precedence: 4,
 		associativity: 'right',
@@ -77,7 +101,7 @@ export const METHODS: {
 };
 
 export const DEFAULT_QUERY: Query = {
-	method: 'OBSERVER_ID_CONTAINS',
+	method: 'ANYTHING_CONTAINS',
 	args: []
 };
 
