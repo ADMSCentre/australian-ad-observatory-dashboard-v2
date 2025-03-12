@@ -16,6 +16,7 @@
 	} from '$lib/api/session/ads/rich-data-object-type';
 	import type { RichAdData } from '$lib/api/session/ads/types';
 	import { session } from '$lib/api/session/session.svelte';
+	import Table from './table.svelte';
 
 	let {
 		richViewExpanded = $bindable(false),
@@ -153,6 +154,7 @@
 					{/if}
 					<Tabs.Trigger value="ocr-data">OCR</Tabs.Trigger>
 					<Tabs.Trigger value="candidate-ads">Candidates</Tabs.Trigger>
+					<Tabs.Trigger value="rich-data-table">Table</Tabs.Trigger>
 					{#if !auth.isGuest}
 						<Tabs.Trigger value="rich-data">JSON</Tabs.Trigger>
 					{/if}
@@ -176,6 +178,11 @@
 				<Tabs.Content value="candidate-ads">
 					{#if candidates && rankings && mediaMapping}
 						<CandidatesView {candidates} {rankings} {mediaMapping} />
+					{/if}
+				</Tabs.Content>
+				<Tabs.Content value="rich-data-table">
+					{#if currentAd.richDataObject}
+						<Table richDataObject={currentAd.richDataObject} />
 					{/if}
 				</Tabs.Content>
 				<Tabs.Content value="rich-data">

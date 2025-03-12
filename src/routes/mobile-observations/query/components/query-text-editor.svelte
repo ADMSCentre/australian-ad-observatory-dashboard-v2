@@ -50,7 +50,6 @@
 		lineWrapping
 		on:change={onChange}
 		useTab={false}
-		lang={sql()}
 	/>
 	<Button
 		class="size-fit px-2 py-1 text-xs"

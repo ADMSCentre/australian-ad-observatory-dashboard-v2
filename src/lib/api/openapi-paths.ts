@@ -907,6 +907,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/ads/{observer_id}/{timestamp}.{ad_id}/rdo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve the full Rich Data Object for an ad.
+         * @description The Rich Data Object (RDO) is a comprehensive data object that includes all the information, including any enrichments, for the specified ad.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    observer_id: string;
+                    timestamp: string;
+                    ad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example true */
+                            success?: boolean;
+                            data?: Record<string, never>;
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example MISSING_PARAMETERS: observer_id, timestamp, ad_id */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/ads/{observer_id}/{timestamp}.{ad_id}/rdo/ocr_data": {
         parameters: {
             query?: never;
@@ -915,7 +976,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Retrieve OCR data for an ad.
+         * Retrieve OCR data for an ad, relative to the stitched frames.
          * @description Retrieve OCR data for the specified ad, including text matches and their positions.
          */
         get: {
@@ -951,6 +1012,81 @@ export interface paths {
                                     height?: number;
                                     confidence?: number;
                                 }[];
+                            }[];
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example MISSING_PARAMETERS: observer_id, timestamp, ad_id */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ads/{observer_id}/{timestamp}.{ad_id}/rdo/ocr_data/raw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve OCR data for an ad, relative to the raw frames.
+         * @description Retrieve raw OCR data for the specified ad, including text matches and their positions relative to the raw frames. This may include personal or irrelevant information.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    observer_id: string;
+                    timestamp: string;
+                    ad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            ocr_data?: {
+                                screenshot_cropped?: string;
+                                observed_at?: string;
+                                ocr_data?: {
+                                    text?: string;
+                                    x?: number;
+                                    y?: number;
+                                    width?: number;
+                                    height?: number;
+                                    confidence?: number;
+                                }[];
+                                y_source?: {
+                                    t?: number;
+                                    b?: number;
+                                };
                             }[];
                         };
                     };
@@ -1758,6 +1894,174 @@ export interface paths {
         };
         trace?: never;
     };
+    "/projects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all projects where the user is a part of (either owner, or if the user is an admin, all projects). */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description List of projects */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Project"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Create a new project. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        name?: string;
+                        description?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Project created successfully */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Project"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{project_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a project by ID. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    project_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Project retrieved successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Project"];
+                    };
+                };
+                /** @description Project not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        /** Update a project by ID. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    project_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["Project"];
+                };
+            };
+            responses: {
+                /** @description Project updated successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Project"];
+                    };
+                };
+                /** @description Project not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        /** Delete a project by ID. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    project_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Project deleted successfully */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Project not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reflect": {
         parameters: {
             query?: never;
@@ -1898,7 +2202,76 @@ export interface paths {
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: never;
+    schemas: {
+        /** Project */
+        Project: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /** Ownerid */
+            ownerId: string;
+            /** Team */
+            team: components["schemas"]["TeamMember"][];
+            /** Cells */
+            cells: (components["schemas"]["TextCell"] | components["schemas"]["QueryCell"])[];
+        };
+        /** Query */
+        Query: {
+            /** Method */
+            method: string;
+            /** Args */
+            args: (components["schemas"]["Query"] | string)[];
+        };
+        /** QueryCell */
+        QueryCell: {
+            /** Id */
+            id: string;
+            /** Type */
+            type: string;
+            content: components["schemas"]["QueryCellContent"];
+        };
+        /** QueryCellContent */
+        QueryCellContent: {
+            query: components["schemas"]["Query"];
+            /** Results */
+            results: components["schemas"]["QueryResult"][];
+        };
+        /** QueryResult */
+        QueryResult: {
+            /** Id */
+            id: string;
+            /** Type */
+            type: string;
+            /** @default null */
+            config: components["schemas"]["QueryResultConfig"] | null;
+        };
+        /** QueryResultConfig */
+        QueryResultConfig: {
+            /** Sort */
+            sort: string;
+            /** Groupby */
+            groupBy: string;
+        };
+        /** TeamMember */
+        TeamMember: {
+            /** Username */
+            username: string;
+            /** Role */
+            role: string;
+        };
+        /** TextCell */
+        TextCell: {
+            /** Id */
+            id: string;
+            /** Type */
+            type: string;
+            /** Content */
+            content: string;
+        };
+    };
     responses: never;
     parameters: never;
     requestBodies: never;

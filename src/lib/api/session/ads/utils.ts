@@ -137,19 +137,31 @@ export const fetchAttributes = async (adData: BasicAdData, token: string) => {
 	return data.attributes || {};
 };
 
-// TODO: Replace with actual API call
 export const fetchRichDataObject = async (
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	adData: BasicAdData,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	token: string
-): Promise<RichDataObject> => {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			// ! This isn't safe - need proper type checking later
-			return resolve(rdo as unknown as RichDataObject);
-		}, 100);
+): Promise<RichDataObject | null> => {
+	const options = {
+		headers: {
+			Authorization: `Bearer ${token}`
+		}
+	};
+
+	const { data, error } = await client.GET('/ads/{observer_id}/{timestamp}.{ad_id}/rdo', {
+		...options,
+		params: {
+			path: {
+				timestamp: adData.timestamp.toString(),
+				observer_id: adData.observer,
+				ad_id: adData.adId
+			}
+		}
 	});
+	if (error) {
+		console.error(error);
+		return null;
+	}
+	return data.data as unknown as RichDataObject;
 };
 
 export const fetchStitchFrames = async (
