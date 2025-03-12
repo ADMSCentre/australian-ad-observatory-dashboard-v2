@@ -265,12 +265,15 @@ export async function tabulateObject(
 	});
 }
 
-export function toCsv(table: {
-	columns: string[];
-	rows: {
-		[key: string]: string | number | boolean | null;
-	}[];
-}) {
+export function toCsv(
+	table: {
+		columns: string[];
+		rows: {
+			[key: string]: string | number | boolean | null;
+		}[];
+	},
+	options: { includeHeader?: boolean } = { includeHeader: true }
+) {
 	const header = table.columns.join(',');
 	const rows = table.rows
 		.map((row) => {
@@ -281,7 +284,7 @@ export function toCsv(table: {
 				.join(',');
 		})
 		.join('\n');
-	return `${header}\n${rows}`;
+	return options.includeHeader ? `${header}\n${rows}` : rows;
 }
 
 // Example usage:

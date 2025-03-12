@@ -109,6 +109,8 @@
 		enrichment.meta_adlibrary_scrape.query.confidence
 	 */
 
+import type { Candidate, Ranking, RichDataObject } from './rich-data-object-type';
+
 function parseTimestamp(value: string | number | boolean | null) {
 	// First attempt to convert the value to a number
 	if (isNaN(Number(value))) return value;
@@ -504,4 +506,37 @@ export function getField(key: string) {
 		}
 	}
 	return undefined;
+}
+
+export function cleanRdo(richDataObject: RichDataObject | undefined) {
+	if (!richDataObject) return undefined;
+	const getCandidateRanking = (index: number) => {
+		const ranking = richDataObject.enrichment.meta_adlibrary_scrape.rankings.find(
+			(r) => r.this_selected_candidate_i === index
+		);
+		return ranking;
+	};
+
+	// Remove irrelevant fields from the richDataObject
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const cleanedRichDataObject = { ...richDataObject } as any;
+
+	delete cleanedRichDataObject.enrichment.meta_adlibrary_scrape.comparisons;
+	delete cleanedRichDataObject.media;
+	delete cleanedRichDataObject.observation.whitespace_derived_signature;
+
+	// Join the candidates with their rankings
+	cleanedRichDataObject.enrichment.meta_adlibrary_scrape.candidates.forEach(
+		(
+			candidate: Candidate & {
+				ranking?: Ranking;
+			},
+			index: number
+		) => {
+			const ranking = getCandidateRanking(index);
+			candidate.ranking = ranking;
+		}
+	);
+
+	return cleanedRichDataObject;
 }

@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { FIELD_GROUPS } from '$lib/api/session/ads/rdo-description';
-	import type { RichDataObject } from '$lib/api/session/ads/rich-data-object-type';
+	import { FIELD_GROUPS } from '$lib/api/session/ads/rdo-helper';
 	import Accordion from '$lib/components/accordion/accordion.svelte';
 	import { ChevronRight } from 'lucide-svelte';
 	import { untrack } from 'svelte';
+	import { slide } from 'svelte/transition';
 	import { twMerge } from 'tailwind-merge';
 
 	let {
@@ -51,9 +51,14 @@
 
 <div class="flex flex-col gap-4">
 	{#each FIELD_GROUPS as group}
-		<div class="flex flex-col gap-4">
-			<span class="text-lg font-semibold">{group.name}</span>
-			<div class="flex flex-wrap gap-x-4 gap-y-2">
+		<Accordion class="flex flex-col gap-4" open>
+			{#snippet summary(open)}
+				<span class="flex items-center gap-2 border-b text-left font-semibold">
+					<ChevronRight class={twMerge('transition-transform', open && 'rotate-90 transform')} />
+					{group.name}
+				</span>
+			{/snippet}
+			<div class="flex flex-wrap gap-x-4 gap-y-2" transition:slide={{ duration: 200 }}>
 				{#each group.fields as field}
 					<label class="flex items-center gap-1">
 						<input
@@ -65,17 +70,16 @@
 					</label>
 				{/each}
 			</div>
-		</div>
+		</Accordion>
 	{/each}
 	<Accordion class="flex flex-col gap-4">
-		<!-- <span class="text-lg font-semibold">Other Fields</span> -->
 		{#snippet summary(open)}
-			<span class="flex items-center gap-2 text-left text-lg font-semibold">
+			<span class="flex items-center gap-2 border-b text-left font-semibold">
 				<ChevronRight class={twMerge('transition-transform', open && 'rotate-90 transform')} />
 				Other Fields
 			</span>
 		{/snippet}
-		<div class="flex flex-wrap gap-x-4 gap-y-2">
+		<div class="flex flex-wrap gap-x-4 gap-y-2" transition:slide={{ duration: 200 }}>
 			{#each otherFields as [key]}
 				<label class="flex items-center gap-1">
 					<input type="checkbox" checked={keys[key]} onchange={() => toggleKey(key)} />

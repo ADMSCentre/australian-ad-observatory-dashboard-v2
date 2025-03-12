@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { FIELD_GROUPS, getField } from '$lib/api/session/ads/rdo-description';
+	import { FIELD_GROUPS, getField } from '$lib/api/session/ads/rdo-helper';
 	import type { RichDataObject } from '$lib/api/session/ads/rich-data-object-type';
 	import Accordion from '$lib/components/accordion/accordion.svelte';
 	import AgGrid from '$lib/components/ag-grid/ag-grid.svelte';
@@ -14,6 +14,7 @@
 	import { ChevronRight, DownloadIcon } from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
 	import ExportFieldsSelector from '../export-fields-selector.svelte';
+	import AdTable from '../ad-table.svelte';
 	const { richDataObject }: { richDataObject: RichDataObject } = $props();
 
 	const cleanedRichDataObject = (() => {
@@ -49,38 +50,6 @@
 	let selectedKeys = $state<string[]>(EXAMPLE_FIELDS);
 
 	let table = $state<Table>();
-	$effect(() => {
-		tabulateObject(
-			cleanedRichDataObject,
-			selectedKeys.map((k) => {
-				const format = getField(k)?.format;
-				return { key: k, format };
-			})
-		).then((t) => {
-			table = t;
-		});
-	});
-
-	const columnDefs = $derived.by(() => {
-		return table?.columns.map((column) => {
-			const shortKey = column.split('.').slice(-1)[0];
-			return {
-				headerName: getField(column)?.title || shortKey,
-				field: column.replaceAll('.', '_')
-			};
-		});
-	});
-	const rowData = $derived.by(() => {
-		return Object.entries(table?.rows || {}).map(([index, row]) =>
-			table?.columns.reduce(
-				(acc, column) => {
-					acc[column.replaceAll('.', '_')] = row[column];
-					return acc;
-				},
-				{} as { [key: string]: any }
-			)
-		);
-	});
 
 	const downloadCsv = async () => {
 		if (!table) return;
@@ -105,16 +74,7 @@
 		bind:selectedKeys
 	/>
 
-	<AgGrid
-		{columnDefs}
-		{rowData}
-		pagination
-		paginationAutoPageSize
-		style={{
-			height: '540px',
-			width: '100%'
-		}}
-	/>
+	<AdTable {richDataObject} {selectedKeys} bind:table />
 
 	<div class="flex w-full justify-end">
 		<Button onclick={downloadCsv}>

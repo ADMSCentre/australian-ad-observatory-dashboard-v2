@@ -5,15 +5,18 @@
 	import Input from '../ui/input/input.svelte';
 	import { Search } from 'lucide-svelte';
 	import { theme } from '$lib/states/theme.svelte';
+	import { twMerge } from 'tailwind-merge';
 
 	const {
 		columnDefs,
 		rowData,
+		class: className = '',
 		style,
 		searchable = true,
 		...options
 	} = $props<
 		{
+			class?: string;
 			style?: Record<string, string>;
 			searchable?: boolean;
 		} & GridOptions
@@ -57,7 +60,7 @@
 
 	<div
 		bind:this={gridDiv}
-		class={theme.mode === 'light' ? 'ag-theme-alpine' : 'ag-theme-alpine-dark'}
+		class={twMerge(theme.mode === 'light' ? 'ag-theme-alpine' : 'ag-theme-alpine-dark', className)}
 		style={styleStr}
 	></div>
 </div>
