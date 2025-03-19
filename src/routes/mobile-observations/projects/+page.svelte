@@ -71,7 +71,7 @@
 								<Button
 									disabled={!newProject.name}
 									onclick={async () => {
-										await session.projects.createProject({
+										await session.projects.create({
 											name: newProject.name,
 											description: newProject.description
 										});

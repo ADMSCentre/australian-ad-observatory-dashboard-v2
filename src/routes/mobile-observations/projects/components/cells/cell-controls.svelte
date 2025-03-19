@@ -86,7 +86,10 @@
 				variant="destructive"
 				size="icon"
 				class="size-fit p-1"
-				onclick={() => projectManager.popCell(cell.id)}
+				onclick={() => {
+					projectManager.popCell(cell.id);
+					projectManager.update();
+				}}
 			>
 				<Trash />
 			</Button>

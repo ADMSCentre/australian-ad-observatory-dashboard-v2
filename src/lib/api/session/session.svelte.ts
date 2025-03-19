@@ -126,3 +126,4 @@ export class Session {
 }
 
 export const session = new Session();
+session.projects.fetch();

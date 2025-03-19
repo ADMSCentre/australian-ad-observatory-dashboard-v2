@@ -41,7 +41,7 @@
 				<Dialog.Header>
 					<Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
 					<Dialog.Description
-						>This action cannot be undone. This will delete the project and all of its observations.</Dialog.Description
+						>This action cannot be undone. This will delete the project and all of its queries.</Dialog.Description
 					>
 					<Dialog.Footer>
 						<Button
