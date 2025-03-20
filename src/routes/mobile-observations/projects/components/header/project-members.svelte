@@ -34,45 +34,47 @@
 			{#each project.team as member}
 				<ProjectMemberRow {member} />
 			{/each}
-			<div class="contents">
-				<span class="flex items-center gap-2">
-					<UserPlusIcon size={20} />
-					<Input
-						type="text"
-						class="h-fit p-1"
-						bind:value={newMember.username}
-						placeholder="Username"
+			{#if projectManager.currentUser.isAdmin}
+				<div class="contents">
+					<span class="flex items-center gap-2">
+						<UserPlusIcon size={20} />
+						<Input
+							type="text"
+							class="h-fit p-1"
+							bind:value={newMember.username}
+							placeholder="Username"
+						/>
+					</span>
+					<Dropdown
+						bind:selected={newMember.role}
+						triggerClass="w-full p-1 h-fit"
+						options={[
+							{
+								label: 'Viewer',
+								value: 'viewer'
+							},
+							{
+								label: 'Editor',
+								value: 'editor'
+							},
+							{
+								label: 'Admin',
+								value: 'admin'
+							}
+						]}
 					/>
-				</span>
-				<Dropdown
-					bind:selected={newMember.role}
-					triggerClass="w-full p-1 h-fit"
-					options={[
-						{
-							label: 'Viewer',
-							value: 'viewer'
-						},
-						{
-							label: 'Editor',
-							value: 'editor'
-						},
-						{
-							label: 'Admin',
-							value: 'admin'
-						}
-					]}
-				/>
-				<Button
-					size="icon"
-					class="size-6"
-					onclick={() => {
-						project.team.push(newMember);
-						projectManager.update();
-					}}
-				>
-					<Plus />
-				</Button>
-			</div>
+					<Button
+						size="icon"
+						class="size-6"
+						onclick={() => {
+							project.team.push(newMember);
+							projectManager.update();
+						}}
+					>
+						<Plus />
+					</Button>
+				</div>
+			{/if}
 		</div>
 		<!-- New member -->
 	</div>
