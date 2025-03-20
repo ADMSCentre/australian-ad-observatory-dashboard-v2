@@ -39,6 +39,17 @@ export class ProjectManager {
 		await session.projects.updateProject(this.project);
 	}
 
+	async runAllCells() {
+		if (!this.project) {
+			return;
+		}
+		for (const cell of this.project.cells) {
+			if (cell.type === 'query') {
+				await this.runCell(cell.id);
+			}
+		}
+	}
+
 	async runCell(cellId: string) {
 		const cell = this.getCell(cellId);
 		if (cell?.type !== 'query') throw new Error('Cell is not runnable');

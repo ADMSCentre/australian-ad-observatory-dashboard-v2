@@ -24,7 +24,10 @@
 	let manager = $state<ProjectManager | null>();
 	onMount(() => {
 		session.projects.get(projectId).then((p) => {
-			if (p) manager = new ProjectManager(p);
+			if (p) {
+				manager = new ProjectManager(p);
+				manager.runAllCells();
+			}
 		});
 	});
 	setContext(PROJECT_MANAGER, () => manager);
