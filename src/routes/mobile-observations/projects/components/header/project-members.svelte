@@ -1,13 +1,25 @@
 <script lang="ts">
+	import { auth } from '$lib/api/auth/auth.svelte';
 	import { session } from '$lib/api/session/session.svelte';
 	import Dropdown from '$lib/components/dropdown/dropdown.svelte';
 	import Tiptap from '$lib/components/tiptap.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Input } from '$lib/components/ui/input';
-	import { Plus, X } from 'lucide-svelte';
+	import { Plus, UserPlusIcon, X } from 'lucide-svelte';
+	import { PROJECT_MANAGER, ProjectManager } from 'mobile-observations/projects/manager.svelte';
 	import type { Project, TeamMember } from 'mobile-observations/projects/types';
+	import { getContext } from 'svelte';
+	import ProjectMemberRow from './project-member-row.svelte';
+	import { twMerge } from 'tailwind-merge';
 
-	let { project = $bindable() }: { project: Project } = $props();
+	const { class: className = '' }: { class?: string } = $props();
+
+	const projectManager = (getContext(PROJECT_MANAGER) as () => ProjectManager | undefined)();
+	if (!projectManager)
+		throw new Error(
+			'Project Manager not found. This component must be rendered inside a ProjectPage component.'
+		);
+	const project = projectManager.project;
 
 	let newMember = $state<TeamMember>({
 		username: '',
@@ -15,54 +27,53 @@
 	});
 </script>
 
-<div class="flex max-w-sm flex-col gap-2 border px-8 py-4 shadow-sm">
-	<h2 class=" text-xl font-semibold">Team Members</h2>
-	<div class="flex flex-col gap-2">
-		{#each project.team as member}
-			<!-- <li>{member.username} - {member.role}</li> -->
-			<div class="grid grid-cols-[5fr_2fr_1fr] items-center gap-2">
-				<span>{member.username}</span>
-				<span>{member.role}</span>
+{#if project}
+	<div class={twMerge('flex max-w-sm flex-col gap-4 border px-8 py-4 shadow-sm', className)}>
+		<h2 class=" text-xl font-semibold">Team Members</h2>
+		<div class="grid grid-cols-[2fr_1fr_auto] items-center gap-x-4 gap-y-2">
+			{#each project.team as member}
+				<ProjectMemberRow {member} />
+			{/each}
+			<div class="contents">
+				<span class="flex items-center gap-2">
+					<UserPlusIcon size={20} />
+					<Input
+						type="text"
+						class="h-fit p-1"
+						bind:value={newMember.username}
+						placeholder="Username"
+					/>
+				</span>
+				<Dropdown
+					bind:selected={newMember.role}
+					triggerClass="w-full p-1 h-fit"
+					options={[
+						{
+							label: 'Viewer',
+							value: 'viewer'
+						},
+						{
+							label: 'Editor',
+							value: 'editor'
+						},
+						{
+							label: 'Admin',
+							value: 'admin'
+						}
+					]}
+				/>
 				<Button
-					variant="destructive"
 					size="icon"
-					onclick={() => {
-						project.team = project.team.filter((m) => m.username !== member.username);
-					}}
 					class="size-6"
+					onclick={() => {
+						project.team.push(newMember);
+						projectManager.update();
+					}}
 				>
-					<X />
+					<Plus />
 				</Button>
 			</div>
-		{/each}
+		</div>
+		<!-- New member -->
 	</div>
-	<!-- New member -->
-	<div class="grid grid-cols-[5fr_2fr_1fr] items-center gap-2">
-		<Input type="text" bind:value={newMember.username} placeholder="Username" />
-		<Dropdown
-			bind:selected={newMember.role}
-			triggerClass="w-full"
-			options={[
-				{
-					label: 'Viewer',
-					value: 'viewer'
-				},
-				{
-					label: 'Editor',
-					value: 'editor'
-				},
-				{
-					label: 'Admin',
-					value: 'admin'
-				}
-			]}
-		/>
-		<Button
-			size="icon"
-			class="size-6"
-			onclick={() => {
-				project.team.push(newMember);
-			}}><Plus /></Button
-		>
-	</div>
-</div>
+{/if}

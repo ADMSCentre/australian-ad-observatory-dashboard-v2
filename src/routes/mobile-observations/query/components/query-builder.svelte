@@ -12,12 +12,14 @@
 		query = $bindable(),
 		class: className = '',
 		onchange,
-		debouncedOnChange
+		debouncedOnChange,
+		disabled = false
 	}: {
 		query: Query;
 		class?: string;
 		onchange?: (query: Query) => void;
 		debouncedOnChange?: (query: Query) => void;
+		disabled?: boolean;
 	} = $props();
 	const methodType = $derived(getMethodType(query.method));
 	let inputRefs = $state<(HTMLInputElement | null)[]>([]);
@@ -142,20 +144,26 @@
 			)}
 		>
 			{#if methodType === 'binary' && query.args.length > 1}
-				<QueryBuilder bind:query={query.args[0] as Query} {debouncedOnChange} />
+				<QueryBuilder bind:query={query.args[0] as Query} {debouncedOnChange} {disabled} />
 			{/if}
-			<MethodSelect bind:query />
+			<MethodSelect bind:query {disabled} />
 			{#if methodType === 'unary' && query.args.length > 0}
-				<QueryBuilder bind:query={query.args[0] as Query} {debouncedOnChange} />
+				<QueryBuilder bind:query={query.args[0] as Query} {debouncedOnChange} {disabled} />
 			{/if}
 			{#if methodType === 'binary' && query.args.length > 1}
-				<QueryBuilder bind:query={query.args[1] as Query} {debouncedOnChange} />
+				<QueryBuilder bind:query={query.args[1] as Query} {debouncedOnChange} {disabled} />
 			{/if}
 			{#if methodType !== 'unary' && methodType !== 'binary' && functionInputType}
-				<FunctionInput type={functionInputType} bind:query bind:inputRefs {debouncedOnChange} />
+				<FunctionInput
+					type={functionInputType}
+					bind:query
+					bind:inputRefs
+					{debouncedOnChange}
+					{disabled}
+				/>
 			{/if}
 		</div>
-		{#if showAndOr}
+		{#if showAndOr && !disabled}
 			<div
 				class="z-10 flex size-fit items-center justify-center"
 				transition:slide={{ duration: 150, axis: 'x' }}
@@ -171,7 +179,7 @@
 			</div>
 		{/if}
 	</div>
-	{#if showAndOr}
+	{#if showAndOr && !disabled}
 		<div class="z-10 -mt-3 size-fit" transition:slide={{ duration: 150, axis: 'y' }}>
 			<Button
 				variant="link"

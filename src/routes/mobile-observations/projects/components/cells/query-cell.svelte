@@ -41,6 +41,7 @@
 			onchange={() => {
 				projectManager.update();
 			}}
+			disabled={!projectManager.currentUser.isEditor}
 		/>
 	{:else}
 		<QueryTextEditor
@@ -49,6 +50,7 @@
 			onsaved={() => {
 				projectManager.update();
 			}}
+			disabled={!projectManager.currentUser.isEditor}
 		/>
 	{/if}
 	<!-- Query controls -->

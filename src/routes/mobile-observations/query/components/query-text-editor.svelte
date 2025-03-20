@@ -9,8 +9,14 @@
 	let {
 		query = $bindable(),
 		class: className = '',
-		onsaved
-	}: { query: Query; class?: string; onsaved?: (query: Query) => void } = $props();
+		onsaved,
+		disabled = false
+	}: {
+		query: Query;
+		class?: string;
+		onsaved?: (query: Query) => void;
+		disabled?: boolean;
+	} = $props();
 
 	let queryStr = $state(queryToString(query));
 	let tokens = $state<Query>();
@@ -50,6 +56,7 @@
 		lineWrapping
 		on:change={onChange}
 		useTab={false}
+		readonly={disabled}
 	/>
 	<Button
 		class="size-fit px-2 py-1 text-xs"

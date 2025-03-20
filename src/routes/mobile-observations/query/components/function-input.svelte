@@ -7,12 +7,14 @@
 		type,
 		query = $bindable(),
 		inputRefs = $bindable(),
-		debouncedOnChange
+		debouncedOnChange,
+		disabled = false
 	}: {
 		type: string;
 		query: Query;
 		inputRefs: (HTMLInputElement | null)[];
 		debouncedOnChange?: (query: Query) => void;
+		disabled?: boolean;
 	} = $props();
 
 	const Component = $derived.by(() => {
@@ -28,5 +30,5 @@
 </script>
 
 {#if Component}
-	<Component bind:query bind:inputRefs {debouncedOnChange} />
+	<Component bind:query bind:inputRefs {debouncedOnChange} {disabled} />
 {/if}

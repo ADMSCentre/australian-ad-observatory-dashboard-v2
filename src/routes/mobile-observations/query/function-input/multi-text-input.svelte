@@ -4,11 +4,13 @@
 	let {
 		query = $bindable(),
 		inputRefs = $bindable(),
-		debouncedOnChange
+		debouncedOnChange,
+		disabled = false
 	}: {
 		query: Query;
 		inputRefs: (HTMLInputElement | null)[];
 		debouncedOnChange?: (query: Query) => void;
+		disabled?: boolean;
 	} = $props();
 
 	const onAddSearchTerm = () => {
@@ -52,6 +54,7 @@
 			bind:value={query.args[i]}
 			oninput={onInputChange(i)}
 			placeholder="+"
+			{disabled}
 		/>
 		{#if i < query.args.length - 1}
 			<span class="text-foreground">,</span>
@@ -63,6 +66,7 @@
 		bind:value={newInputValue}
 		oninput={onNewInputChange}
 		placeholder="......."
+		{disabled}
 	/>
 </div>
 

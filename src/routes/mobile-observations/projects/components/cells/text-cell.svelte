@@ -26,4 +26,5 @@
 		console.log(content);
 		projectManager.update();
 	}}
+	disabled={!projectManager.currentUser.isEditor}
 ></Tiptap>

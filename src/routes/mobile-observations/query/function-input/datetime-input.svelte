@@ -7,11 +7,13 @@
 	let {
 		query = $bindable(),
 		inputRefs = $bindable(),
-		debouncedOnChange
+		debouncedOnChange,
+		disabled = false
 	}: {
 		query: Query;
 		inputRefs: (HTMLInputElement | null)[];
 		debouncedOnChange?: (query: Query) => void;
+		disabled?: boolean;
 	} = $props();
 
 	// const currentTimeStamp = Math.round(new Date().getTime() / 60000) * 60000;
@@ -54,6 +56,7 @@
 	step="60"
 	bind:value
 	{onchange}
+	{disabled}
 />
 
 <style>

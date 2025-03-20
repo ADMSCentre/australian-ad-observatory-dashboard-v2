@@ -40,9 +40,8 @@
 				</Button>
 			</div>
 		{/if}
-		<ProjectHeader bind:project={manager.project} />
+		<ProjectHeader />
 		<div class="flex h-full flex-col gap-2">
-			<h2 class="text-xl font-semibold">Project Observations</h2>
 			{#each manager.project.cells as cell, index (cell.id)}
 				<div class="group flex h-full flex-col gap-2" animate:flip={{ duration: 300 }}>
 					<div

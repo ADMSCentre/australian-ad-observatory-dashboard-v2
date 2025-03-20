@@ -1,3 +1,4 @@
+import { auth } from '$lib/api/auth/auth.svelte';
 import { session } from '$lib/api/session/session.svelte';
 import type { Cell, Project } from './types';
 
@@ -9,6 +10,23 @@ export class ProjectManager {
 			response?: Awaited<ReturnType<typeof session.ads.query>>;
 		};
 	}>({});
+
+	get currentUser() {
+		const user = this.project?.team.find((m) => m.username === auth.currentUser?.username) ?? null;
+		const isOwner = user?.username === this.project?.ownerId;
+		return {
+			isOwner,
+			get isAdmin() {
+				return user?.role === 'admin';
+			},
+			get isEditor() {
+				return user?.role === 'editor' || this.isAdmin;
+			},
+			get isViewer() {
+				return user?.role === 'viewer' || this.isEditor || this.isAdmin;
+			}
+		};
+	}
 
 	constructor(project: Project) {
 		this.project = project;

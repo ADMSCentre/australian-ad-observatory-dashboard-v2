@@ -16,7 +16,7 @@
 	const methods: Method[] = Object.values(METHODS);
 
 	let open = $state(false);
-	let { query = $bindable() }: { query: Query } = $props();
+	let { query = $bindable(), disabled = false }: { query: Query; disabled?: boolean } = $props();
 
 	const selectedMethod = $derived(methods.find((s) => s.value === query.method));
 
@@ -41,6 +41,7 @@
 				size: 'sm',
 				class: 'size-fit justify-start px-0'
 			})}
+			{disabled}
 		>
 			{#if selectedMethod}
 				{selectedMethod.label}

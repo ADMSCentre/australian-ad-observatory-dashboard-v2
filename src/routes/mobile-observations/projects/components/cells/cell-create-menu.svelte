@@ -47,10 +47,14 @@
 </script>
 
 <div class={twMerge('flex gap-2', className)}>
-	<Button variant="outline" size="sm" class="size-fit px-2 py-1" onclick={insertTextCell}>
-		<Plus /> Text
-	</Button>
-	<Button variant="outline" size="sm" class="size-fit px-2 py-1" onclick={insertQueryCell}>
-		<Plus /> Query
-	</Button>
+	{#if projectManager.currentUser.isEditor}
+		<Button variant="outline" size="sm" class="size-fit px-2 py-1" onclick={insertTextCell}>
+			<Plus /> Text
+		</Button>
+		<Button variant="outline" size="sm" class="size-fit px-2 py-1" onclick={insertQueryCell}>
+			<Plus /> Query
+		</Button>
+	{:else}
+		<span class="text-sm text-zinc-500">You need to be an editor to add cells</span>
+	{/if}
 </div>

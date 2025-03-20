@@ -32,18 +32,22 @@
 		value = $bindable(),
 		placeholder = 'Enter text...',
 		class: className = '',
+		disabled = false,
 		menus = { bubble: true, floating: true, toolbar: true },
-		oninput = () => {}
+		oninput = () => {},
+		inputDebounceAmount = 500
 	}: {
 		value?: string;
 		placeholder?: string;
 		class?: string;
+		disabled?: boolean;
 		menus?: {
 			bubble?: boolean;
 			floating?: boolean;
 			toolbar?: boolean;
 		};
 		oninput?: (text: string) => void;
+		inputDebounceAmount?: number;
 	} = $props();
 
 	const debounced = (fn: (value: string) => void, delay: number) => {
@@ -55,7 +59,7 @@
 			}, delay);
 		};
 	};
-	const oninputDebounced = debounced((value: string) => oninput(value), 500);
+	const oninputDebounced = debounced((value: string) => oninput(value), inputDebounceAmount);
 
 	onMount(() => {
 		editor = createEditor({
@@ -75,6 +79,9 @@
 				attributes: {
 					class: 'flex-1 h-full'
 				}
+			},
+			parseOptions: {
+				preserveWhitespace: 'full'
 			},
 			content: value,
 			onTransaction: () => {
@@ -267,7 +274,7 @@
 <!-- <div class={twMerge('relative size-full rounded border p-2', className)} bind:this={element}></div> -->
 
 <div class={twMerge('relative flex size-full flex-col border ', className)}>
-	{#if $editor}
+	{#if $editor && !disabled}
 		<EditorContent editor={$editor} class="box-border h-full flex-1 overflow-y-auto p-2" />
 		{#if menus.toolbar}
 			<ToggleGroup.Root
@@ -315,9 +322,18 @@
 			</BubbleMenu>
 		{/if}
 	{/if}
+
+	{#if disabled}
+		<div class="rendered-text box-border h-full flex-1 overflow-y-auto p-2">{@html value}</div>
+	{/if}
 </div>
 
 <style>
+	:global(.rendered-text p:empty::before) {
+		content: ' ';
+		white-space: pre;
+	}
+
 	:global(.ProseMirror p.is-editor-empty:first-child::before) {
 		content: attr(data-placeholder);
 		float: left;

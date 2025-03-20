@@ -34,11 +34,22 @@
 	const queryResult = $derived(projectManager.queryResults[cell.id]);
 </script>
 
-{#snippet actionButton(props: { iconComponent: any; tooltip: string; onclick: () => void })}
+{#snippet actionButton(props: {
+	iconComponent: any;
+	tooltip: string;
+	onclick: () => void;
+	disabled?: boolean;
+})}
 	<Tooltip.Provider>
 		<Tooltip.Root>
 			<Tooltip.Trigger>
-				<Button variant="ghost" size="icon" class="size-fit p-1" onclick={props.onclick}>
+				<Button
+					variant="ghost"
+					size="icon"
+					class="size-fit p-1"
+					onclick={props.onclick}
+					disabled={props.disabled}
+				>
 					<props.iconComponent />
 				</Button>
 			</Tooltip.Trigger>
@@ -63,21 +74,23 @@
 					</Button>
 				{/if}
 			{/if}
-			{@render actionButton({
-				iconComponent: ArrowUpFromLine,
-				tooltip: 'Shift Cell Up',
-				onclick: () => projectManager.shiftCellUp(cell.id)
-			})}
-			{@render actionButton({
-				iconComponent: ArrowDownFromLine,
-				tooltip: 'Shift Cell Down',
-				onclick: () => projectManager.shiftCellDown(cell.id)
-			})}
-			{@render actionButton({
-				iconComponent: Trash,
-				tooltip: 'Delete Cell',
-				onclick: () => (isDeleting = true)
-			})}
+			{#if projectManager.currentUser.isEditor}
+				{@render actionButton({
+					iconComponent: ArrowUpFromLine,
+					tooltip: 'Shift Cell Up',
+					onclick: () => projectManager.shiftCellUp(cell.id)
+				})}
+				{@render actionButton({
+					iconComponent: ArrowDownFromLine,
+					tooltip: 'Shift Cell Down',
+					onclick: () => projectManager.shiftCellDown(cell.id)
+				})}
+				{@render actionButton({
+					iconComponent: Trash,
+					tooltip: 'Delete Cell',
+					onclick: () => (isDeleting = true)
+				})}
+			{/if}
 		{:else}
 			<Button variant="ghost" size="icon" class="size-fit p-1" onclick={() => (isDeleting = false)}>
 				<X />
