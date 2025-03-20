@@ -6,11 +6,18 @@
 	import { Trash } from 'lucide-svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { session } from '$lib/api/session/session.svelte';
+	import { onMount } from 'svelte';
+	import { ProjectManager } from '../manager.svelte';
 	const { project }: { project: Project } = $props();
 
 	function navigateToProject() {
 		goto(withBase(`/mobile-observations/projects?project_id=${project.id}`));
 	}
+
+	let manager = $state<ProjectManager | null>();
+	onMount(() => {
+		manager = new ProjectManager(project);
+	});
 
 	let isDeleteDialogOpen = $state(false);
 </script>
@@ -24,43 +31,45 @@
 		<!-- <Button size="icon" variant="destructive">
 			<Trash />
 		</Button> -->
-		<Dialog.Root open={isDeleteDialogOpen} onOpenChange={(open) => (isDeleteDialogOpen = open)}>
-			<Dialog.Trigger>
-				<Button
-					size="icon"
-					variant="destructive"
-					onclick={(e) => {
-						e.stopPropagation();
-						isDeleteDialogOpen = true;
-					}}
-				>
-					<Trash />
-				</Button>
-			</Dialog.Trigger>
-			<Dialog.Content>
-				<Dialog.Header>
-					<Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
-					<Dialog.Description
-						>This action cannot be undone. This will delete the project and all of its queries.</Dialog.Description
+		{#if manager?.currentUser.isAdmin}
+			<Dialog.Root open={isDeleteDialogOpen} onOpenChange={(open) => (isDeleteDialogOpen = open)}>
+				<Dialog.Trigger>
+					<Button
+						size="icon"
+						variant="destructive"
+						onclick={(e) => {
+							e.stopPropagation();
+							isDeleteDialogOpen = true;
+						}}
 					>
-					<Dialog.Footer>
-						<Button
-							variant="destructive"
-							onclick={async (e) => {
-								await session.projects.deleteProject(project.id);
-								isDeleteDialogOpen = false;
-							}}>Delete</Button
+						<Trash />
+					</Button>
+				</Dialog.Trigger>
+				<Dialog.Content>
+					<Dialog.Header>
+						<Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
+						<Dialog.Description
+							>This action cannot be undone. This will delete the project and all of its queries.</Dialog.Description
 						>
-						<Button
-							variant="ghost"
-							onclick={(e) => {
-								isDeleteDialogOpen = false;
-							}}>Cancel</Button
-						>
-					</Dialog.Footer>
-				</Dialog.Header>
-			</Dialog.Content>
-		</Dialog.Root>
+						<Dialog.Footer>
+							<Button
+								variant="destructive"
+								onclick={async (e) => {
+									await session.projects.deleteProject(project.id);
+									isDeleteDialogOpen = false;
+								}}>Delete</Button
+							>
+							<Button
+								variant="ghost"
+								onclick={(e) => {
+									isDeleteDialogOpen = false;
+								}}>Cancel</Button
+							>
+						</Dialog.Footer>
+					</Dialog.Header>
+				</Dialog.Content>
+			</Dialog.Root>
+		{/if}
 	</div>
 	<p class="mt-2 text-sm">{@html project.description}</p>
 	<div class="flex items-center justify-between gap-4">

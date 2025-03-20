@@ -48,7 +48,7 @@
 			{#each manager.project.cells as cell, index (cell.id)}
 				<div class="group flex h-full flex-col gap-2" animate:flip={{ duration: 300 }}>
 					<div
-						class="flex w-full items-center justify-center opacity-0 transition-opacity hover:opacity-100"
+						class="flex w-full items-center justify-center opacity-0 transition-opacity group-hover:opacity-100"
 					>
 						<CellCreateMenu {index} />
 					</div>
@@ -69,10 +69,7 @@
 				</p>
 			{/if}
 			<div
-				class={twMerge(
-					'flex w-full items-center justify-center opacity-0 transition-opacity hover:opacity-100',
-					manager.project.cells.length === 0 && 'opacity-100'
-				)}
+				class={twMerge('flex w-full items-center justify-center opacity-100 transition-opacity')}
 			>
 				<CellCreateMenu index={manager.project.cells.length} />
 			</div>
