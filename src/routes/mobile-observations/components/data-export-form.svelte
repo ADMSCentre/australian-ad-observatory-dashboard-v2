@@ -5,7 +5,7 @@
 	import ExportFieldsSelector from './export-fields-selector.svelte';
 	import { FIELD_GROUPS, getField } from '$lib/api/session/ads/rdo-helper';
 	import { session } from '$lib/api/session/session.svelte';
-	import { getFields, type Table, tabulateObject, toCsv } from '$lib/utils/tabulateJson';
+	import { getFields, type Table, tabulateObject, toCsv, download } from '$lib/utils/tabulateJson';
 	import AdTable from './ad-table.svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { Progress } from '$lib/components/ui/progress/index.js';
@@ -69,20 +69,15 @@
 		loading = false;
 		console.log('Completed fetching tables');
 
-		download();
+		const joinedRows = tables.map((t) => t.rows).flat();
+		const joinedTable: Table = {
+			header: tables[0].header,
+			rows: joinedRows
+		}
+		const csv = toCsv(joinedTable);
+		download(csv);
 	};
 
-	const download = async () => {
-		const firstCsv = toCsv(tables[0]);
-		const restCsvs = tables.slice(1).map((t) => toCsv(t, { includeHeader: false }));
-		const csv = [firstCsv, ...restCsvs].join('\n');
-		const blob = new Blob([csv], { type: 'text/csv' });
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = 'table.csv';
-		a.click();
-	};
 </script>
 
 <Dialog.Root>

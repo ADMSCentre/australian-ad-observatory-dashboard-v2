@@ -9,7 +9,8 @@
 		getFields,
 		tabulateObject,
 		toCsv,
-		type Table
+		type Table,
+		download
 	} from '$lib/utils/tabulateJson';
 	import { ChevronRight, DownloadIcon } from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
@@ -54,12 +55,7 @@
 	const downloadCsv = async () => {
 		if (!table) return;
 		const csv = toCsv(table);
-		const blob = new Blob([csv], { type: 'text/csv' });
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = 'table.csv';
-		a.click();
+		download(csv);
 	};
 </script>
 

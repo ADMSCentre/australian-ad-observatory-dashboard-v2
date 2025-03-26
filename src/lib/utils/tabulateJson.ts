@@ -1,3 +1,11 @@
+import {
+	generateCsv,
+	mkConfig,
+	type CsvOutput,
+	download as csvDownload,
+	type ConfigOptions
+} from 'export-to-csv';
+
 interface InputData {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	[key: string]: any;
@@ -265,26 +273,52 @@ export async function tabulateObject(
 	});
 }
 
+const defaultCsvConfig: Partial<ConfigOptions> = { useKeysAsHeaders: true };
+const csvConfig = mkConfig(defaultCsvConfig);
+
 export function toCsv(
 	table: {
 		columns: string[];
 		rows: {
 			[key: string]: string | number | boolean | null;
 		}[];
-	},
-	options: { includeHeader?: boolean } = { includeHeader: true }
+	}
+	// options: { includeHeader?: boolean } = { includeHeader: true }
 ) {
-	const header = table.columns.join(',');
-	const rows = table.rows
-		.map((row) => {
-			return table.columns
-				.map((column) => {
-					return row[column];
-				})
-				.join(',');
+	// const header = table.columns.join(',');
+	// const rows = table.rows
+	// 	.map((row) => {
+	// 		return table.columns
+	// 			.map((column) => {
+	// 				return row[column];
+	// 			})
+	// 			.join(',');
+	// 	})
+	// 	.join('\n');
+	// return options.includeHeader ? `${header}\n${rows}` : rows;
+	const csv = generateCsv(csvConfig)(table.rows);
+	return csv;
+}
+
+export function download(csv: CsvOutput) {
+	const now = new Date();
+	const timeString = now
+		.toLocaleDateString('en-GB', {
+			year: 'numeric',
+			month: '2-digit',
+			day: '2-digit',
+			hour: '2-digit',
+			minute: '2-digit'
 		})
-		.join('\n');
-	return options.includeHeader ? `${header}\n${rows}` : rows;
+		.replace(/\/|:/g, '')
+		.replace(', ', '_');
+	// filename is ads_data_YYYYMMDD_HHMMSS.csv
+	const filename = `ads_data_${timeString}`;
+	const config = mkConfig({
+		...defaultCsvConfig,
+		filename
+	});
+	return csvDownload(config)(csv);
 }
 
 // Example usage:
