@@ -71,13 +71,12 @@
 
 		const joinedRows = tables.map((t) => t.rows).flat();
 		const joinedTable: Table = {
-			header: tables[0].header,
+			...tables[0],
 			rows: joinedRows
-		}
+		};
 		const csv = toCsv(joinedTable);
 		download(csv);
 	};
-
 </script>
 
 <Dialog.Root>
