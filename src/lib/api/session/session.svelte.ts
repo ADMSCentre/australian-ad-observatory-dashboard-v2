@@ -6,7 +6,8 @@ import { getAdFrameUrls, listAdsForObserver, listAllAds } from '../mobile-observ
 import { RichDataBuilder } from './ads/enricher';
 import type { ExpandType, IndexGroupType, RichAdData } from './ads/types';
 import { fetchAttributes, fetchRichDataObject, fetchStitchFrames } from './ads/utils';
-import { ProjectApiAdapter } from './projects/index.svelte';
+import { ProjectApiAdapter as ProjectsApi } from './projects/index.svelte';
+import { UsersApi } from './users/index.svelte';
 
 export const INDEX_GROUP_TYPES: {
 	value: IndexGroupType;
@@ -122,8 +123,10 @@ export class Session {
 		}
 	});
 
-	projects = new ProjectApiAdapter();
+	projects = new ProjectsApi();
+	users = new UsersApi();
 }
 
 export const session = new Session();
 session.projects.fetch();
+session.users.fetch();

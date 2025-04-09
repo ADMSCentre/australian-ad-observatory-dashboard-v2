@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/table-core';
-import type { User } from './types';
+import type { User } from '$lib/api/session/users/index.svelte';
 import { renderComponent, renderSnippet } from '$lib/components/ui/data-table';
 import Dropdown from '$lib/components/dropdown/dropdown.svelte';
 import DataTableActions from './data-table-actions.svelte';

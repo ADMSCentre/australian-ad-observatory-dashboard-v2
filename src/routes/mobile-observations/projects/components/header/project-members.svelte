@@ -38,11 +38,25 @@
 				<div class="contents">
 					<span class="flex items-center gap-2">
 						<UserPlusIcon size={20} />
-						<Input
+						<!-- <Input
 							type="text"
 							class="h-fit p-1"
 							bind:value={newMember.username}
 							placeholder="Username"
+						/> -->
+						<Dropdown
+							bind:selected={newMember.username}
+							triggerClass="w-full p-1 h-fit"
+							options={session.users.all
+								.filter((user) => {
+									return !project.team.some((member) => member.username === user.username);
+								})
+								.map((user) => ({
+									label: user.username,
+									value: user.username
+								}))}
+							placeholder="New member"
+							searchable
 						/>
 					</span>
 					<Dropdown
@@ -69,6 +83,10 @@
 						onclick={() => {
 							project.team.push(newMember);
 							projectManager.update();
+							newMember = {
+								username: '',
+								role: 'viewer'
+							};
 						}}
 					>
 						<Plus />
