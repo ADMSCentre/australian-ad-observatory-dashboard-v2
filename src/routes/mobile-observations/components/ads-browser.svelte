@@ -58,9 +58,9 @@
 		ads.length;
 		untrack(() => {
 			loading = true;
-			Promise.all(ads.map((ad) => session.ads.enrich(ad, ['attributes']))).then(() => {
-				loading = false;
-			});
+			// Promise.all(ads.map((ad) => session.ads.enrich(ad, ['attributes']))).then(() => {
+			// 	loading = false;
+			// });
 		});
 	});
 
