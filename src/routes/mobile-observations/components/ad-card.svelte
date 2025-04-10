@@ -102,7 +102,13 @@
 						</a>
 					{/if}
 					<div>
-						<Button variant="outline" class="size-fit p-1.5" size="icon" onclick={onExpand}>
+						<Button
+							variant="outline"
+							class="size-fit p-1.5"
+							size="icon"
+							onclick={onExpand}
+							disabled
+						>
 							<ScanSearch />
 						</Button>
 					</div>
