@@ -18,6 +18,7 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import { page } from '$app/stores';
 	import { goto, replaceState } from '$app/navigation';
+	import { session } from '$lib/api/session/session.svelte';
 
 	type Props = {
 		ads: RichAdData[];
@@ -50,6 +51,18 @@
 
 	// For expanded (rich) view
 	let currentAd = $state<RichAdData | null>(null);
+
+	// Enrich the ads with attributes
+	let loading = $state(false);
+	$effect(() => {
+		ads.length;
+		untrack(() => {
+			loading = true;
+			Promise.all(ads.map((ad) => session.ads.enrich(ad, ['attributes']))).then(() => {
+				loading = false;
+			});
+		});
+	});
 
 	// Grouping and sorting
 	const groups = [
@@ -105,9 +118,73 @@
 			sort: (a: BasicAdData, b: BasicAdData) => a.timestamp - b.timestamp
 		}
 	];
+	const attributeFilterOptions: {
+		attribute: string;
+		label: string;
+		value: string | boolean | undefined;
+		options: {
+			value: string;
+			label: string;
+			filter: (value: string | boolean | undefined) => boolean;
+		}[];
+	}[] = [
+		{
+			attribute: 'hidden',
+			label: 'Hidden',
+			value: 'all',
+			options: [
+				{
+					value: 'all',
+					label: 'All',
+					filter: () => true
+				},
+				{
+					value: 'true',
+					label: 'True',
+					filter: (value) => {
+						return value === true;
+					}
+				},
+				{
+					value: 'false',
+					label: 'False',
+					filter: (value) => {
+						return value === false || !value;
+					}
+				}
+			]
+		},
+		{
+			attribute: 'starred',
+			label: 'Starred',
+			value: 'all',
+			options: [
+				{
+					value: 'all',
+					label: 'All',
+					filter: () => true
+				},
+				{
+					value: 'true',
+					label: 'True',
+					filter: (value) => {
+						return value === true;
+					}
+				},
+				{
+					value: 'false',
+					label: 'False',
+					filter: (value) => {
+						return value === false || !value;
+					}
+				}
+			]
+		}
+	];
 
 	let groupBy = $state(groups.find((g) => g.value === groupParam) || groups[0]);
 	let sortBy = $state(sortOptions.find((s) => s.value === sortParam) || sortOptions[0]);
+	let attributeFilters = $state(attributeFilterOptions);
 	let searchKey = $state(defaultSearchKey);
 
 	const debounce = (fn: Function, delay: number) => {
@@ -131,8 +208,8 @@
 			return ad.adId.toLowerCase().includes(searchKey.toLowerCase());
 		};
 
-		// Filter ads by date range
 		const filteredAds = ads
+			// Filter ads by date range
 			.filter((ad) => {
 				if (!dateRange) return true; // Load all ads if no date range is provided
 				if (!dateRange.start || !dateRange.end) return false;
@@ -140,7 +217,27 @@
 				const calendarDate = dateToCalendarDate(date);
 				return calendarDate >= dateRange.start && calendarDate <= dateRange.end;
 			})
+			// Filter by other filters
 			.filter((ad) => filters.every((filter) => filter(ad)))
+			// Filter by attribute filters
+			.filter((ad) => {
+				const attrs: {
+					[key: string]: {
+						value?: string;
+					};
+				} = ad.attributes || {};
+				return attributeFilters.every((filter) => {
+					const attr = attrs[filter.attribute]?.value;
+					const selectedOption = filter.options.find((o) => o.value === filter.value);
+					console.log({
+						attribute: filter.attribute,
+						selectedOption: selectedOption?.value,
+						attrValue: attr,
+						filterValue: filter.value
+					});
+					return selectedOption?.filter(attr) || false;
+				});
+			})
 			.toSorted(sortBy.sort);
 
 		const groupedAds = filteredAds.reduce(
@@ -224,6 +321,29 @@
 			<SearchIcon class="absolute left-2 top-1/2 -translate-y-1/2 transform" size={20} />
 		</div>
 		<div class="flex items-center gap-2">
+			<div class="flex items-center gap-2">
+				{#each attributeFilterOptions as { label, value, attribute }}
+					<span>{label}</span>
+					<Dropdown
+						options={attributeFilters.find((filter) => filter.attribute === attribute)?.options ||
+							[]}
+						triggerClass="w-fit"
+						contentClass="w-fit"
+						disabled={loading}
+						selected={value}
+						onSelected={(option) => {
+							const selectedOption = option as boolean | 'all';
+							attributeFilters = attributeFilters.map((filter) =>
+								filter.attribute === attribute ? { ...filter, value: selectedOption } : filter
+							);
+							if (!syncQueryParams) return;
+							if (selectedOption === 'all') $page.url.searchParams.delete(attribute);
+							else $page.url.searchParams.set(attribute, selectedOption.toString());
+							replaceState($page.url, $page.state);
+						}}
+					/>
+				{/each}
+			</div>
 			<div class="flex items-center gap-2">
 				<p>Group by:</p>
 				<Dropdown
