@@ -26,10 +26,10 @@
 
 	// const queryResponse = $derived(projectManager.queryResults[cell.id]);
 
-	let queryResult = $state<string[]>();
+	let queryResults = $state<string[]>([]);
 	const queryResponse = $derived(projectManager.queryResults[cell.id]);
 	$effect(() => {
-		queryResult = queryResponse?.response?.result;
+		queryResults = queryResponse?.response?.result ?? [];
 	});
 </script>
 
@@ -81,11 +81,10 @@
 	<!-- {#each results as result}
 		<li>{result.type} - {result.id}</li>
 	{/each} -->
-	{#if queryResult}
+	{#if queryResults}
 		<div class="flex flex-col gap-4 py-4">
-			{#if queryResult}
-				{@const adData = parseRawAdPaths(queryResult)}
-				<QueryResults {adData} />
+			{#if queryResults}
+				<QueryResults {queryResults} />
 			{/if}
 			<Accordion>
 				{#snippet summary(open)}
@@ -97,7 +96,7 @@
 					</span>
 				{/snippet}
 				<CodeMirror
-					value={JSON.stringify(queryResult, null, 2)}
+					value={JSON.stringify(queryResults, null, 2)}
 					readonly
 					lang={json()}
 					class="w-full"

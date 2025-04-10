@@ -9,6 +9,7 @@
 	import AdTable from './ad-table.svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { Progress } from '$lib/components/ui/progress/index.js';
+	import { untrack } from 'svelte';
 
 	const { adData }: { adData: RichAdData[] } = $props();
 
@@ -27,10 +28,13 @@
 	]);
 
 	$effect(() => {
-		session.ads.enrich(adData[0], ['richDataObject']).then(() => {
-			const richDataObject = adData[0].richDataObject;
-			if (!richDataObject) return;
-			allKeys = getFields(richDataObject).leafKeys.map((k) => k.unindexed);
+		if (adData.length === 0) return;
+		untrack(() => {
+			session.ads.enrich(adData[0], ['richDataObject']).then(() => {
+				const richDataObject = adData[0].richDataObject;
+				if (!richDataObject) return;
+				allKeys = getFields(richDataObject).leafKeys.map((k) => k.unindexed);
+			});
 		});
 	});
 

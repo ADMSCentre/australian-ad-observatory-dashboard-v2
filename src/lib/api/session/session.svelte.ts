@@ -78,9 +78,11 @@ export class Session {
 			ad: RichAdData,
 			expands: ExpandType[] = [],
 			{
-				preferCache = true
+				preferCache = true,
+				inPlace = true
 			}: Partial<{
 				preferCache?: boolean;
+				inPlace?: boolean;
 			}> = {}
 		) => {
 			if (!auth.token) return;
@@ -89,37 +91,91 @@ export class Session {
 				return this.enrichedAds?.[ad.adId]?.[type];
 			};
 			const enricher = new RichDataBuilder(auth.token, ad);
+			const enrichedData: RichAdData = {
+				...ad
+			};
 			await Promise.all(
 				expands.map(async (expand) => {
 					switch (expand) {
 						case 'rawFrames':
-							if (auth.token)
-								ad.rawFrames = getCache(expand) ?? (await getAdFrameUrls(auth.token, ad));
+							if (auth.token) {
+								const res = getCache(expand) ?? (await getAdFrameUrls(auth.token, ad));
+								if (!inPlace) {
+									enrichedData.rawFrames = res;
+									break;
+								}
+								ad.rawFrames = res;
+							}
 							break;
 						case 'stitchedFrames':
-							if (auth.token)
-								ad.stitchedFrames = getCache(expand) ?? (await fetchStitchFrames(ad, auth.token));
+							if (auth.token) {
+								// ad.stitchedFrames = getCache(expand) ?? (await fetchStitchFrames(ad, auth.token));
+								const res = getCache(expand) ?? (await fetchStitchFrames(ad, auth.token));
+								if (!inPlace) {
+									enrichedData.stitchedFrames = res;
+									break;
+								}
+								ad.stitchedFrames = res;
+							}
 							break;
 						case 'attributes':
-							if (auth.token)
-								ad.attributes = getCache(expand) ?? (await fetchAttributes(ad, auth.token));
+							if (auth.token) {
+								// ad.attributes = getCache(expand) ?? (await fetchAttributes(ad, auth.token));
+								const res = getCache(expand) ?? (await fetchAttributes(ad, auth.token));
+								if (!inPlace) {
+									enrichedData.attributes = res;
+									break;
+								}
+								ad.attributes = res;
+							}
 							break;
 						case 'richDataObject':
-							if (auth.token)
-								ad.richDataObject = getCache(expand) ?? (await fetchRichDataObject(ad, auth.token));
+							if (auth.token) {
+								const res = getCache(expand) ?? (await fetchRichDataObject(ad, auth.token));
+								if (!inPlace) {
+									enrichedData.richDataObject = res;
+									break;
+								}
+								ad.richDataObject = res;
+							}
+							// ad.richDataObject = getCache(expand) ?? (await fetchRichDataObject(ad, auth.token));
 							break;
 						case 'ocrData':
-							ad.ocrData = getCache(expand) ?? (await enricher.getOcrData());
+							{
+								const res = getCache(expand) ?? (await enricher.getOcrData());
+								if (!inPlace) {
+									enrichedData.ocrData = res;
+									break;
+								}
+								ad.ocrData = res;
+							}
 							break;
 						case 'dimensions':
-							ad.dimensions = getCache(expand) ?? (await enricher.getDimensions());
+							{
+								const res = getCache(expand) ?? (await enricher.getDimensions());
+								if (!inPlace) {
+									enrichedData.dimensions = res;
+									break;
+								}
+								ad.dimensions = res;
+							}
+							// ad.dimensions = getCache(expand) ?? (await enricher.getDimensions());
 							break;
 						case 'metaLibraryScrape':
-							ad.metaLibraryScrape = getCache(expand) ?? (await enricher.getCandidates());
+							{
+								const res = getCache(expand) ?? (await enricher.getCandidates());
+								if (!inPlace) {
+									enrichedData.metaLibraryScrape = res;
+									break;
+								}
+								ad.metaLibraryScrape = res;
+							}
+							// ad.metaLibraryScrape = getCache(expand) ?? (await enricher.getCandidates());
 							break;
 					}
 				})
 			);
+			if (!inPlace) return enrichedData;
 		}
 	});
 

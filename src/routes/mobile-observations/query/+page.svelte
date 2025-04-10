@@ -19,7 +19,7 @@
 	import QueryResults from './components/query-results.svelte';
 
 	let queryObj = $state<Query | null>(null);
-	let promise = $state<Promise<unknown>>();
+	let promise = $state<Promise<string[]>>();
 	let loading = $state(false);
 
 	$effect(() => {
@@ -42,11 +42,6 @@
 		window.history.replaceState(null, '', `?q=${encodeURIComponent(queryStr)}`);
 	});
 
-	const fetchData = async () => {
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-		return JSON.stringify(queryObj, null, 2);
-	};
-
 	const executeQuery = async () => {
 		loading = true;
 		// promise = fetchData().then((res) => {
@@ -56,7 +51,7 @@
 		if (!queryObj) return;
 		promise = session.ads.query(queryObj).then((res) => {
 			loading = false;
-			return res;
+			return res.result ?? [];
 		});
 	};
 
@@ -132,12 +127,11 @@
 				<!-- <pre>{queryJson}</pre> -->
 			</div>
 		</div>
-		{#await promise then queryResult}
+		{#await promise then queryResults}
 			<div class="flex flex-col gap-4">
 				<strong>Results:</strong>
-				{#if (queryResult as any)?.result}
-					{@const adData = parseRawAdPaths((queryResult as any).result)}
-					<QueryResults {adData} />
+				{#if queryResults}
+					<QueryResults {queryResults} />
 				{/if}
 				<Accordion>
 					{#snippet summary(open)}
@@ -151,7 +145,7 @@
 						</span>
 					{/snippet}
 					<CodeMirror
-						value={JSON.stringify(queryResult, null, 2)}
+						value={JSON.stringify(queryResults, null, 2)}
 						readonly
 						lang={json()}
 						class="w-full"

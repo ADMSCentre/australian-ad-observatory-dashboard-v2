@@ -11,6 +11,7 @@
 	import ImagesGif from '../observer/images-gif.svelte';
 	import type { RichAdData } from '$lib/api/session/ads/types';
 	import { session } from '$lib/api/session/session.svelte';
+	import { untrack } from 'svelte';
 
 	// {adData} {adData.rawFrames} {completed} {currentIndex} {autoPlay} {onSliderChange}
 	type Props = {
@@ -33,9 +34,11 @@
 	let loading = $state(true);
 
 	$effect(() => {
-		session.ads.enrich(adData, ['rawFrames', 'stitchedFrames', 'attributes']).then(() => {
-			loading = false;
-			console.log('Ad data enriched', adData);
+		untrack(() => {
+			session.ads.enrich(adData, ['rawFrames', 'stitchedFrames', 'attributes']).then(() => {
+				loading = false;
+				console.log('Ad data enriched', adData);
+			});
 		});
 	});
 
@@ -49,7 +52,7 @@
 		return adData.stitchedFrames;
 	});
 
-	$inspect({ adData, frames, loading });
+	$inspect({ attributes: adData.attributes, isUpdatingAttributes });
 
 	const setAttribute = async (key: string, value: any) => {
 		// Optimistically update the attributes state
@@ -197,7 +200,7 @@
 							variant="ghost"
 							size="sm"
 							class="size-full p-2"
-							disabled={!adData.attributes || isUpdatingAttributes}
+							disabled={!adData['attributes'] || isUpdatingAttributes}
 							onclick={() => {
 								setAttribute('starred', !adData.attributes?.starred?.value);
 							}}
@@ -216,7 +219,7 @@
 							onclick={() => {
 								setAttribute('hidden', !adData.attributes?.hidden?.value);
 							}}
-							disabled={!adData.attributes || isUpdatingAttributes}
+							disabled={!adData['attributes'] || isUpdatingAttributes}
 						>
 							{#if adData.attributes?.hidden?.value}
 								<EyeOff class="!size-5 drop-shadow-strong" />
