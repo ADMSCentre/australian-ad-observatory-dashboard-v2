@@ -33,7 +33,7 @@ const prepareUserUpdate = (username: string, updatedData: Partial<User>) => {
 	if (changes) {
 		data.changes = data.changes.map((change) => {
 			if (change.username === username) {
-				return { ...changes, ...updatedData };
+				return { ...changes, ...updatedData, enabled: true };
 			}
 			return change;
 		});
@@ -47,9 +47,11 @@ const prepareUserUpdate = (username: string, updatedData: Partial<User>) => {
  * @returns The payload to send to the API
  */
 const prepareUserPayload = (user: Partial<User>) => {
-	const payload = { ...user } as Partial<User> & { full_name: string };
-	payload.full_name = payload.fullname || '';
-	delete payload.fullname;
+	const payload = { ...user } as Partial<User> & { full_name?: string };
+	if (payload.fullname) {
+		payload.full_name = payload.fullname || '';
+		delete payload.fullname;
+	}
 	return payload;
 };
 
@@ -66,7 +68,9 @@ const commitUserUpdate = async (username: string) => {
 		params: {
 			path: { username }
 		},
-		body: prepareUserPayload(changes)
+		body: prepareUserPayload({
+			...changes
+		})
 	});
 	if (!res?.success) throw new Error(res?.comment);
 	if (error) throw error;
@@ -76,7 +80,7 @@ const commitUserUpdate = async (username: string) => {
 		if (originalUser.username === username) {
 			const changes = data.changes.find((change) => change.username === username);
 			if (changes) {
-				return { ...originalUser, ...changes };
+				return { ...originalUser, ...changes, enabled: true };
 			}
 		}
 		return originalUser;
@@ -154,7 +158,7 @@ export const columns: ColumnDef<User>[] = [
 		cell: ({ row }) => {
 			return renderComponent(Input, {
 				type: 'text',
-				value: row.original.fullname,
+				value: row.original.fullname || '',
 				disabled: !row.getIsSelected(),
 				class: 'p-1 h-fit',
 				onchange: (e) => {

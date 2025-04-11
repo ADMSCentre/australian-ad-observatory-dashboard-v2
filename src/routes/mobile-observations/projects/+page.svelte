@@ -41,7 +41,12 @@
 		<h1 class="text-4xl font-bold">Projects</h1>
 		<p class="text-lg">Select a project to view its observations.</p>
 		<div class="flex items-center justify-between">
-			<h2 class="text-xl font-semibold">My Projects</h2>
+			<div class="flex flex-col gap-1">
+				<h2 class="text-xl font-semibold">My Projects ({session.projects.owned.length})</h2>
+				<p class="text-sm text-gray-500">
+					These are the projects you own. You can create new projects or edit existing ones.
+				</p>
+			</div>
 			<Dialog.Root open={isCreateDialogOpen} onOpenChange={(open) => (isCreateDialogOpen = open)}>
 				<Dialog.Trigger>
 					<Button>
@@ -85,6 +90,7 @@
 				</Dialog.Content>
 			</Dialog.Root>
 		</div>
+
 		<div class="flex flex-row gap-4">
 			{#each session.projects.owned as project (project.id)}
 				<div animate:flip transition:scale class=" max-w-sm">
@@ -92,7 +98,10 @@
 				</div>
 			{/each}
 		</div>
-		<h2 class="text-xl font-semibold">Shared Projects</h2>
+		<div class="flex flex-col gap-1">
+			<h2 class="text-xl font-semibold">Shared Projects ({session.projects.shared.length})</h2>
+			<p class="text-sm text-muted-foreground">These projects are shared with you by others.</p>
+		</div>
 		<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 			{#each session.projects.shared as project (project.id)}
 				<div animate:flip transition:scale>
@@ -100,5 +109,21 @@
 				</div>
 			{/each}
 		</div>
+		{#if auth.currentUser?.role === 'admin'}
+			<div class="flex flex-col gap-1">
+				<h2 class="text-xl font-semibold">Other Projects ({session.projects.other.length})</h2>
+				<p class="text-sm text-muted-foreground">
+					These projects are not owned or shared with you, but you can view them as an
+					administrator.
+				</p>
+			</div>
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+				{#each session.projects.other as project (project.id)}
+					<div animate:flip transition:scale>
+						<ProjectSummaryCard {project} />
+					</div>
+				{/each}
+			</div>
+		{/if}
 	</div>
 {/if}

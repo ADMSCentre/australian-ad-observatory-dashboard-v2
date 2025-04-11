@@ -38,13 +38,12 @@ export class UsersApi {
 		}
 		this.loading = false;
 		this.users = data
-			.filter((user) => user.full_name && user.username && user.password)
+			.filter((user) => user.username && user.password)
 			.map((user) => {
-				if (!user.full_name || !user.username || !user.password)
-					throw new Error('Invalid user data');
+				if (!user.username || !user.password) throw new Error('Invalid user data');
 
 				return {
-					fullname: user.full_name,
+					fullname: user.full_name || '',
 					username: user.username,
 					password: user.password,
 					role: parseRole(user.role)

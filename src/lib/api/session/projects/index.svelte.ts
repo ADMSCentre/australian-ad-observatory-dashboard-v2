@@ -20,7 +20,20 @@ export class ProjectApiAdapter {
 
 	get shared() {
 		if (!auth.currentUser) return [];
-		return this.projects.filter((p) => p.ownerId !== auth.currentUser?.username);
+		return this.projects.filter(
+			(p) =>
+				p.team.some((u) => u.username === auth.currentUser?.username) &&
+				p.ownerId !== auth.currentUser?.username
+		);
+	}
+
+	get other() {
+		if (!auth.currentUser) return [];
+		return this.projects.filter(
+			(p) =>
+				p.ownerId !== auth.currentUser?.username &&
+				!p.team.some((u) => u.username === auth.currentUser?.username)
+		);
 	}
 
 	async fetch() {
