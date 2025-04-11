@@ -37,7 +37,6 @@
 		untrack(() => {
 			session.ads.enrich(adData, ['rawFrames', 'stitchedFrames', 'attributes']).then(() => {
 				loading = false;
-				console.log('Ad data enriched', adData);
 			});
 		});
 	});

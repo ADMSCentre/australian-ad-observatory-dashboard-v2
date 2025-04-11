@@ -3,9 +3,9 @@ export type ExpandType =
 	| 'richDataObject'
 	| 'rawFrames'
 	| 'stitchedFrames'
-	| 'dimensions'
-	| 'metaLibraryScrape'
-	| 'ocrData';
+	// | 'dimensions'
+	| 'metaLibraryScrape';
+// | 'ocrData';
 
 export type IndexGroupType =
 	| 'observations'

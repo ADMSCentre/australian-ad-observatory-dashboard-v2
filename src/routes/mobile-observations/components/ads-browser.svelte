@@ -229,12 +229,6 @@
 				return attributeFilters.every((filter) => {
 					const attr = attrs[filter.attribute]?.value;
 					const selectedOption = filter.options.find((o) => o.value === filter.value);
-					console.log({
-						attribute: filter.attribute,
-						selectedOption: selectedOption?.value,
-						attrValue: attr,
-						filterValue: filter.value
-					});
 					return selectedOption?.filter(attr) || false;
 				});
 			})

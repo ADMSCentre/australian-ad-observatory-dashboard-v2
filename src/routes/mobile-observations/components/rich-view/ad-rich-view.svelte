@@ -30,21 +30,18 @@
 	$effect(() => {
 		if (!currentAd) return;
 		untrack(() => {
-			session.ads.enrich(currentAd, [
-				'richDataObject',
-				'ocrData',
-				'dimensions',
-				'metaLibraryScrape'
-			]);
+			session.ads.enrich(currentAd, ['richDataObject', 'metaLibraryScrape']);
 		});
 	});
 
-	const keyframes = $derived(currentAd?.ocrData || null);
-	const adDimension = $derived(currentAd?.dimensions || null);
-	// const imagePath = $derived.by(() => {
-	// 	if (!currentAd || !currentAd.richDataObject) return null;
-	// 	return `${currentAd?.richDataObject.observer.uuid}/tempt/${currentAd?.richDataObject.observation.uuid}/`;
-	// });
+	const keyframes = $derived.by(() => {
+		if (!currentAd || !currentAd.richDataObject) return null;
+		return currentAd.richDataObject.observation.keyframes;
+	});
+	const adDimension = $derived.by(() => {
+		if (!currentAd || !currentAd.richDataObject) return null;
+		return currentAd.richDataObject.observation.ad_dimensions;
+	});
 	const observationId = $derived.by(() => {
 		if (!currentAd || !currentAd.richDataObject) return null;
 		return currentAd.richDataObject.observation.uuid;
@@ -107,7 +104,7 @@
 		);
 	});
 
-	$inspect({ rankings, candidates });
+	$inspect('[ad-rich-view.svelte]', { rankings, candidates, keyframes });
 </script>
 
 {#if currentAd}
