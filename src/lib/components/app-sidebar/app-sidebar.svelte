@@ -53,7 +53,7 @@
 			title: 'Web Observations',
 			url: withBase('web-observations'),
 			icon: Globe,
-			visible: true
+			visible: false
 		},
 		{
 			title: 'Users',
