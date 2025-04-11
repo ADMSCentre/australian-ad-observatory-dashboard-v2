@@ -51,7 +51,7 @@
 
 <div class="flex flex-col gap-4">
 	{#each FIELD_GROUPS as group}
-		<Accordion class="flex flex-col gap-4" open>
+		<Accordion class="flex flex-col gap-4" open={group.open}>
 			{#snippet summary(open)}
 				<span class="flex items-center gap-2 border-b text-left font-semibold">
 					<ChevronRight class={twMerge('transition-transform', open && 'rotate-90 transform')} />

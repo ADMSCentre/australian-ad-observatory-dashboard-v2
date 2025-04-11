@@ -137,6 +137,7 @@ function round(value: string | number | boolean | null, precision: number = 0) {
 export const FIELD_GROUPS: {
 	name: string;
 	description: string;
+	open: boolean;
 	fields: {
 		key: string;
 		title: string;
@@ -147,6 +148,7 @@ export const FIELD_GROUPS: {
 	{
 		name: 'Observer Data',
 		description: 'Data about the observer and their device',
+		open: true,
 		fields: [
 			{
 				key: 'observer.uuid',
@@ -174,6 +176,7 @@ export const FIELD_GROUPS: {
 	{
 		name: 'Observation Data',
 		description: 'Data about the observation',
+		open: true,
 		fields: [
 			{
 				key: 'observation.uuid',
@@ -212,23 +215,23 @@ export const FIELD_GROUPS: {
 				key: 'observation.ad_dimensions.h',
 				description: 'The height of the ad in the observation'
 			},
-			{
-				title: 'Video Duration (seconds)',
-				key: 'observation.video.n_seconds',
-				description: 'The duration of the video in the observation',
-				format: (value) => round(value, 2)
-			},
-			{
-				title: 'Video Frames',
-				key: 'observation.video.n_frames',
-				description: 'The number of frames in the video'
-			},
-			{
-				title: 'Video FPS',
-				key: 'observation.video.fps',
-				description: 'The frames per second of the video',
-				format: (value) => round(value, 2)
-			},
+			// {
+			// 	title: 'Video Duration (seconds)',
+			// 	key: 'observation.video.n_seconds',
+			// 	description: 'The duration of the video in the observation',
+			// 	format: (value) => round(value, 2)
+			// },
+			// {
+			// 	title: 'Video Frames',
+			// 	key: 'observation.video.n_frames',
+			// 	description: 'The number of frames in the video'
+			// },
+			// {
+			// 	title: 'Video FPS',
+			// 	key: 'observation.video.fps',
+			// 	description: 'The frames per second of the video',
+			// 	format: (value) => round(value, 2)
+			// },
 			{
 				title: 'Starred',
 				key: 'attributes.starred.value',
@@ -236,16 +239,39 @@ export const FIELD_GROUPS: {
 				format: (value) => !!value
 			},
 			{
+				title: 'Star Updated At',
+				key: 'attributes.starred.modified_at',
+				description: 'The timestamp when the observation starred status was updated',
+				format: parseTimestamp
+			},
+			{
+				title: 'Star Updated By',
+				key: 'attributes.starred.modified_by',
+				description: 'The user who starred the observation'
+			},
+			{
 				title: 'Hidden',
 				key: 'attributes.hidden.value',
 				description: 'Whether the observation is hidden',
 				format: (value) => !!value
+			},
+			{
+				title: 'Visibility Updated At',
+				key: 'attributes.hidden.modified_at',
+				description: 'The timestamp when the observation hidden status was updated',
+				format: parseTimestamp
+			},
+			{
+				title: 'Visibility Updated By',
+				key: 'attributes.hidden.modified_by',
+				description: 'The user who hid the observation'
 			}
 		]
 	},
 	{
 		name: 'Meta Candidates',
 		description: 'Data about the candidates from the Meta Ad Library',
+		open: false,
 		fields: [
 			{
 				key: 'enrichment.meta_adlibrary_scrape.candidates.data.ad_archive_id',
