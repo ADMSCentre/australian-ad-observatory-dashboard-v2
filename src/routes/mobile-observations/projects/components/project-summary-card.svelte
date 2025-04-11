@@ -26,7 +26,7 @@
 	class="flex size-full cursor-pointer flex-col justify-between rounded-lg border bg-card p-4 text-left text-card-foreground shadow-md hover:shadow-2xl"
 	onclick={navigateToProject}
 >
-	<div class="flex flex-row items-center justify-between">
+	<div class="flex flex-row items-center justify-between gap-4">
 		<h2 class="text-xl font-bold">{project.name}</h2>
 		<!-- <Button size="icon" variant="destructive">
 			<Trash />
@@ -71,7 +71,7 @@
 			</Dialog.Root>
 		{/if}
 	</div>
-	<p class="mt-2 text-sm">{@html project.description}</p>
+	<p class="mt-2 h-full max-h-20 overflow-hidden text-sm">{@html project.description}</p>
 	<div class="flex items-center justify-between gap-4">
 		<p class="mt-4 text-sm">Owner: {project.ownerId}</p>
 		<p class="mt-4 text-sm">Members: {project.team.length}</p>

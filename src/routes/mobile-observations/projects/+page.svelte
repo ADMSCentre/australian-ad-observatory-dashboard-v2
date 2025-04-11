@@ -11,18 +11,17 @@
 	import { flip } from 'svelte/animate';
 	import Tiptap from '$lib/components/tiptap.svelte';
 	import { scale } from 'svelte/transition';
+	import { untrack } from 'svelte';
+	import { auth } from '$lib/api/auth/auth.svelte';
 
 	const projectId = $derived($page.url.searchParams.get('project_id'));
-	// const project = $derived(PROJECTS.find((p) => p.id === projectId));
 
-	// let project = $state<Project | null>(null);
-	// $effect(() => {
-	// 	if (projectId) {
-	// 		session.projects.get(projectId).then((p) => {
-	// 			project = p ?? null;
-	// 		});
-	// 	}
-	// });
+	$effect(() => {
+		auth.currentUser;
+		untrack(() => {
+			session.projects.fetch();
+		});
+	});
 
 	let isCreateDialogOpen = $state(false);
 	let newProject = $state({
@@ -86,9 +85,9 @@
 				</Dialog.Content>
 			</Dialog.Root>
 		</div>
-		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+		<div class="flex flex-row gap-4">
 			{#each session.projects.owned as project (project.id)}
-				<div animate:flip transition:scale>
+				<div animate:flip transition:scale class=" max-w-sm">
 					<ProjectSummaryCard {project} />
 				</div>
 			{/each}
