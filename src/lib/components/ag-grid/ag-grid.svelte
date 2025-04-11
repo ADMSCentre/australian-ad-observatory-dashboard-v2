@@ -50,7 +50,7 @@
 	};
 </script>
 
-<div class="flex flex-col gap-2">
+<div class="flex h-full flex-col gap-2">
 	{#if searchable}
 		<div class="relative flex items-center">
 			<Search size={16} class="absolute left-2 text-muted-foreground" />

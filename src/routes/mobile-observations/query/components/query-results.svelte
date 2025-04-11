@@ -4,6 +4,7 @@
 	import AdsBrowser from '../../components/ads-browser.svelte';
 	import ObservationsTimeline from '../../components/observations-timeline.svelte';
 	import { parseRawAdPaths } from '$lib/api/session/ads/ads-index';
+	import ObserversTable from 'mobile-observations/components/observers-table.svelte';
 
 	// const { adData }: { adData: RichAdData[] } = $props();
 	const {
@@ -26,4 +27,5 @@
 	<DataExportForm {adData} />
 </div>
 <ObservationsTimeline ads={adData} />
+<ObserversTable ads={adData} />
 <AdsBrowser ads={adData} syncQueryParams={false} open={false} />

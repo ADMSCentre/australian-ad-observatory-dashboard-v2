@@ -10,13 +10,14 @@
 		dateRange
 	}: {
 		ads: BasicAdData[];
-		dateRange: DateRange;
+		dateRange?: DateRange;
 	} = $props();
 
 	const timeRange = $derived(
 		ads
 			.map((ad) => ad.timestamp)
 			.filter((timestamp) => {
+				if (!dateRange) return true;
 				if (!dateRange.start || !dateRange.end) return false;
 				// Ensure the timestamp is between the start and end date
 				const date = new Date(timestamp);
@@ -107,13 +108,6 @@
 	});
 </script>
 
-<AgGrid
-	{columnDefs}
-	{rowData}
-	pagination
-	paginationAutoPageSize
-	style={{
-		height: '540px',
-		width: '100%'
-	}}
-/>
+<div class="h-96">
+	<AgGrid {columnDefs} {rowData} pagination paginationAutoPageSize class="h-full w-full" />
+</div>

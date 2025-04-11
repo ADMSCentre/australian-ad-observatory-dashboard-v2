@@ -9,24 +9,34 @@
 		getCoreRowModel,
 		getPaginationRowModel,
 		getSortedRowModel,
-		getFilteredRowModel
+		getFilteredRowModel,
+		type Table
 	} from '@tanstack/table-core';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import * as Table from '$lib/components/ui/table/index.js';
+	import * as TableComponent from '$lib/components/ui/table/index.js';
 	import { createSvelteTable, FlexRender } from '$lib/components/ui/data-table';
 	import { Input } from '$lib/components/ui/input';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import Dropdown from '$lib/components/dropdown/dropdown.svelte';
-	import CreateUserDialog from './create-user-dialog.svelte';
+	import CreateUserDialog from '../../../routes/users/create-user-dialog.svelte';
 	import { ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from 'lucide-svelte';
+	import type { Snippet } from 'svelte';
 
 	type DataTableProps<TData, TValue> = {
 		columns: ColumnDef<TData, TValue>[];
 		data: TData[];
 	};
 
-	let { columns, data }: DataTableProps<TData, TValue> = $props();
+	let {
+		columns,
+		data,
+		before,
+		children
+	}: DataTableProps<TData, TValue> & {
+		children?: Snippet;
+		before?: (table: Table<TData>) => ReturnType<Snippet>;
+	} = $props();
 
 	let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 10 });
 	let sorting = $state<SortingState>([]);
@@ -99,54 +109,45 @@
 </script>
 
 <div class="w-full">
-	<div class="flex items-center justify-between gap-4 py-4">
-		<Input
-			placeholder="Filter username..."
-			value={(table.getColumn('username')?.getFilterValue() as string) ?? ''}
-			onchange={(e) => {
-				table.getColumn('username')?.setFilterValue(e.currentTarget.value);
-			}}
-			oninput={(e) => {
-				table.getColumn('username')?.setFilterValue(e.currentTarget.value);
-			}}
-			class="max-w-sm"
-		/>
-		<CreateUserDialog />
-	</div>
+	{#if before}
+		{@render before(table)}
+	{/if}
 	<div class="rounded-md border">
-		<Table.Root>
-			<Table.Header>
+		<TableComponent.Root>
+			<TableComponent.Header>
 				{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
-					<Table.Row>
+					<TableComponent.Row>
 						{#each headerGroup.headers as header (header.id)}
-							<Table.Head>
+							<TableComponent.Head>
 								{#if !header.isPlaceholder}
 									<FlexRender
 										content={header.column.columnDef.header}
 										context={header.getContext()}
 									/>
 								{/if}
-							</Table.Head>
+							</TableComponent.Head>
 						{/each}
-					</Table.Row>
+					</TableComponent.Row>
 				{/each}
-			</Table.Header>
-			<Table.Body>
+			</TableComponent.Header>
+			<TableComponent.Body>
 				{#each table.getRowModel().rows as row (row.id)}
-					<Table.Row data-state={row.getIsSelected() && 'selected'}>
+					<TableComponent.Row data-state={row.getIsSelected() && 'selected'}>
 						{#each row.getVisibleCells() as cell (cell.id)}
-							<Table.Cell>
+							<TableComponent.Cell>
 								<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
-							</Table.Cell>
+							</TableComponent.Cell>
 						{/each}
-					</Table.Row>
+					</TableComponent.Row>
 				{:else}
-					<Table.Row>
-						<Table.Cell colspan={columns.length} class="h-24 text-center">No results.</Table.Cell>
-					</Table.Row>
+					<TableComponent.Row>
+						<TableComponent.Cell colspan={columns.length} class="h-24 text-center"
+							>No results.</TableComponent.Cell
+						>
+					</TableComponent.Row>
 				{/each}
-			</Table.Body>
-		</Table.Root>
+			</TableComponent.Body>
+		</TableComponent.Root>
 	</div>
 	<!-- Pagination controls -->
 	<div class="sm: flex flex-col items-center justify-end gap-1 sm:flex-row sm:gap-4">

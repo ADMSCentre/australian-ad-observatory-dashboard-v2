@@ -1,3 +1,4 @@
+import DataTableHeaderCell from '$lib/components/data-table/data-table-header-cell.svelte';
 import type { ColumnDef } from '@tanstack/table-core';
 import type { User } from '$lib/api/session/users/index.svelte';
 import { renderComponent, renderSnippet } from '$lib/components/ui/data-table';
@@ -5,7 +6,6 @@ import Dropdown from '$lib/components/dropdown/dropdown.svelte';
 import DataTableActions from './data-table-actions.svelte';
 import Input from '$lib/components/ui/input/input.svelte';
 import { createRawSnippet } from 'svelte';
-import DataTableHeaderCell from './data-table-header-cell.svelte';
 import type { Authentication } from '$lib/api/auth/auth.svelte';
 import { client } from '$lib/api/client';
 import { pushToast } from '$lib/components/toasts/toasts.svelte';

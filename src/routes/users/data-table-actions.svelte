@@ -5,12 +5,12 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { Check, Edit, Trash, X } from 'lucide-svelte';
 	import { Footer } from '$lib/components/ui/sheet';
-	import type { User } from './types';
 	import { Circle } from 'svelte-loading-spinners';
 	import { twMerge } from 'tailwind-merge';
 	import Markdown from 'svelte-exmarkdown';
 	import { theme } from '$lib/states/theme.svelte';
 	import * as Alert from '$lib/components/ui/alert/index.js';
+	import type { User } from '$lib/api/session/users/index.svelte';
 
 	let loading = $state<{
 		loading: boolean;

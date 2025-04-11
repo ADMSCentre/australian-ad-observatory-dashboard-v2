@@ -8,13 +8,13 @@
 	import { CircleAlert } from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
 	import { auth } from '$lib/api/auth/auth.svelte';
-	import type { User } from './types';
 	import { appendUser } from './columns.svelte';
 	import { client } from '$lib/api/client';
 	import Markdown from 'svelte-exmarkdown';
 	import { Circle } from 'svelte-loading-spinners';
 	import { pushToast } from '$lib/components/toasts/toasts.svelte';
 	import { theme } from '$lib/states/theme.svelte';
+	import type { User } from '$lib/api/session/users/index.svelte';
 
 	const options = [
 		{ value: 'admin', label: 'Admin' },
