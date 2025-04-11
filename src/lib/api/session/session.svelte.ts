@@ -2,7 +2,7 @@
 import { auth } from '$lib/api/auth/auth.svelte';
 import type { Query } from '../../../routes/mobile-observations/query/query';
 import { client } from '../client';
-import { getAdFrameUrls, listAdsForObserver, listAllAds } from '../mobile-observations';
+import { listAdsForObserver, listAllAds } from '../mobile-observations';
 import { RichDataBuilder } from './ads/enricher';
 import type { ExpandType, IndexGroupType, RichAdData } from './ads/types';
 import { fetchAttributes, fetchRichDataObject, fetchStitchFrames } from './ads/utils';
@@ -99,7 +99,6 @@ export class Session {
 					switch (expand) {
 						case 'stitchedFrames':
 							if (auth.token) {
-								// ad.stitchedFrames = getCache(expand) ?? (await fetchStitchFrames(ad, auth.token));
 								const res = getCache(expand) ?? (await fetchStitchFrames(ad, auth.token));
 								if (!inPlace) {
 									enrichedData.stitchedFrames = res;
@@ -110,7 +109,6 @@ export class Session {
 							break;
 						case 'attributes':
 							if (auth.token) {
-								// ad.attributes = getCache(expand) ?? (await fetchAttributes(ad, auth.token));
 								const res = getCache(expand) ?? (await fetchAttributes(ad, auth.token));
 								if (!inPlace) {
 									enrichedData.attributes = res;
@@ -128,28 +126,6 @@ export class Session {
 								}
 								ad.richDataObject = res;
 							}
-							// ad.richDataObject = getCache(expand) ?? (await fetchRichDataObject(ad, auth.token));
-							break;
-						case 'ocrData':
-							{
-								const res = getCache(expand) ?? (await enricher.getOcrData());
-								if (!inPlace) {
-									enrichedData.ocrData = res;
-									break;
-								}
-								ad.ocrData = res;
-							}
-							break;
-						case 'dimensions':
-							{
-								const res = getCache(expand) ?? (await enricher.getDimensions());
-								if (!inPlace) {
-									enrichedData.dimensions = res;
-									break;
-								}
-								ad.dimensions = res;
-							}
-							// ad.dimensions = getCache(expand) ?? (await enricher.getDimensions());
 							break;
 						case 'metaLibraryScrape':
 							{
@@ -160,7 +136,6 @@ export class Session {
 								}
 								ad.metaLibraryScrape = res;
 							}
-							// ad.metaLibraryScrape = getCache(expand) ?? (await enricher.getCandidates());
 							break;
 					}
 				})

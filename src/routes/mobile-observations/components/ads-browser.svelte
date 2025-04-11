@@ -54,13 +54,15 @@
 
 	// Enrich the ads with attributes
 	let loading = $state(false);
+	const allowAttributesFilter = $derived(ads.length > 0 && ads.length < 1000);
 	$effect(() => {
 		ads.length;
 		untrack(() => {
 			loading = true;
-			// Promise.all(ads.map((ad) => session.ads.enrich(ad, ['attributes']))).then(() => {
-			// 	loading = false;
-			// });
+			if (!allowAttributesFilter) return;
+			Promise.all(ads.map((ad) => session.ads.enrich(ad, ['attributes']))).then(() => {
+				loading = false;
+			});
 		});
 	});
 
@@ -304,7 +306,7 @@
 	>
 		<div class="relative flex items-center gap-2">
 			<Input
-				placeholder="Search by Ad ID..."
+				placeholder="Filter by Ad ID..."
 				value={searchKey}
 				oninput={(e) => {
 					const target = e.target as HTMLInputElement;
@@ -313,36 +315,41 @@
 				class="pl-8"
 			/>
 			<SearchIcon class="absolute left-2 top-1/2 -translate-y-1/2 transform" size={20} />
+
+			{#if allowAttributesFilter}
+				<div class="flex items-center gap-2">
+					{#each attributeFilterOptions as { label, value, attribute }}
+						<span>{label}</span>
+						<Dropdown
+							options={attributeFilters.find((filter) => filter.attribute === attribute)?.options ||
+								[]}
+							triggerClass="w-fit"
+							contentClass="w-fit"
+							disabled={loading}
+							selected={value}
+							onSelected={(option) => {
+								const selectedOption = option as boolean | 'all';
+								attributeFilters = attributeFilters.map((filter) =>
+									filter.attribute === attribute ? { ...filter, value: selectedOption } : filter
+								);
+								if (!syncQueryParams) return;
+								if (selectedOption === 'all') $page.url.searchParams.delete(attribute);
+								else $page.url.searchParams.set(attribute, selectedOption.toString());
+								replaceState($page.url, $page.state);
+							}}
+						/>
+					{/each}
+				</div>
+			{/if}
 		</div>
 		<div class="flex items-center gap-2">
-			<div class="flex items-center gap-2">
-				{#each attributeFilterOptions as { label, value, attribute }}
-					<span>{label}</span>
-					<Dropdown
-						options={attributeFilters.find((filter) => filter.attribute === attribute)?.options ||
-							[]}
-						triggerClass="w-fit"
-						contentClass="w-fit"
-						disabled={loading}
-						selected={value}
-						onSelected={(option) => {
-							const selectedOption = option as boolean | 'all';
-							attributeFilters = attributeFilters.map((filter) =>
-								filter.attribute === attribute ? { ...filter, value: selectedOption } : filter
-							);
-							if (!syncQueryParams) return;
-							if (selectedOption === 'all') $page.url.searchParams.delete(attribute);
-							else $page.url.searchParams.set(attribute, selectedOption.toString());
-							replaceState($page.url, $page.state);
-						}}
-					/>
-				{/each}
-			</div>
 			<div class="flex items-center gap-2">
 				<p>Group by:</p>
 				<Dropdown
 					options={groups}
 					selected={groupBy.value}
+					triggerClass="w-fit"
+					contentClass="w-fit"
 					onSelected={(option: string) => {
 						groupBy = groups.find((g) => g.value === option) || groups[0];
 						// Update URL
@@ -357,6 +364,8 @@
 				<Dropdown
 					options={sortOptions}
 					selected={sortBy.value}
+					triggerClass="w-fit"
+					contentClass="w-fit"
 					onSelected={(option: string) => {
 						sortBy = sortOptions.find((s) => s.value === option) || sortOptions[0];
 						// Update URL
