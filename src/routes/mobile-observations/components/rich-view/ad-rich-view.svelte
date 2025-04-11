@@ -18,6 +18,7 @@
 	import { session } from '$lib/api/session/session.svelte';
 	import Table from './table.svelte';
 	import { untrack } from 'svelte';
+	import { attachRichDataObject } from '$lib/api/session/ads/rdo-helper';
 
 	let {
 		richViewExpanded = $bindable(false),
@@ -172,7 +173,7 @@
 				</Tabs.Content>
 				<Tabs.Content value="rich-data-table">
 					{#if currentAd.richDataObject}
-						<Table richDataObject={currentAd.richDataObject} />
+						<Table richDataObject={attachRichDataObject(currentAd)} />
 					{/if}
 				</Tabs.Content>
 				<Tabs.Content value="rich-data">

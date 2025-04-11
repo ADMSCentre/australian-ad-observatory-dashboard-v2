@@ -110,6 +110,7 @@
 	 */
 
 import type { Candidate, Ranking, RichDataObject } from './rich-data-object-type';
+import type { RichAdData } from './types';
 
 function parseTimestamp(value: string | number | boolean | null) {
 	// First attempt to convert the value to a number
@@ -227,6 +228,18 @@ export const FIELD_GROUPS: {
 				key: 'observation.video.fps',
 				description: 'The frames per second of the video',
 				format: (value) => round(value, 2)
+			},
+			{
+				title: 'Starred',
+				key: 'attributes.starred.value',
+				description: 'Whether the observation is starred',
+				format: (value) => !!value
+			},
+			{
+				title: 'Hidden',
+				key: 'attributes.hidden.value',
+				description: 'Whether the observation is hidden',
+				format: (value) => !!value
 			}
 		]
 	},
@@ -506,6 +519,14 @@ export function getField(key: string) {
 		}
 	}
 	return undefined;
+}
+
+// Attach other attributes to the rich data object for export
+export function attachRichDataObject(ad: RichAdData) {
+	return {
+		...ad.richDataObject,
+		attributes: ad.attributes || {}
+	};
 }
 
 export function cleanRdo(richDataObject: RichDataObject | undefined) {

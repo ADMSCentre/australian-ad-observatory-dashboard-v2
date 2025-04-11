@@ -3,7 +3,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { DownloadIcon } from 'lucide-svelte';
 	import ExportFieldsSelector from './export-fields-selector.svelte';
-	import { FIELD_GROUPS, getField } from '$lib/api/session/ads/rdo-helper';
+	import { attachRichDataObject, FIELD_GROUPS, getField } from '$lib/api/session/ads/rdo-helper';
 	import { session } from '$lib/api/session/session.svelte';
 	import { getFields, type Table, tabulateObject, toCsv, download } from '$lib/utils/tabulateJson';
 	import AdTable from './ad-table.svelte';
@@ -30,8 +30,8 @@
 	$effect(() => {
 		if (adData.length === 0) return;
 		untrack(() => {
-			session.ads.enrich(adData[0], ['richDataObject']).then(() => {
-				const richDataObject = adData[0].richDataObject;
+			session.ads.enrich(adData[0], ['richDataObject', 'attributes']).then(() => {
+				const richDataObject = attachRichDataObject(adData[0]);
 				if (!richDataObject) return;
 				allKeys = getFields(richDataObject).leafKeys.map((k) => k.unindexed);
 			});
@@ -47,8 +47,8 @@
 	let tables = $state<Table[]>([]);
 
 	const tabulateAd = async (ad: RichAdData) => {
-		await session.ads.enrich(ad, ['richDataObject']);
-		const richDataObject = ad.richDataObject;
+		await session.ads.enrich(ad, ['richDataObject', 'attributes']);
+		const richDataObject = attachRichDataObject(ad);
 		if (!richDataObject) return;
 		return tabulateObject(
 			richDataObject,
@@ -101,7 +101,7 @@
 		<div class="flex flex-col gap-4">
 			<ExportFieldsSelector {allKeys} bind:selectedKeys />
 			<span class="text-lg font-semibold">Preview</span>
-			<AdTable richDataObject={adData[0].richDataObject} {selectedKeys} class="h-72" />
+			<AdTable richDataObject={attachRichDataObject(adData[0])} {selectedKeys} class="h-72" />
 			<div class="flex w-full gap-4">
 				<Button onclick={startExport} disabled={loading}>
 					<DownloadIcon />
