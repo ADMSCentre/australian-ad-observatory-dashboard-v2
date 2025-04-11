@@ -15,6 +15,7 @@
 
 	const timeRange = $derived(
 		ads
+			.toSorted((a, b) => b.timestamp - a.timestamp)
 			.map((ad) => ad.timestamp)
 			.filter((timestamp) => {
 				if (!dateRange) return true;
@@ -69,7 +70,8 @@
 			{
 				headerName: 'Observer',
 				field: 'observer',
-				width: 110,
+				flex: 1,
+				minWidth: 110,
 				cellRenderer: (params: any) => {
 					const path = withBase(`mobile-observations/observer?observer_id=${params.value}`);
 					return `<a href="${path}"

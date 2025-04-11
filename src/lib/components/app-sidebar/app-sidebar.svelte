@@ -42,7 +42,7 @@
 					visible: true
 				},
 				{
-					title: 'Projects (Experimental)', // Added Projects section
+					title: 'Projects', // Added Projects section
 					url: withBase('mobile-observations/projects'),
 					icon: Folder,
 					visible: true

@@ -85,7 +85,7 @@
 								minute: '2-digit',
 								second: '2-digit',
 								fractionalSecondDigits: 2,
-								hourCycle: 'h11'
+								hourCycle: 'h12'
 							})}
 						</span>
 					{/if}
