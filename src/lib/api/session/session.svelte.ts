@@ -33,7 +33,7 @@ export const INDEX_GROUP_TYPES: {
 
 export class Session {
 	indexGroupTypes = $state<IndexGroupType[]>([
-		'ads_passed_mass_download',
+		// 'ads_passed_mass_download',
 		'ads_passed_rdo_construction'
 	]);
 	authHeader = $derived.by(() => {

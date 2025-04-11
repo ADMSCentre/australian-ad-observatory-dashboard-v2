@@ -17,6 +17,7 @@
 	import type { RichAdData } from '$lib/api/session/ads/types';
 	import { session } from '$lib/api/session/session.svelte';
 	import Table from './table.svelte';
+	import { untrack } from 'svelte';
 
 	let {
 		richViewExpanded = $bindable(false),
@@ -28,7 +29,14 @@
 
 	$effect(() => {
 		if (!currentAd) return;
-		session.ads.enrich(currentAd, ['richDataObject', 'ocrData', 'dimensions', 'metaLibraryScrape']);
+		untrack(() => {
+			session.ads.enrich(currentAd, [
+				'richDataObject',
+				'ocrData',
+				'dimensions',
+				'metaLibraryScrape'
+			]);
+		});
 	});
 
 	const keyframes = $derived(currentAd?.ocrData || null);
