@@ -52,7 +52,7 @@
 
 <input
 	type="datetime-local"
-	class="border-b text-sm outline-none"
+	class="border-b bg-transparent text-sm outline-none"
 	step="60"
 	bind:value
 	{onchange}
