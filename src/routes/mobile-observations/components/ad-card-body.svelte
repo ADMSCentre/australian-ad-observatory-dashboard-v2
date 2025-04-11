@@ -18,15 +18,9 @@
 		adData: RichAdData;
 		visible?: boolean;
 		class?: string;
-		framesMode?: 'raw' | 'stitched';
 	};
 
-	let {
-		adData = $bindable(),
-		visible = true,
-		framesMode = $bindable('stitched'),
-		class: className = ''
-	}: Props = $props();
+	let { adData = $bindable(), visible = true, class: className = '' }: Props = $props();
 
 	let isUpdatingAttributes = $state(false);
 	let autoPlay = $state(true);
@@ -35,19 +29,13 @@
 
 	$effect(() => {
 		untrack(() => {
-			session.ads.enrich(adData, ['rawFrames', 'stitchedFrames', 'attributes']).then(() => {
+			session.ads.enrich(adData, ['stitchedFrames', 'attributes']).then(() => {
 				loading = false;
 			});
 		});
 	});
 
 	const frames = $derived.by(() => {
-		if (loading) {
-			return [];
-		}
-		if (framesMode === 'raw') {
-			return adData.rawFrames;
-		}
 		return adData.stitchedFrames;
 	});
 
@@ -130,19 +118,7 @@
 			</div>
 		{:else}
 			<div class="flex size-full items-center justify-center bg-foreground text-white">
-				<span class="text-center">
-					No frames available.
-					{#if !auth.isGuest}
-						Try <button
-							class="inline text-wrap underline"
-							onclick={() => {
-								framesMode = framesMode === 'raw' ? 'stitched' : 'raw';
-							}}
-						>
-							switching to {framesMode === 'raw' ? 'Cropped' : 'Full'} mode
-						</button>.
-					{/if}
-				</span>
+				<span class="text-center"> No frames available. </span>
 			</div>
 		{/if}
 

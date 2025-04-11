@@ -43,7 +43,6 @@
 
 	let element = $state<HTMLElement | null>(null);
 	let intersecting = $state(false);
-	let framesMode = $state<'raw' | 'stitched'>('stitched');
 
 	const isIncluded = (key: AdElement) => !exclude.includes(key);
 
@@ -114,35 +113,10 @@
 			</div>
 		</div>
 
-		<AdCardBody {adData} visible={intersecting} bind:framesMode />
+		<AdCardBody {adData} visible={intersecting} />
 
 		<!-- Footer -->
 		<div class="flex flex-col gap-2">
-			{#if !auth.isGuest}
-				<div class="w-full text-2xs">
-					{#if framesMode === 'raw'}
-						<Button
-							variant="outline"
-							size="sm"
-							class="size-fit p-1.5"
-							onclick={() => (framesMode = 'stitched')}
-						>
-							<GalleryHorizontal /> Full Mode
-						</Button>
-						<p>All parts of the recording are shown</p>
-					{:else}
-						<Button
-							variant="outline"
-							size="sm"
-							class="size-fit p-1.5"
-							onclick={() => (framesMode = 'raw')}
-						>
-							<SquareBottomDashedScissors /> Cropped Mode
-						</Button>
-						<p>Only the ad content is shown</p>
-					{/if}
-				</div>
-			{/if}
 			<div class="flex w-fit gap-1 text-sm">
 				{#each fullTypes as type}
 					<div

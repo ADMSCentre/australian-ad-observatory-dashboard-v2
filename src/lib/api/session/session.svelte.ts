@@ -97,16 +97,6 @@ export class Session {
 			await Promise.all(
 				expands.map(async (expand) => {
 					switch (expand) {
-						case 'rawFrames':
-							if (auth.token) {
-								const res = getCache(expand) ?? (await getAdFrameUrls(auth.token, ad));
-								if (!inPlace) {
-									enrichedData.rawFrames = res;
-									break;
-								}
-								ad.rawFrames = res;
-							}
-							break;
 						case 'stitchedFrames':
 							if (auth.token) {
 								// ad.stitchedFrames = getCache(expand) ?? (await fetchStitchFrames(ad, auth.token));

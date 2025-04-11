@@ -108,20 +108,6 @@
 </script>
 
 {#if currentAd}
-	{#snippet stitchedAd()}
-		<div>
-			<p class="text-xs">Ad-only view - only the ad content is shown.</p>
-			<AdCardBody adData={currentAd} class="max-w-96" framesMode={'stitched'} />
-		</div>
-	{/snippet}
-
-	{#snippet originalAd()}
-		<div>
-			<p class="text-xs">Original view - the original recording is shown.</p>
-			<AdCardBody adData={currentAd} class="max-w-96" framesMode="raw" />
-		</div>
-	{/snippet}
-
 	{#snippet richDataJson()}
 		{#if currentAd.richDataObject}
 			<strong>
@@ -166,8 +152,7 @@
 				</Tabs.List>
 				<Tabs.Content value="captured-ad">
 					<div class="flex flex-col gap-2 md:flex-row">
-						{@render originalAd()}
-						{@render stitchedAd()}
+						<AdCardBody adData={currentAd} class="max-w-96" />
 					</div>
 				</Tabs.Content>
 				<Tabs.Content value="ocr-data">

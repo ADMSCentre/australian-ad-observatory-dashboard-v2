@@ -1,7 +1,7 @@
 export type ExpandType =
 	| 'attributes'
 	| 'richDataObject'
-	| 'rawFrames'
+	// | 'rawFrames'
 	| 'stitchedFrames'
 	// | 'dimensions'
 	| 'metaLibraryScrape';
@@ -47,25 +47,7 @@ export type RichAdData = BasicAdData & {
 		};
 	};
 	richDataObject?: RichDataObject;
-	rawFrames?: string[];
 	stitchedFrames?: string[];
-	ocrData?: {
-		screenshot_cropped?: string;
-		y_offset?: number;
-		observed_at?: string;
-		ocr_data?: {
-			text?: string;
-			x?: number;
-			y?: number;
-			width?: number;
-			height?: number;
-			confidence?: number;
-		}[];
-	}[];
-	dimensions?: {
-		w: number;
-		h: number;
-	};
 	metaLibraryScrape?: {
 		candidates: unknown[];
 		mediaPaths: {
