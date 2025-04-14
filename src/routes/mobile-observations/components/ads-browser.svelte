@@ -4,7 +4,7 @@
 	import AdCard, { type Props as AdCardProps, type AdElement } from './ad-card.svelte';
 	import { dateToCalendarDate } from '../../../lib/api/session/ads/utils';
 	import Accordion from '$lib/components/accordion/accordion.svelte';
-	import { ChevronDown, ChevronRight, SearchIcon } from 'lucide-svelte';
+	import { ChevronDown, ChevronRight, LoaderCircleIcon, SearchIcon } from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
 	import { scale, slide } from 'svelte/transition';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
@@ -54,13 +54,26 @@
 
 	// Enrich the ads with attributes
 	let loading = $state(false);
-	const allowAttributesFilter = $derived(ads.length > 0 && ads.length < 1000);
+	const allowAttributesFilter = $derived(ads.length > 0 && ads.length < 5000);
 	$effect(() => {
 		ads.length;
 		untrack(() => {
-			loading = true;
+			// Throttle function to limit requests to 200 per second
+			async function throttle<T>(
+				items: T[],
+				limit: number,
+				callback: (item: T) => void | Promise<void>
+			) {
+				for (let i = 0; i < items.length; i += limit) {
+					await Promise.all(items.slice(i, i + limit).map(callback));
+					await new Promise((resolve) => setTimeout(resolve, 200)); // Wait for some time before processing the next batch
+				}
+			}
 			if (!allowAttributesFilter) return;
-			Promise.all(ads.map((ad) => session.ads.enrich(ad, ['attributes']))).then(() => {
+			loading = true;
+			throttle(ads, 200, async (ad) => {
+				await session.ads.enrich(ad, ['attributes']);
+			}).then(() => {
 				loading = false;
 			});
 		});
@@ -254,7 +267,7 @@
 		);
 		// Convert to entries, sort by date
 		const adsEntries = Object.entries(groupedAds);
-		console.log('Completed filtering ads');
+		// console.log('Completed filtering ads');
 		return adsEntries;
 	});
 
@@ -320,24 +333,28 @@
 				<div class="flex items-center gap-2">
 					{#each attributeFilterOptions as { label, value, attribute }}
 						<span>{label}</span>
-						<Dropdown
-							options={attributeFilters.find((filter) => filter.attribute === attribute)?.options ||
-								[]}
-							triggerClass="w-fit"
-							contentClass="w-fit"
-							disabled={loading}
-							selected={value}
-							onSelected={(option) => {
-								const selectedOption = option as boolean | 'all';
-								attributeFilters = attributeFilters.map((filter) =>
-									filter.attribute === attribute ? { ...filter, value: selectedOption } : filter
-								);
-								if (!syncQueryParams) return;
-								if (selectedOption === 'all') $page.url.searchParams.delete(attribute);
-								else $page.url.searchParams.set(attribute, selectedOption.toString());
-								replaceState($page.url, $page.state);
-							}}
-						/>
+						{#if loading}
+							<LoaderCircleIcon class="animate-spin" size={16} />
+						{:else}
+							<Dropdown
+								options={attributeFilters.find((filter) => filter.attribute === attribute)
+									?.options || []}
+								triggerClass="w-fit"
+								contentClass="w-fit"
+								disabled={loading}
+								selected={value}
+								onSelected={(option) => {
+									const selectedOption = option as boolean | 'all';
+									attributeFilters = attributeFilters.map((filter) =>
+										filter.attribute === attribute ? { ...filter, value: selectedOption } : filter
+									);
+									if (!syncQueryParams) return;
+									if (selectedOption === 'all') $page.url.searchParams.delete(attribute);
+									else $page.url.searchParams.set(attribute, selectedOption.toString());
+									replaceState($page.url, $page.state);
+								}}
+							/>
+						{/if}
 					{/each}
 				</div>
 			{/if}
