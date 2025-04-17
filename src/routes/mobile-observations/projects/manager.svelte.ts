@@ -43,11 +43,15 @@ export class ProjectManager {
 		if (!this.project) {
 			return;
 		}
-		for (const cell of this.project.cells) {
-			if (cell.type === 'query') {
-				await this.runCell(cell.id);
-			}
-		}
+		const promises = this.project.cells
+			.filter((cell) => cell.type === 'query')
+			.map((cell) => this.runCell(cell.id));
+		await Promise.all(promises);
+		// for (const cell of this.project.cells) {
+		// 	if (cell.type === 'query') {
+		// 		await this.runCell(cell.id);
+		// 	}
+		// }
 	}
 
 	async runCell(cellId: string) {
