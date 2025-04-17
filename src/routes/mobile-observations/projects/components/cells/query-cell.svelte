@@ -28,6 +28,7 @@
 
 	let queryResults = $state<string[]>([]);
 	const queryResponse = $derived(projectManager.queryResults[cell.id]);
+	const disabled = $derived(!projectManager.currentUser.isEditor || queryResponse?.loading);
 	$effect(() => {
 		queryResults = queryResponse?.response?.result ?? [];
 	});
@@ -41,7 +42,7 @@
 			onchange={() => {
 				projectManager.update();
 			}}
-			disabled={!projectManager.currentUser.isEditor}
+			{disabled}
 		/>
 	{:else}
 		<QueryTextEditor
@@ -50,7 +51,7 @@
 			onsaved={() => {
 				projectManager.update();
 			}}
-			disabled={!projectManager.currentUser.isEditor}
+			{disabled}
 		/>
 	{/if}
 	<!-- Query controls -->

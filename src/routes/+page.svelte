@@ -37,6 +37,10 @@
 	};
 </script>
 
+<svelte:head>
+	<title>Australian Ad Observatory</title>
+</svelte:head>
+
 <div class="flex flex-col gap-4">
 	<h1>Welcome to the Australian Ad Observatory Version 2</h1>
 	<p>

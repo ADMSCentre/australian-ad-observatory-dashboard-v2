@@ -16,6 +16,11 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Mobile Observations</title>
+	<meta name="description" content="Mobile Observations" />
+</svelte:head>
+
 <div class="flex flex-col gap-8 p-1 pb-0 sm:p-4">
 	<h1>Mobile Observations</h1>
 

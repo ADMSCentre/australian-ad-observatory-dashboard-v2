@@ -8,7 +8,7 @@
 	import QueryCell from './cells/query-cell.svelte';
 	import ProjectHeader from './project-header.svelte';
 	import CellControls from './cells/cell-controls.svelte';
-	import { getContext, onMount, setContext } from 'svelte';
+	import { getContext, onMount, setContext, untrack } from 'svelte';
 	import { PROJECT_MANAGER, ProjectManager } from '../manager.svelte';
 	import { flip } from 'svelte/animate';
 	import CellCreateMenu from './cells/cell-create-menu.svelte';
@@ -22,13 +22,21 @@
 	const { projectId }: { projectId: string } = $props();
 
 	let manager = $state<ProjectManager | null>();
-	onMount(() => {
-		session.projects.get(projectId).then((p) => {
-			if (p) {
-				manager = new ProjectManager(p);
-				manager.runAllCells();
-			}
+	$effect(() => {
+		untrack(() => {
+			session.projects.get(projectId).then((p) => {
+				if (p) {
+					manager = new ProjectManager(p);
+					manager.runAllCells();
+				}
+			});
 		});
+
+		return () => {
+			if (manager) {
+				console.log('Destroying project manager');
+			}
+		};
 	});
 	setContext(PROJECT_MANAGER, () => manager);
 </script>

@@ -58,6 +58,11 @@
 	let editorMode = $state<'visual' | 'text'>('visual');
 </script>
 
+<svelte:head>
+	<title>Query</title>
+	<meta name="description" content="Query ads" />
+</svelte:head>
+
 {#if queryObj}
 	<div class="flex flex-col gap-4 rounded border p-4">
 		<div class="flex items-center justify-between gap-2">

@@ -15,11 +15,16 @@
 	import { auth } from '$lib/api/auth/auth.svelte';
 
 	const projectId = $derived($page.url.searchParams.get('project_id'));
+	let project = $state<Project | null>(null);
 
 	$effect(() => {
 		auth.currentUser;
-		untrack(() => {
-			session.projects.fetch();
+		projectId;
+		untrack(async () => {
+			await session.projects.fetch();
+			if (projectId) {
+				project = (await session.projects.get(projectId)) ?? null;
+			}
 		});
 	});
 
@@ -28,9 +33,23 @@
 		name: '',
 		description: ''
 	});
+
+	$inspect({ project });
 </script>
 
-{#if projectId}
+<svelte:head>
+	{#if projectId}
+		{#if project}
+			<title>{project?.name}</title>
+		{:else}
+			<title>Project not found</title>
+		{/if}
+	{:else}
+		<title>Projects</title>
+	{/if}
+</svelte:head>
+
+{#if projectId && project}
 	<ProjectPage {projectId} />
 	<!-- {#await projectPromise then project}
 		{#if project}
