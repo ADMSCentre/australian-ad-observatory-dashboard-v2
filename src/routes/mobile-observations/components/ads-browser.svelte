@@ -210,7 +210,10 @@
 	const groupedAds = $derived.by(() => {
 		const searchFilter = (ad: RichAdData) => {
 			if (!searchKey) return true;
-			return ad.adId.toLowerCase().includes(searchKey.toLowerCase());
+			return (
+				ad.adId.toLowerCase().includes(searchKey.toLowerCase()) ||
+				ad.observer.toLowerCase().includes(searchKey.toLowerCase())
+			);
 		};
 
 		const filteredAds = ads
@@ -309,7 +312,7 @@
 	>
 		<div class="relative flex items-center gap-2">
 			<Input
-				placeholder="Filter by Ad ID..."
+				placeholder="Filter by user or ad ID..."
 				value={searchKey}
 				oninput={(e) => {
 					const target = e.target as HTMLInputElement;
