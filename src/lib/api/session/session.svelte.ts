@@ -99,11 +99,9 @@ export class Session {
 			if (!auth.token) return;
 			const getCache = (type: ExpandType) => {
 				if (!preferCache) return null;
-				console.log('Getting cache for', type, ad.adId, this.enrichedAds?.[ad.adId]?.[type]);
 				return this.enrichedAds?.[ad.adId]?.[type];
 			};
 			const updateCache = (type: ExpandType, data: unknown) => {
-				if (!preferCache) return;
 				if (!this.enrichedAds[ad.adId])
 					this.enrichedAds[ad.adId] = {
 						...ad
