@@ -32,9 +32,20 @@
 	const disabled = $derived(!projectManager.currentUser.isEditor || queryResponse?.loading);
 	$effect(() => {
 		queryResults = queryResponse?.response?.result ?? [];
+		if (!cell.config) {
+			cell.config = {
+				hidden: false
+			};
+		}
 	});
 
-	let hidden = $state(false);
+	const hidden = $derived(cell.config?.['hidden'] ?? false);
+	function setHidden(value: boolean) {
+		if (!cell.config) throw new Error('Cell config is not defined');
+		if (!projectManager) throw new Error('Project manager is not defined');
+		cell.config['hidden'] = value;
+		projectManager.update();
+	}
 </script>
 
 <div class="group/cell relative flex w-full flex-col gap-2 rounded border p-4 shadow">
@@ -62,18 +73,28 @@
 		<div>
 			<Button
 				class={twMerge(
-					'absolute bottom-0 left-0 size-fit gap-0 rounded-none bg-muted-foreground p-0 py-0.5 pr-1 text-xs font-light leading-none opacity-0 transition-opacity group-hover/cell:opacity-100',
+					'absolute bottom-0 left-0 size-fit gap-0 rounded-none rounded-bl-sm bg-muted-foreground p-0 py-0.5 pr-1 text-xs font-light leading-none opacity-0 transition-opacity group-hover/cell:opacity-100 ',
 					hidden && 'opacity-100'
 				)}
 				onclick={() => {
-					hidden = !hidden;
-					if (!hidden) {
-						projectManager.update();
-					}
+					setHidden(!hidden);
 				}}
 			>
-				<ChevronRight class={twMerge('size-3 transition', !hidden ? 'rotate-90 transform' : '')} />
-				{hidden ? 'Show' : 'Hide'} output
+				{#if !queryResponse?.loading}
+					<ChevronRight
+						class={twMerge('size-3 transition', !hidden ? 'rotate-90 transform' : '')}
+					/>
+				{/if}
+				<span class="flex items-center gap-1">
+					{#if queryResponse?.loading}
+						<LoaderIcon class="ml-1 size-3 animate-spin" />
+						(loading...)
+					{:else if !hidden}
+						Hide output
+					{:else if hidden}
+						Show {queryResults.length} results
+					{/if}
+				</span>
 			</Button>
 		</div>
 		<div class="flex">

@@ -5,7 +5,13 @@ export interface TeamMember {
 	role: 'admin' | 'editor' | 'viewer';
 }
 
-export interface TextCell {
+export interface BaseCell {
+	config?: {
+		[key: string]: unknown;
+	};
+}
+
+export interface TextCell extends BaseCell {
 	id: string;
 	type: 'text';
 	content: string;
@@ -23,10 +29,11 @@ export interface QueryResult {
 
 export interface QueryCellContent {
 	query: Query;
+
 	results: QueryResult[];
 }
 
-export interface QueryCell {
+export interface QueryCell extends BaseCell {
 	id: string;
 	type: 'query';
 	content: QueryCellContent;
