@@ -54,7 +54,7 @@
 
 	// Enrich the ads with attributes
 	let loading = $state(false);
-	const allowAttributesFilter = $derived(ads.length > 0 && ads.length < 5000);
+	const allowAttributesFilter = $derived(ads.length > 0);
 	$effect(() => {
 		ads.length;
 		untrack(() => {

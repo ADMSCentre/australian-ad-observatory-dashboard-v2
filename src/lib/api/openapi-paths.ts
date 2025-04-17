@@ -258,10 +258,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Returns a list of users from the database (admin only) [allows - admin]
+         * Returns a list of users from the database (admin only) [allows - user, admin]
          * @description Returns a list of users stored in the database.
          *
-         *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
+         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
          */
         get: {
             parameters: {
@@ -656,6 +656,243 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/ads/{observer_id}/{timestamp}.{ad_id}/attributes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve all attributes for an ad.
+         * @description Retrieve all custom attributes for the specified ad.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    observer_id: string;
+                    timestamp: string;
+                    ad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            ad_id?: string;
+                            observer?: string;
+                            timestamp?: number;
+                            attributes?: {
+                                [key: string]: {
+                                    value?: string;
+                                    created_at?: number;
+                                    created_by?: string;
+                                    modified_at?: number;
+                                    modified_by?: string;
+                                };
+                            };
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example ERROR_RETRIEVING_ATTRIBUTES */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        /**
+         * Add or update ad attributes in the database. [allows - user, admin]
+         * @description Add or update custom attributes for the specified ad in the database.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    observer_id: string;
+                    timestamp: string;
+                    ad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        attribute?: {
+                            key?: string;
+                            value?: string;
+                        };
+                    };
+                };
+            };
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example AD_NOT_FOUND */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ads/{observer_id}/{timestamp}.{ad_id}/attributes/{attribute_key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a single attribute for an ad.
+         * @description Retrieve a specific custom attribute for the specified ad.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    observer_id: string;
+                    timestamp: string;
+                    ad_id: string;
+                    attribute_key: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            key?: string;
+                            value?: string;
+                            created_at?: number;
+                            created_by?: string;
+                            modified_at?: number;
+                            modified_by?: string;
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example ATTRIBUTE_NOT_FOUND */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Delete ad attributes from the database. [allows - user, admin]
+         * @description Delete custom attributes for the specified ad in the database.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    observer_id: string;
+                    timestamp: string;
+                    ad_id: string;
+                    attribute_key: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example ERROR_DELETING_ATTRIBUTE */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/ads/{observer_id}": {
         parameters: {
             query?: never;
@@ -664,7 +901,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Retrieve the access cache for an observer.
+         * Retrieve the access cache for an observer and the ads that passed RDO construction.
          * @description Retrieve the quick access cache for the specified observer.
          */
         get: {
@@ -687,6 +924,7 @@ export interface paths {
                         "application/json": {
                             success?: boolean;
                             data?: Record<string, never>;
+                            ads?: string[];
                         };
                     };
                 };
@@ -858,7 +1096,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Retrieve the ads stream index.
+         * Retrieve the ads stream index as a presigned URL and the ads that passed RDO construction.
          * @description Retrieve the ads stream index from the S3 bucket, or recompute it if it is older than 24 hours.
          */
         get: {
@@ -879,6 +1117,7 @@ export interface paths {
                         "application/json": {
                             success?: boolean;
                             presigned_url?: string;
+                            ads?: string[];
                         };
                     };
                 };
@@ -1242,6 +1481,73 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/ads/{observer_id}/{timestamp}.{ad_id}/request_index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Request that a specific ad be indexed for querying. This should be triggered automatically when an ad has been RDO-processed.
+         * @description This endpoint should not be called manually, but is triggered when the RDO construction is complete for the specified ad.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    observer_id: string;
+                    timestamp: string;
+                    ad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        observer_id?: string;
+                        timestamp?: string;
+                        ad_id?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example MISSING_PARAMETERS: observer_id, timestamp, ad_id */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/ads/query": {
         parameters: {
             query?: never;
@@ -1252,7 +1558,7 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Query ads based on specified criteria.
+         * Query ads based on specified criteria and return the matching ad paths and the expanded ads.
          * @description Perform a query on ads using the specified criteria and return the matching ad paths.
          */
         post: {
@@ -1281,6 +1587,7 @@ export interface paths {
                         "application/json": {
                             success?: boolean;
                             result?: string[];
+                            expand?: components["schemas"]["Ad"][];
                         };
                     };
                 };
@@ -1355,243 +1662,6 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ads/{observer_id}/{timestamp}.{ad_id}/attributes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve all attributes for an ad.
-         * @description Retrieve all custom attributes for the specified ad.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    observer_id: string;
-                    timestamp: string;
-                    ad_id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            ad_id?: string;
-                            observer?: string;
-                            timestamp?: number;
-                            attributes?: {
-                                [key: string]: {
-                                    value?: string;
-                                    created_at?: number;
-                                    created_by?: string;
-                                    modified_at?: number;
-                                    modified_by?: string;
-                                };
-                            };
-                        };
-                    };
-                };
-                /** @description A failed response */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example ERROR_RETRIEVING_ATTRIBUTES */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        /**
-         * Add or update ad attributes in the database. [allows - user, admin]
-         * @description Add or update custom attributes for the specified ad in the database.
-         *
-         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
-         */
-        put: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    observer_id: string;
-                    timestamp: string;
-                    ad_id: string;
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        attribute?: {
-                            key?: string;
-                            value?: string;
-                        };
-                    };
-                };
-            };
-            responses: {
-                /** @description A successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            comment?: string;
-                        };
-                    };
-                };
-                /** @description A failed response */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example AD_NOT_FOUND */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ads/{observer_id}/{timestamp}.{ad_id}/attributes/{attribute_key}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve a single attribute for an ad.
-         * @description Retrieve a specific custom attribute for the specified ad.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    observer_id: string;
-                    timestamp: string;
-                    ad_id: string;
-                    attribute_key: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            key?: string;
-                            value?: string;
-                            created_at?: number;
-                            created_by?: string;
-                            modified_at?: number;
-                            modified_by?: string;
-                        };
-                    };
-                };
-                /** @description A failed response */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example ATTRIBUTE_NOT_FOUND */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        /**
-         * Delete ad attributes from the database. [allows - user, admin]
-         * @description Delete custom attributes for the specified ad in the database.
-         *
-         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
-         */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    observer_id: string;
-                    timestamp: string;
-                    ad_id: string;
-                    attribute_key: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description A successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            comment?: string;
-                        };
-                    };
-                };
-                /** @description A failed response */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @example false */
-                            success?: boolean;
-                            /** @example ERROR_DELETING_ATTRIBUTE */
-                            comment?: string;
-                        };
-                    };
-                };
-            };
-        };
         options?: never;
         head?: never;
         patch?: never;
@@ -1964,7 +2034,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get a project by ID. */
+        /**
+         * None
+         * @description security:
+         *     - bearerAuth: []
+         */
         get: {
             parameters: {
                 query?: never;
@@ -1976,17 +2050,15 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Project retrieved successfully */
+                /** @description OK */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "application/json": components["schemas"]["Project"];
-                    };
+                    content?: never;
                 };
-                /** @description Project not found */
-                404: {
+                /** @description Bad Request */
+                400: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1994,7 +2066,11 @@ export interface paths {
                 };
             };
         };
-        /** Update a project by ID. */
+        /**
+         * None
+         * @description security:
+         *     - bearerAuth: []
+         */
         put: {
             parameters: {
                 query?: never;
@@ -2004,23 +2080,17 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["Project"];
-                };
-            };
+            requestBody?: never;
             responses: {
-                /** @description Project updated successfully */
+                /** @description OK */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "application/json": components["schemas"]["Project"];
-                    };
+                    content?: never;
                 };
-                /** @description Project not found */
-                404: {
+                /** @description Bad Request */
+                400: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -2029,7 +2099,11 @@ export interface paths {
             };
         };
         post?: never;
-        /** Delete a project by ID. */
+        /**
+         * None
+         * @description security:
+         *     - bearerAuth: []
+         */
         delete: {
             parameters: {
                 query?: never;
@@ -2041,15 +2115,15 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Project deleted successfully */
-                204: {
+                /** @description OK */
+                200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
                 };
-                /** @description Project not found */
-                404: {
+                /** @description Bad Request */
+                400: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -2203,6 +2277,17 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** Ad */
+        Ad: {
+            /** Observer Id */
+            observer_id: string;
+            /** Ad Id */
+            ad_id: string;
+            /** Timestamp */
+            timestamp: string;
+            /** Attributes */
+            attributes: Record<string, never> | null;
+        };
         /** Project */
         Project: {
             /** Id */

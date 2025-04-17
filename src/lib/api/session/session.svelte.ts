@@ -72,6 +72,17 @@ export class Session {
 				body: query as Record<string, unknown>
 			});
 			if (error) throw error;
+
+			// Loop through the expanded ads and cache the attributes
+			for (const ad of data.expand ?? []) {
+				const adId = ad.ad_id;
+				if (ad.attributes) {
+					this.enrichedAds[adId] = this.enrichedAds[adId] ?? {
+						...ad
+					};
+					this.enrichedAds[adId].attributes = ad.attributes;
+				}
+			}
 			return data;
 		},
 		enrich: async (
@@ -88,7 +99,16 @@ export class Session {
 			if (!auth.token) return;
 			const getCache = (type: ExpandType) => {
 				if (!preferCache) return null;
+				console.log('Getting cache for', type, ad.adId, this.enrichedAds?.[ad.adId]?.[type]);
 				return this.enrichedAds?.[ad.adId]?.[type];
+			};
+			const updateCache = (type: ExpandType, data: unknown) => {
+				if (!preferCache) return;
+				if (!this.enrichedAds[ad.adId])
+					this.enrichedAds[ad.adId] = {
+						...ad
+					};
+				this.enrichedAds[ad.adId][type] = data;
 			};
 			const enricher = new RichDataBuilder(auth.token, ad);
 			const enrichedData: RichAdData = {
@@ -100,6 +120,7 @@ export class Session {
 						case 'stitchedFrames':
 							if (auth.token) {
 								const res = getCache(expand) ?? (await fetchStitchFrames(ad, auth.token));
+								updateCache(expand, res);
 								if (!inPlace) {
 									enrichedData.stitchedFrames = res;
 									break;
@@ -110,6 +131,7 @@ export class Session {
 						case 'attributes':
 							if (auth.token) {
 								const res = getCache(expand) ?? (await fetchAttributes(ad, auth.token));
+								updateCache(expand, res);
 								if (!inPlace) {
 									enrichedData.attributes = res;
 									break;
@@ -120,6 +142,7 @@ export class Session {
 						case 'richDataObject':
 							if (auth.token) {
 								const res = getCache(expand) ?? (await fetchRichDataObject(ad, auth.token));
+								updateCache(expand, res);
 								if (!inPlace) {
 									enrichedData.richDataObject = res;
 									break;
@@ -130,6 +153,7 @@ export class Session {
 						case 'metaLibraryScrape':
 							{
 								const res = getCache(expand) ?? (await enricher.getCandidates());
+								updateCache(expand, res);
 								if (!inPlace) {
 									enrichedData.metaLibraryScrape = res;
 									break;

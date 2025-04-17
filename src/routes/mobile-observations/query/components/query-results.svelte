@@ -24,8 +24,13 @@
 
 <div class="flex items-center justify-between">
 	Found {adData.length} ads matching the query.
-	<DataExportForm {adData} />
+	{#if adData.length > 0}
+		<DataExportForm {adData} />
+	{/if}
 </div>
-<ObservationsTimeline ads={adData} />
-<ObserversTable ads={adData} />
-<AdsBrowser ads={adData} syncQueryParams={false} open={false} />
+
+{#if adData.length > 0}
+	<ObservationsTimeline ads={adData} />
+	<ObserversTable ads={adData} />
+	<AdsBrowser ads={adData} syncQueryParams={false} open={false} />
+{/if}

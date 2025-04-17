@@ -3,7 +3,7 @@
 	import Accordion from '$lib/components/accordion/accordion.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { json } from '@codemirror/lang-json';
-	import { Workflow, CodeIcon, ChevronRight } from 'lucide-svelte';
+	import { Workflow, CodeIcon, ChevronRight, LoaderIcon } from 'lucide-svelte';
 	import { PROJECT_MANAGER, ProjectManager } from 'mobile-observations/projects/manager.svelte';
 	import type { Cell, QueryCell, QueryResult } from 'mobile-observations/projects/types';
 	import QueryBuilder from 'mobile-observations/query/components/query-builder.svelte';
@@ -83,27 +83,34 @@
 	{/each} -->
 	{#if queryResults}
 		<div class="flex flex-col gap-4 py-4">
-			{#if queryResults}
+			{#if !queryResponse?.loading && queryResults}
 				<QueryResults {queryResults} />
+				<Accordion>
+					{#snippet summary(open)}
+						<span
+							class="flex w-fit items-center gap-1 bg-muted-foreground pl-1 pr-2 text-xs font-medium text-background"
+						>
+							<ChevronRight
+								class={twMerge('size-3 transition', open ? 'rotate-90 transform' : '')}
+							/>
+							JSON
+						</span>
+					{/snippet}
+					<CodeMirror
+						value={JSON.stringify(queryResults, null, 2)}
+						readonly
+						lang={json()}
+						class="w-full"
+						lineWrapping
+						useTab={false}
+					/>
+				</Accordion>
+			{:else}
+				<div class="flex items-center gap-2 text-sm font-light text-zinc-500 dark:text-zinc-400">
+					<LoaderIcon class="size-4 animate-spin" />
+					Running query, please wait...
+				</div>
 			{/if}
-			<Accordion>
-				{#snippet summary(open)}
-					<span
-						class="flex w-fit items-center gap-1 bg-muted-foreground pl-1 pr-2 text-xs font-medium text-background"
-					>
-						<ChevronRight class={twMerge('size-3 transition', open ? 'rotate-90 transform' : '')} />
-						JSON
-					</span>
-				{/snippet}
-				<CodeMirror
-					value={JSON.stringify(queryResults, null, 2)}
-					readonly
-					lang={json()}
-					class="w-full"
-					lineWrapping
-					useTab={false}
-				/>
-			</Accordion>
 		</div>
 	{/if}
 </ul>
