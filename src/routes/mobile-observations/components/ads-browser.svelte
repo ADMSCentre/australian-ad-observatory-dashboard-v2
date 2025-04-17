@@ -58,22 +58,12 @@
 	$effect(() => {
 		ads.length;
 		untrack(() => {
-			// Throttle function to limit requests to 200 per second
-			async function throttle<T>(
-				items: T[],
-				limit: number,
-				callback: (item: T) => void | Promise<void>
-			) {
-				for (let i = 0; i < items.length; i += limit) {
-					await Promise.all(items.slice(i, i + limit).map(callback));
-					await new Promise((resolve) => setTimeout(resolve, 200)); // Wait for some time before processing the next batch
-				}
-			}
 			if (!allowAttributesFilter) return;
+			const promises = ads.map((ad) => {
+				return session.ads.enrich(ad, ['attributes']);
+			});
 			loading = true;
-			throttle(ads, 200, async (ad) => {
-				await session.ads.enrich(ad, ['attributes']);
-			}).then(() => {
+			Promise.all(promises).then(() => {
 				loading = false;
 			});
 		});
