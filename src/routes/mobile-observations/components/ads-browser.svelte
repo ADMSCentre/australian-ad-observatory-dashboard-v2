@@ -136,7 +136,7 @@
 		{
 			attribute: 'hidden',
 			label: 'Hidden',
-			value: 'all',
+			value: 'false',
 			options: [
 				{
 					value: 'all',
