@@ -13,6 +13,7 @@
 	import { getContext } from 'svelte';
 	import { twMerge } from 'tailwind-merge';
 	import CodeMirror from 'svelte-codemirror-editor';
+	import { slide } from 'svelte/transition';
 
 	let { cell = $bindable() }: { cell: QueryCell } = $props();
 
@@ -32,9 +33,11 @@
 	$effect(() => {
 		queryResults = queryResponse?.response?.result ?? [];
 	});
+
+	let hidden = $state(false);
 </script>
 
-<div class="relative flex w-full flex-col gap-2 rounded border p-4 shadow">
+<div class="group/cell relative flex w-full flex-col gap-2 rounded border p-4 shadow">
 	{#if editorMode === 'visual'}
 		<QueryBuilder
 			bind:query={cell.content.query}
@@ -55,7 +58,24 @@
 		/>
 	{/if}
 	<!-- Query controls -->
-	<div class="flex justify-end gap-2">
+	<div class="flex justify-between gap-2">
+		<div>
+			<Button
+				class={twMerge(
+					'absolute bottom-0 left-0 size-fit gap-0 rounded-none bg-muted-foreground p-0 py-0.5 pr-1 text-xs font-light leading-none opacity-0 transition-opacity group-hover/cell:opacity-100',
+					hidden && 'opacity-100'
+				)}
+				onclick={() => {
+					hidden = !hidden;
+					if (!hidden) {
+						projectManager.update();
+					}
+				}}
+			>
+				<ChevronRight class={twMerge('size-3 transition', !hidden ? 'rotate-90 transform' : '')} />
+				{hidden ? 'Show' : 'Hide'} output
+			</Button>
+		</div>
 		<div class="flex">
 			<Button
 				variant={editorMode === 'visual' ? 'secondary' : 'ghost'}
@@ -78,40 +98,43 @@
 </div>
 
 <!-- Query results -->
-<ul class="list-inside list-disc rounded-b-sm bg-zinc-500/5 px-4">
-	<!-- {#each results as result}
+{#if queryResults}
+	<ul class="relative list-inside list-disc rounded-b-sm bg-zinc-500/5 px-4">
+		<!-- {#each results as result}
 		<li>{result.type} - {result.id}</li>
 	{/each} -->
-	{#if queryResults}
-		<div class="flex flex-col gap-4 py-4">
-			{#if !queryResponse?.loading && queryResults}
-				<QueryResults {queryResults} />
-				<Accordion>
-					{#snippet summary(open)}
-						<span
-							class="flex w-fit items-center gap-1 bg-muted-foreground pl-1 pr-2 text-xs font-medium text-background"
-						>
-							<ChevronRight
-								class={twMerge('size-3 transition', open ? 'rotate-90 transform' : '')}
-							/>
-							JSON
-						</span>
-					{/snippet}
-					<CodeMirror
-						value={JSON.stringify(queryResults, null, 2)}
-						readonly
-						lang={json()}
-						class="w-full"
-						lineWrapping
-						useTab={false}
-					/>
-				</Accordion>
-			{:else}
-				<div class="flex items-center gap-2 text-sm font-light text-zinc-500 dark:text-zinc-400">
-					<LoaderIcon class="size-4 animate-spin" />
-					Running query, please wait...
-				</div>
-			{/if}
-		</div>
-	{/if}
-</ul>
+
+		{#if !hidden}
+			<div class="flex flex-col gap-4 py-4" transition:slide={{ axis: 'y' }}>
+				{#if !queryResponse?.loading && queryResults}
+					<QueryResults {queryResults} />
+					<Accordion>
+						{#snippet summary(open)}
+							<span
+								class="flex w-fit items-center gap-1 bg-muted-foreground pl-1 pr-2 text-xs font-medium text-background"
+							>
+								<ChevronRight
+									class={twMerge('size-3 transition', open ? 'rotate-90 transform' : '')}
+								/>
+								JSON
+							</span>
+						{/snippet}
+						<CodeMirror
+							value={JSON.stringify(queryResults, null, 2)}
+							readonly
+							lang={json()}
+							class="w-full"
+							lineWrapping
+							useTab={false}
+						/>
+					</Accordion>
+				{:else}
+					<div class="flex items-center gap-2 text-sm font-light text-zinc-500 dark:text-zinc-400">
+						<LoaderIcon class="size-4 animate-spin" />
+						Running query, please wait...
+					</div>
+				{/if}
+			</div>
+		{/if}
+	</ul>
+{/if}

@@ -12,8 +12,7 @@ export interface TextCell {
 }
 
 export interface QueryResultConfig {
-	sort: string;
-	groupBy: string;
+	[key: string]: unknown;
 }
 
 export interface QueryResult {
