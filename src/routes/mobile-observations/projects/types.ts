@@ -21,9 +21,11 @@ export interface QueryResultConfig {
 	[key: string]: unknown;
 }
 
+export const VISUALISATION_TYPES = ['raw', 'observer-table', 'timeline', 'ads-browser'] as const;
+
 export interface QueryResult {
 	id: string;
-	type: 'raw' | 'table' | 'timeline' | 'ads-browser';
+	type: (typeof VISUALISATION_TYPES)[number];
 	config?: QueryResultConfig;
 }
 

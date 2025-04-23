@@ -3,9 +3,14 @@
 	import Accordion from '$lib/components/accordion/accordion.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { json } from '@codemirror/lang-json';
-	import { Workflow, CodeIcon, ChevronRight, LoaderIcon } from 'lucide-svelte';
+	import { Workflow, CodeIcon, ChevronRight, LoaderIcon, PlusIcon } from 'lucide-svelte';
 	import { PROJECT_MANAGER, ProjectManager } from 'mobile-observations/projects/manager.svelte';
-	import type { Cell, QueryCell, QueryResult } from 'mobile-observations/projects/types';
+	import type {
+		Cell,
+		QueryCell,
+		QueryResult,
+		VISUALISATION_TYPES
+	} from 'mobile-observations/projects/types';
 	import QueryBuilder from 'mobile-observations/query/components/query-builder.svelte';
 	import QueryResults from 'mobile-observations/query/components/query-results.svelte';
 	import QueryTextEditor from 'mobile-observations/query/components/query-text-editor.svelte';
@@ -14,6 +19,10 @@
 	import { twMerge } from 'tailwind-merge';
 	import CodeMirror from 'svelte-codemirror-editor';
 	import { slide } from 'svelte/transition';
+	import DataExportForm from 'mobile-observations/components/data-export-form.svelte';
+	import VisualisationSelector from '../query-visualisation/visualisation-selector.svelte';
+	import Visualisation from '../query-visualisation/visualisation.svelte';
+	import { flip } from 'svelte/animate';
 
 	let { cell = $bindable() }: { cell: QueryCell } = $props();
 
@@ -39,12 +48,44 @@
 		}
 	});
 
+	// Whenever the config change, update the cell
+	$effect(() => {
+		if (cell.config) {
+			projectManager.update();
+		}
+	});
+
+	const ads = $derived.by(() => {
+		if (queryResults) {
+			return parseRawAdPaths(queryResults);
+		}
+		return [];
+	});
+
 	const hidden = $derived(cell.config?.['hidden'] ?? false);
 	function setHidden(value: boolean) {
 		if (!cell.config) throw new Error('Cell config is not defined');
 		if (!projectManager) throw new Error('Project manager is not defined');
 		cell.config['hidden'] = value;
 		projectManager.update();
+	}
+
+	let newVisualisationType = $state<(typeof VISUALISATION_TYPES)[number] | null>(null);
+	function addVisualisation() {
+		if (!newVisualisationType) return;
+		if (!projectManager) throw new Error('Project manager is not defined');
+		if (!cell.content.results) cell.content.results = [];
+		cell.content.results.push({
+			type: newVisualisationType,
+			id: `visualisation-${cell.content.results.length}`,
+			config: {
+				open: true
+			}
+		} as QueryResult);
+
+		projectManager.update();
+
+		newVisualisationType = null;
 	}
 </script>
 
@@ -128,7 +169,50 @@
 		{#if !hidden}
 			<div class="flex flex-col gap-4 py-4" transition:slide={{ axis: 'y' }}>
 				{#if !queryResponse?.loading && queryResults}
-					<QueryResults {queryResults} />
+					<!-- <QueryResults {queryResults} /> -->
+
+					<div class="flex items-center justify-between">
+						Found {ads.length} ads matching the query.
+						{#if ads.length > 0}
+							<DataExportForm adData={ads} />
+						{/if}
+					</div>
+
+					{#each cell.content.results as result, index (index)}
+						<!-- <pre
+							class="rounded-md bg-zinc-100 p-2 text-sm text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200"
+							transition:slide={{ axis: 'y' }}>
+							{JSON.stringify(result, null, 2)}
+						</pre> -->
+						<div transition:slide={{ axis: 'y', duration: 300 }} animate:flip={{ duration: 300 }}>
+							<Visualisation
+								type={result.type}
+								{ads}
+								bind:config={result.config as Record<string, any>}
+								allowDelete={projectManager.currentUser.isEditor}
+								onDelete={() => {
+									// Find the index of the result to delete
+									const indexToDelete = cell.content.results.findIndex((r) => r.id === result.id);
+									if (indexToDelete !== -1) {
+										// Remove the result from the array
+										cell.content.results.splice(indexToDelete, 1);
+									}
+									projectManager.update();
+								}}
+							/>
+						</div>
+					{/each}
+
+					<!-- New visualisation selector -->
+					{#if projectManager.currentUser.isEditor}
+						<div class="flex w-full items-center justify-center gap-2">
+							<VisualisationSelector
+								bind:selected={newVisualisationType}
+								onSelected={addVisualisation}
+							/>
+						</div>
+					{/if}
+
 					<Accordion>
 						{#snippet summary(open)}
 							<span
@@ -141,7 +225,7 @@
 							</span>
 						{/snippet}
 						<CodeMirror
-							value={JSON.stringify(queryResults, null, 2)}
+							value={JSON.stringify(cell, null, 2)}
 							readonly
 							lang={json()}
 							class="w-full"
