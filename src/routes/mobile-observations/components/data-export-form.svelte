@@ -39,7 +39,7 @@
 	});
 
 	let loading = $state(false);
-	const BATCH_SIZE = 5;
+	const BATCH_SIZE = 100;
 	const total = $derived(adData.length);
 	let current = $state(0);
 	let progress = $derived(+((current / total) * 100).toFixed(2));
@@ -71,6 +71,7 @@
 			current = i + BATCH_SIZE;
 		}
 		loading = false;
+		current = 0;
 		console.log('Completed fetching tables');
 
 		const joinedRows = tables.map((t) => t.rows).flat();
