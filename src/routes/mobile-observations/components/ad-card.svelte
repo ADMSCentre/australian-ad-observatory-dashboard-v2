@@ -23,7 +23,8 @@
 	import { client } from '$lib/api/client';
 	import { twMerge } from 'tailwind-merge';
 	import AdCardBody from './ad-card-body.svelte';
-	import { INDEX_GROUP_TYPES } from '$lib/api/session/session.svelte';
+	import { INDEX_GROUP_TYPES, session } from '$lib/api/session/session.svelte';
+	import { untrack } from 'svelte';
 
 	export type AdElement = 'adId' | 'time' | 'date' | 'observer';
 
@@ -34,7 +35,7 @@
 		class?: string;
 	};
 
-	let {
+	const {
 		adData,
 		exclude = ['observer'],
 		onExpand = () => {},
@@ -43,6 +44,8 @@
 
 	let element = $state<HTMLElement | null>(null);
 	let intersecting = $state(false);
+
+	let reactiveAdData = $state<RichAdData>(adData);
 
 	const isIncluded = (key: AdElement) => !exclude.includes(key);
 
@@ -115,7 +118,7 @@
 			</div>
 		</div>
 
-		<AdCardBody {adData} visible={intersecting} />
+		<AdCardBody bind:adData={reactiveAdData} visible={intersecting} />
 
 		<!-- Footer -->
 		<div class="flex flex-col gap-2">

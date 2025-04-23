@@ -60,7 +60,7 @@
 		untrack(() => {
 			if (!allowAttributesFilter) return;
 			const promises = ads.map((ad) => {
-				return session.ads.enrich(ad, ['attributes', 'stitchedFrames']);
+				return session.ads.enrich(ad, ['attributes']);
 			});
 			loading = true;
 			Promise.all(promises).then(() => {
