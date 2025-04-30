@@ -35,6 +35,12 @@
 		}
 	});
 
+	$effect(() => {
+		if (ads) {
+			reactiveAds = ads;
+		}
+	});
+
 	const labels: Record<(typeof VISUALISATION_TYPES)[number], string> = {
 		timeline: 'Timeline',
 		'observer-table': 'Observer Table',
