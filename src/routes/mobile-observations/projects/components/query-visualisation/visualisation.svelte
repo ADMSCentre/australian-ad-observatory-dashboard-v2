@@ -27,6 +27,7 @@
 	} = $props();
 
 	let isDeleting = $state(false);
+	let reactiveAds = $state<RichAdData[]>(ads);
 
 	$effect(() => {
 		if (config?.open === undefined) {
@@ -106,7 +107,7 @@
 			{/if}
 
 			{#if type === 'ads-browser'}
-				<AdsBrowser {ads} syncQueryParams={false} open={false} />
+				<AdsBrowser bind:ads={reactiveAds} syncQueryParams={false} open={false} />
 			{/if}
 
 			{#if type === 'raw'}

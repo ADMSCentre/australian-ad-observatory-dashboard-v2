@@ -32,5 +32,5 @@
 {#if adData.length > 0}
 	<ObservationsTimeline ads={adData} />
 	<ObserversTable ads={adData} />
-	<AdsBrowser ads={adData} syncQueryParams={false} open={false} />
+	<AdsBrowser bind:ads={adData} syncQueryParams={false} open={false} />
 {/if}
