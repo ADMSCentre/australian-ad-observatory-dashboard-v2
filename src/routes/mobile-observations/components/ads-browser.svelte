@@ -28,6 +28,7 @@
 		filters?: ((ad: RichAdData) => boolean)[];
 		richViewExpanded?: boolean;
 		syncQueryParams?: boolean;
+		enableAttributeFilter?: boolean;
 	};
 
 	let {
@@ -42,7 +43,8 @@
 		},
 		filters = [],
 		richViewExpanded = $bindable(false),
-		syncQueryParams = true
+		syncQueryParams = true,
+		enableAttributeFilter: attributeFilter = false
 	}: Props = $props();
 
 	const defaultSearchKey = $page.url.searchParams.get('search') || '';
@@ -54,7 +56,7 @@
 
 	// Enrich the ads with attributes
 	let loading = $state(false);
-	const allowAttributesFilter = $derived(ads.length > 0);
+	const allowAttributesFilter = $derived(ads.length > 0 && attributeFilter);
 	$effect(() => {
 		ads.length;
 		untrack(() => {
