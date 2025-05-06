@@ -44,7 +44,7 @@
 		filters = [],
 		richViewExpanded = $bindable(false),
 		syncQueryParams = true,
-		enableAttributeFilter: attributeFilter = false
+		enableAttributeFilter: attributeFilter = true
 	}: Props = $props();
 
 	const defaultSearchKey = $page.url.searchParams.get('search') || '';
