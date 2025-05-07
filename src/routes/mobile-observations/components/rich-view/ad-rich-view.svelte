@@ -111,7 +111,8 @@
 			),
 			...Object.entries(currentAd?.richDataObject?.enrichment.media || {}).reduce(
 				(acc, [originalUrl, path]: [string, string]) => {
-					acc[originalUrl] = { filename: path, fullPath: path };
+					const filename = path.split('/').pop() || path;
+					acc[originalUrl] = { filename, fullPath: path.replaceAll('//', '/') };
 					return acc;
 				},
 				{} as Record<string, { filename: string; fullPath: string }>
