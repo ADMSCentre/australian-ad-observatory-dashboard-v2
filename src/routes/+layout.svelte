@@ -15,12 +15,26 @@
 	import { classList } from 'svelte-body';
 	import { Bug } from 'lucide-svelte';
 	import DebugToolbar from './debug-toolbar.svelte';
+	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
 
 	let { children } = $props();
 	$effect.pre(() => {
 		if (!isRouteProtected($page.url.pathname)) return;
 		if (!auth.loading && !auth.currentUser) {
 			goto(withBase(`/login?redirect=${$page.url.pathname}${$page.url.search}`));
+		}
+	});
+
+	onMount(() => {
+		if (browser && window.location.hash.startsWith('#token=')) {
+			const hash = window.location.hash.substring(1);
+			const params = new URLSearchParams(hash);
+			const token = params.get('token');
+			if (token) {
+				auth.setTokenFromOAuth(token);
+				window.history.replaceState(null, '', window.location.pathname + window.location.search);
+			}
 		}
 	});
 </script>
