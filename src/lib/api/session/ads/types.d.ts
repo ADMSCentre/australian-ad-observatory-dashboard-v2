@@ -1,3 +1,5 @@
+import { RichDataObject } from './rich-data-object-type';
+
 export type ExpandType =
 	| 'attributes'
 	| 'richDataObject'

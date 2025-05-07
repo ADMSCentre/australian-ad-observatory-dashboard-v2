@@ -7,6 +7,9 @@ export interface RichDataObject {
 
 export interface Enrichment {
 	meta_adlibrary_scrape: MetaAdLibraryScrapeEnrichment;
+	media: {
+		[key: string]: string;
+	};
 }
 
 export interface MetaAdLibraryScrapeEnrichment {

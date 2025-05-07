@@ -51,18 +51,18 @@
 		if (!currentAd || !currentAd.richDataObject) return null;
 		return currentAd.richDataObject.observer.uuid;
 	});
-	// const candidates = $derived.by(() => {
-	// 	if (!currentAd || !currentAd.richDataObject) return null;
-	// 	return currentAd.richDataObject.enrichment.meta_adlibrary_scrape.candidates;
-	// });
-	const candidates = $derived(
-		(currentAd?.metaLibraryScrape?.candidates.map((c, index) => {
-			return {
-				ad_library_scrape_candidates_i: index,
-				data: c
-			};
-		}) as RichDataObject['enrichment']['meta_adlibrary_scrape']['candidates']) || null
-	);
+	const candidates = $derived.by(() => {
+		if (!currentAd || !currentAd.richDataObject) return null;
+		return currentAd.richDataObject.enrichment.meta_adlibrary_scrape.candidates;
+	});
+	// const candidates = $derived(
+	// 	(currentAd?.metaLibraryScrape?.candidates.map((c, index) => {
+	// 		return {
+	// 			ad_library_scrape_candidates_i: index,
+	// 			data: c
+	// 		};
+	// 	}) as RichDataObject['enrichment']['meta_adlibrary_scrape']['candidates']) || null
+	// );
 	// const rankings = $derived.by(() => {
 	// 	if (!currentAd || !currentAd.richDataObject) return null;
 	// 	return currentAd.richDataObject.enrichment.meta_adlibrary_scrape.rankings;
@@ -90,22 +90,35 @@
 	// 	);
 	// });
 
+	// Creates a mapping from the original URL to the S3 path for the media files
 	const mediaMapping = $derived.by(() => {
-		if (!currentAd || !currentAd.metaLibraryScrape?.mediaPaths) return null;
+		if (
+			!currentAd ||
+			(!currentAd.metaLibraryScrape?.mediaPaths && !currentAd.richDataObject?.enrichment?.media)
+		)
+			return null;
 		const observerId = currentAd.observer;
 		const observationId = `${currentAd.timestamp}.${currentAd.adId}`;
 
-		return Object.entries(currentAd.metaLibraryScrape.mediaPaths).reduce(
-			(acc, [originalUrl, path]: [string, string]) => {
-				const fullPath = `${observerId}/meta_adlibrary_scrape/${observationId}/${path}`;
-				acc[originalUrl] = { filename: path, fullPath };
-				return acc;
-			},
-			{} as Record<string, { filename: string; fullPath: string }>
-		);
+		const mapping = {
+			...Object.entries(currentAd?.metaLibraryScrape?.mediaPaths || {}).reduce(
+				(acc, [originalUrl, path]: [string, string]) => {
+					const fullPath = `${observerId}/meta_adlibrary_scrape/${observationId}/${path}`;
+					acc[originalUrl] = { filename: path, fullPath };
+					return acc;
+				},
+				{} as Record<string, { filename: string; fullPath: string }>
+			),
+			...Object.entries(currentAd?.richDataObject?.enrichment.media || {}).reduce(
+				(acc, [originalUrl, path]: [string, string]) => {
+					acc[originalUrl] = { filename: path, fullPath: path };
+					return acc;
+				},
+				{} as Record<string, { filename: string; fullPath: string }>
+			)
+		};
+		return mapping;
 	});
-
-	$inspect('[ad-rich-view.svelte]', { rankings, candidates, keyframes });
 </script>
 
 {#if currentAd}
