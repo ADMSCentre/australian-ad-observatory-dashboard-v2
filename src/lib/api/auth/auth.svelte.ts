@@ -112,6 +112,11 @@ export class Authentication {
 		}
 	};
 
+	setTokenFromOAuth = (receivedToken: string) => {
+		this.token = receivedToken;
+		localStorage.setItem('jwt', receivedToken);
+	};
+
 	constructor() {
 		this.validate();
 	}
