@@ -24,7 +24,16 @@
 	let selectedKeys = $state<string[]>([
 		'observer.uuid',
 		'observation.uuid',
-		'observation.observed_on_device_at'
+		'observation.observed_on_device_at',
+		'observation.platform',
+		'enrichment.meta_adlibrary_scrape.candidates.data.ad_archive_id',
+		'enrichment.meta_adlibrary_scrape.candidates.data.page_name',
+		'enrichment.meta_adlibrary_scrape.candidates.data.start_date',
+		'enrichment.meta_adlibrary_scrape.candidates.data.end_date',
+		'enrichment.meta_adlibrary_scrape.candidates.data.currency',
+		'enrichment.meta_adlibrary_scrape.candidates.data.impressions_with_index.impressions_text',
+		'enrichment.meta_adlibrary_scrape.candidates.data.reach_estimate',
+		'enrichment.meta_adlibrary_scrape.candidates.data.spend'
 	]);
 
 	$effect(() => {
@@ -59,50 +68,76 @@
 		);
 	};
 
+	let eta = $state(0);
+	const formattedEta = $derived.by(() => {
+		if (eta <= 0) return '00:00';
+		const minutes = Math.floor(eta / 60000)
+			.toString()
+			.padStart(2, '0');
+		const seconds = Math.floor((eta % 60000) / 1000)
+			.toString()
+			.padStart(2, '0');
+		return `${minutes}:${seconds}`;
+	});
+
 	const startExport = async () => {
 		loading = true;
 		// Increment the current on an interval to provide some feedback to the user
-		const TIME_PER_BATCH = 20000;
-		const interval = setInterval(
-			() => {
-				current = current + 10;
-			},
-			(TIME_PER_BATCH / BATCH_SIZE) * 10
-		);
+		let timePerBatch = 20000;
+		const refreshEta = () => {
+			eta = (total - current) * (timePerBatch / BATCH_SIZE);
+		};
+		const elapses = [];
+		let interval: ReturnType<typeof setInterval> | null = null;
+		const refreshInterval = () => {
+			refreshEta();
+			if (interval) clearInterval(interval);
+			interval = setInterval(() => {
+				eta -= 1000;
+			}, 1000);
+		};
+		refreshInterval();
 
 		// Fetch the tables one by one to avoid overloading the server
 		for (let i = 0; i < adData.length; i += BATCH_SIZE) {
 			const batch = adData.slice(i, i + BATCH_SIZE);
-
+			const startTime = Date.now();
 			const enrichedAds = await session.ads.getEnrichedData(
 				batch,
 				['richDataObject', 'attributes'],
-				{ updateCache: true }
+				{
+					updateCache: false
+				}
 			);
-			// if (!enrichedAds) {
-			// 	loading = false;
-			// 	console.error('Failed to fetch enriched ads');
-			// 	return;
-			// }
-			// const batchTables = await Promise.all(
-			// 	enrichedAds?.map((ad) => {
-			// 		const richDataObject = attachRichDataObject(ad);
-			// 		console
-			// 		if (!richDataObject) return;
-			// 		return tabulateObject(
-			// 			richDataObject,
-			// 			selectedKeys.map((k) => {
-			// 				const format = getField(k)?.format;
-			// 				return { key: k, format };
-			// 			})
-			// 		);
-			// 	})
-			// );
-			const batchTables = await Promise.all(batch.map(tabulateAd));
+			if (!enrichedAds) {
+				loading = false;
+				if (interval) clearInterval(interval);
+				console.error('Failed to fetch enriched ads');
+				return;
+			}
+			const batchTables = await Promise.all(
+				enrichedAds?.map((ad) => {
+					const richDataObject = attachRichDataObject(ad);
+					console;
+					if (!richDataObject) return;
+					return tabulateObject(
+						richDataObject,
+						selectedKeys.map((k) => {
+							const format = getField(k)?.format;
+							return { key: k, format };
+						})
+					);
+				})
+			);
+			// const batchTables = await Promise.all(batch.map(tabulateAd));
 			tables = [...tables, ...batchTables.filter((t) => t !== undefined)];
 			current = i + BATCH_SIZE;
+			const endTime = Date.now();
+			elapses.push(endTime - startTime);
+			timePerBatch = Math.floor(elapses.reduce((a, b) => a + b, 0) / elapses.length);
+			refreshInterval();
 		}
-		clearInterval(interval);
+		if (interval) clearInterval(interval);
 		loading = false;
 		current = 0;
 		console.log('Completed fetching tables');
@@ -122,7 +157,7 @@
 		<Button>
 			<DownloadIcon />
 			{#if loading}
-				Exporting... {progress}%
+				Exporting... <span class="font-mono">{formattedEta}</span>
 			{:else}
 				Export data
 			{/if}

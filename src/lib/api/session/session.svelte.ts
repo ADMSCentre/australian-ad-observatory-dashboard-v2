@@ -145,34 +145,47 @@ export class Session {
 				metadata: Record<string, never>;
 			}[];
 
+			const adsLookupTable = ads.reduce(
+				(acc, ad) => {
+					acc[ad.adId] = ad;
+					return acc;
+				},
+				{} as Record<string, RichAdData>
+			);
+
 			const enrichedAds: RichAdData[] =
 				results?.map((ad) => {
-					const originalAd = ads.find((a) => a.adId === ad.ad_id);
+					const originalAd = adsLookupTable[ad.ad_id];
 					if (!originalAd) throw new Error('Ad not found in original ads');
 					return {
 						...originalAd,
-						...ad.metadata
+						attributes: ad.metadata.attributes,
+						richDataObject: ad.metadata.rdo
 					};
 				}) ?? [];
 			if (!updateCache) return enrichedAds;
 
 			// Loop through the expanded ads and cache the attributes
-			for (const ad of results ?? []) {
-				const adId = ad.ad_id;
-				if (!adId) continue;
-				if (ad.metadata?.attributes) {
-					this.enrichedAds[adId] = this.enrichedAds[adId] ?? {
-						...ad
-					};
-					this.enrichedAds[adId].attributes = ad.metadata.attributes;
+			enrichedAds.forEach((ad) => {
+				const adId = ad.adId;
+				if (!this.enrichedAds[adId]) this.enrichedAds[adId] = { ...ad };
+				if (ad.attributes) {
+					this.enrichedAds[adId].attributes = ad.attributes;
 				}
-				if (ad.metadata?.rdo) {
-					this.enrichedAds[adId] = this.enrichedAds[adId] ?? {
-						...ad
-					};
-					this.enrichedAds[adId].richDataObject = ad.metadata.rdo;
+				if (ad.richDataObject) {
+					this.enrichedAds[adId].richDataObject = ad.richDataObject;
 				}
-			}
+			});
+			// results.forEach((ad) => {
+			// 	const adId = ad.ad_id;
+			// 	if (!this.enrichedAds[adId]) this.enrichedAds[adId] = { ...ad };
+			// 	if (ad.metadata?.attributes) {
+			// 		this.enrichedAds[adId].attributes = ad.metadata.attributes;
+			// 	}
+			// 	if (ad.metadata?.rdo) {
+			// 		this.enrichedAds[adId].richDataObject = ad.metadata.rdo;
+			// 	}
+			// });
 			return enrichedAds;
 		},
 		enrich: async (

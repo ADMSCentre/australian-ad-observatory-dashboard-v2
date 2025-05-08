@@ -20,14 +20,25 @@
 
 	$effect(() => {
 		allKeys;
+		selectedKeys;
 		untrack(() => {
-			keys = allKeys.reduce(
-				(acc, key) => {
-					acc[key] = selectedKeys.includes(key);
+			// keys = allKeys.reduce(
+			// 	(acc, key) => {
+			// 		acc[key] = selectedKeys.includes(key);
+			// 		return acc;
+			// 	},
+			// 	{} as { [key: string]: boolean }
+			// );
+			keys = {
+				...allKeys.reduce<{ [key: string]: boolean }>((acc, key) => {
+					acc[key] = false;
 					return acc;
-				},
-				{} as { [key: string]: boolean }
-			);
+				}, {}),
+				...selectedKeys.reduce<{ [key: string]: boolean }>((acc, key) => {
+					acc[key] = true;
+					return acc;
+				}, {})
+			};
 		});
 	});
 

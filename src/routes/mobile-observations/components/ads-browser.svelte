@@ -61,13 +61,56 @@
 		ads.length;
 		untrack(() => {
 			if (!allowAttributesFilter) return;
-			const promises = ads.map((ad) => {
-				return session.ads.enrich(ad, ['attributes']);
-			});
-			loading = true;
-			Promise.all(promises).then(() => {
+			console.log('Enriching ads with attributes...');
+			// session.ads.getEnrichedData(ads.slice(0, 100), ['attributes'], { updateCache: true });
+			(async () => {
+				loading = true;
+				const BATCH_SIZE = 50000;
+				for (let i = 0; i < ads.length; i += BATCH_SIZE) {
+					const batch = ads.slice(i, i + BATCH_SIZE);
+					await session.ads.getEnrichedData(batch, ['attributes'], { updateCache: true });
+				}
+				await Promise.all(
+					ads.map((ad) => {
+						return session.ads.enrich(ad, ['attributes']);
+					})
+				);
 				loading = false;
-			});
+			})();
+			// loading = true;
+			// session.ads
+			// 	.getEnrichedData(ads, ['attributes'], { updateCache: true })
+			// 	.then(() => {
+			// 		Promise.all(
+			// 			ads.map((ad) => {
+			// 				return session.ads.enrich(ad, ['attributes']);
+			// 			})
+			// 		);
+			// 	})
+			// 	.then(() => {
+			// 		loading = false;
+			// 	});
+
+			// (async () => {
+			// 	loading = true;
+			// 	await session.ads.getEnrichedData(ads, ['attributes'], { updateCache: true });
+			// 	// await Promise.all(
+			// 	// 	ads.map((ad) => {
+			// 	// 		return session.ads.enrich(ad, ['attributes']);
+			// 	// 	})
+			// 	// );
+			// 	loading = false;
+			// })();
+			// const promises = ads.map((ad) => {
+			// 	return session.ads.enrich(ad, ['attributes']);
+			// });
+			// loading = true;
+			// session.ads.getEnrichedData(ads, ['attributes'], {
+			// 	updateCache: true
+			// })
+			// Promise.all(promises).then(() => {
+			// 	loading = false;
+			// });
 		});
 	});
 
