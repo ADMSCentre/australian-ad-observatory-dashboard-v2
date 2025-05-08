@@ -42,6 +42,19 @@ export class Session {
 	allAds = $state<Record<string, RichAdData>>({});
 	enrichedAds = $state<Record<string, RichAdData>>({});
 
+	getCache = (ad: RichAdData, type: ExpandType, preferCache: boolean = false) => {
+		if (!preferCache) return null;
+		return this.enrichedAds?.[ad.adId]?.[type];
+	};
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	updateCache = (ad: RichAdData, type: ExpandType, data: any) => {
+		if (!this.enrichedAds[ad.adId])
+			this.enrichedAds[ad.adId] = {
+				...ad
+			};
+		this.enrichedAds[ad.adId][type] = data;
+	};
+
 	ads = $derived({
 		getAll: async ({
 			filters = [],
@@ -85,6 +98,83 @@ export class Session {
 			}
 			return data;
 		},
+		getEnrichedData: async (
+			ads: RichAdData[],
+			expands: ExpandType[] = [],
+			{
+				updateCache = true
+			}: {
+				updateCache?: boolean;
+			} = {}
+		) => {
+			if (!auth.token) return;
+			const { data, error } = await client.POST('/ads/batch/presign', {
+				headers: this.authHeader,
+				body: {
+					ads: ads.map((ad) => ({
+						ad_id: ad.adId,
+						observer_id: ad.observer,
+						timestamp: ad.timestamp.toString()
+					})),
+					metadata_types: [
+						...expands
+							.map((e) => {
+								switch (e) {
+									case 'attributes':
+										return 'attributes';
+									case 'richDataObject':
+										return 'rdo';
+									default:
+										return null;
+								}
+							})
+							.filter((e) => e !== null)
+					]
+				}
+			});
+			if (error) throw error;
+			if (!data) return [];
+
+			const presignedUrl = data.presigned_url;
+			if (!presignedUrl) throw new Error('No presigned URL found in response');
+			// Fetch the presigned URL and get the data
+			const presignedData = await fetch(presignedUrl);
+
+			const results = (await presignedData.json()) as {
+				ad_id: string;
+				metadata: Record<string, never>;
+			}[];
+
+			const enrichedAds: RichAdData[] =
+				results?.map((ad) => {
+					const originalAd = ads.find((a) => a.adId === ad.ad_id);
+					if (!originalAd) throw new Error('Ad not found in original ads');
+					return {
+						...originalAd,
+						...ad.metadata
+					};
+				}) ?? [];
+			if (!updateCache) return enrichedAds;
+
+			// Loop through the expanded ads and cache the attributes
+			for (const ad of results ?? []) {
+				const adId = ad.ad_id;
+				if (!adId) continue;
+				if (ad.metadata?.attributes) {
+					this.enrichedAds[adId] = this.enrichedAds[adId] ?? {
+						...ad
+					};
+					this.enrichedAds[adId].attributes = ad.metadata.attributes;
+				}
+				if (ad.metadata?.rdo) {
+					this.enrichedAds[adId] = this.enrichedAds[adId] ?? {
+						...ad
+					};
+					this.enrichedAds[adId].richDataObject = ad.metadata.rdo;
+				}
+			}
+			return enrichedAds;
+		},
 		enrich: async (
 			ad: RichAdData,
 			expands: ExpandType[] = [],
@@ -97,17 +187,6 @@ export class Session {
 			}> = {}
 		) => {
 			if (!auth.token) return;
-			const getCache = (type: ExpandType) => {
-				if (!preferCache) return null;
-				return this.enrichedAds?.[ad.adId]?.[type];
-			};
-			const updateCache = (type: ExpandType, data: unknown) => {
-				if (!this.enrichedAds[ad.adId])
-					this.enrichedAds[ad.adId] = {
-						...ad
-					};
-				this.enrichedAds[ad.adId][type] = data;
-			};
 			const enricher = new RichDataBuilder(auth.token, ad);
 			const enrichedData: RichAdData = {
 				...ad
@@ -117,8 +196,12 @@ export class Session {
 					switch (expand) {
 						case 'stitchedFrames':
 							if (auth.token) {
-								const res = getCache(expand) ?? (await fetchStitchFrames(ad, auth.token));
-								updateCache(expand, res);
+								const res =
+									this.getCache(ad, expand, preferCache) ??
+									(await fetchStitchFrames(ad, auth.token));
+								// Throw error if incompatible types
+								if (!Array.isArray(res)) throw new Error('Incompatible types for stitchedFrames');
+								this.updateCache(ad, expand, res);
 								if (!inPlace) {
 									enrichedData.stitchedFrames = res;
 									break;
@@ -128,8 +211,9 @@ export class Session {
 							break;
 						case 'attributes':
 							if (auth.token) {
-								const res = getCache(expand) ?? (await fetchAttributes(ad, auth.token));
-								updateCache(expand, res);
+								const res =
+									this.getCache(ad, expand, preferCache) ?? (await fetchAttributes(ad, auth.token));
+								this.updateCache(ad, expand, res);
 								if (!inPlace) {
 									enrichedData.attributes = res;
 									break;
@@ -139,8 +223,10 @@ export class Session {
 							break;
 						case 'richDataObject':
 							if (auth.token) {
-								const res = getCache(expand) ?? (await fetchRichDataObject(ad, auth.token));
-								updateCache(expand, res);
+								const res =
+									this.getCache(ad, expand, preferCache) ??
+									(await fetchRichDataObject(ad, auth.token));
+								this.updateCache(ad, expand, res);
 								if (!inPlace) {
 									enrichedData.richDataObject = res;
 									break;
@@ -150,8 +236,9 @@ export class Session {
 							break;
 						case 'metaLibraryScrape':
 							{
-								const res = getCache(expand) ?? (await enricher.getCandidates());
-								updateCache(expand, res);
+								const res =
+									this.getCache(ad, expand, preferCache) ?? (await enricher.getCandidates());
+								this.updateCache(ad, expand, res);
 								if (!inPlace) {
 									enrichedData.metaLibraryScrape = res;
 									break;

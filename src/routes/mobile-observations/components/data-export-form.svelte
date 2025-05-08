@@ -39,7 +39,7 @@
 	});
 
 	let loading = $state(false);
-	const BATCH_SIZE = 100;
+	const BATCH_SIZE = 500;
 	const total = $derived(adData.length);
 	let current = $state(0);
 	let progress = $derived(+((current / total) * 100).toFixed(2));
@@ -61,15 +61,48 @@
 
 	const startExport = async () => {
 		loading = true;
+		// Increment the current on an interval to provide some feedback to the user
+		const TIME_PER_BATCH = 20000;
+		const interval = setInterval(
+			() => {
+				current = current + 10;
+			},
+			(TIME_PER_BATCH / BATCH_SIZE) * 10
+		);
+
 		// Fetch the tables one by one to avoid overloading the server
 		for (let i = 0; i < adData.length; i += BATCH_SIZE) {
-			// const ad = adData[i];
-			// const table = await tabulateAd(ad);
 			const batch = adData.slice(i, i + BATCH_SIZE);
+
+			const enrichedAds = await session.ads.getEnrichedData(
+				batch,
+				['richDataObject', 'attributes'],
+				{ updateCache: true }
+			);
+			// if (!enrichedAds) {
+			// 	loading = false;
+			// 	console.error('Failed to fetch enriched ads');
+			// 	return;
+			// }
+			// const batchTables = await Promise.all(
+			// 	enrichedAds?.map((ad) => {
+			// 		const richDataObject = attachRichDataObject(ad);
+			// 		console
+			// 		if (!richDataObject) return;
+			// 		return tabulateObject(
+			// 			richDataObject,
+			// 			selectedKeys.map((k) => {
+			// 				const format = getField(k)?.format;
+			// 				return { key: k, format };
+			// 			})
+			// 		);
+			// 	})
+			// );
 			const batchTables = await Promise.all(batch.map(tabulateAd));
 			tables = [...tables, ...batchTables.filter((t) => t !== undefined)];
 			current = i + BATCH_SIZE;
 		}
+		clearInterval(interval);
 		loading = false;
 		current = 0;
 		console.log('Completed fetching tables');
@@ -112,7 +145,7 @@
 					<div class="flex w-full items-center gap-2">
 						<span class="text-nowrap">Data export in progress...</span>
 						<Progress value={progress} />
-						<span>{progress}%</span>
+						<span>{progress.toFixed(2)}%</span>
 					</div>
 				{/if}
 			</div>

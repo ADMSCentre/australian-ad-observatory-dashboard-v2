@@ -966,6 +966,145 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/ads/batch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Retrieve metadata associated with a batch of ads.
+         * @description Given a list of ads in the request body (with observer_id, timestamp and ad_id fields for each ad), as well as a list of metadata types to include, return the metadata for each ad in the list.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        ads?: {
+                            observer_id?: string;
+                            timestamp?: string;
+                            ad_id?: string;
+                        }[];
+                        metadata_types?: ("attributes" | "rdo")[];
+                    };
+                };
+            };
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            ads?: {
+                                observer_id?: string;
+                                timestamp?: string;
+                                ad_id?: string;
+                                metadata?: Record<string, never>;
+                            }[];
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example Invalid request */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ads/batch/presign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Attach metadata to a batch of ads and return a presigned URL for the batch.
+         * @description Behaves like the ads/batch endpoint, but returns a presigned URL for the batch instead of the metadata itself.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        ads?: {
+                            observer_id?: string;
+                            timestamp?: string;
+                            ad_id?: string;
+                        }[];
+                        metadata_types?: ("attributes" | "rdo")[];
+                    };
+                };
+            };
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            presigned_url?: string;
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example Invalid request */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/ads/{observer_id}/{timestamp}.{ad_id}/stitching/frames": {
         parameters: {
             query?: never;
@@ -1503,15 +1642,7 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        observer_id?: string;
-                        timestamp?: string;
-                        ad_id?: string;
-                    };
-                };
-            };
+            requestBody?: never;
             responses: {
                 /** @description A successful response */
                 200: {
@@ -2288,6 +2419,14 @@ export interface components {
             /** Attributes */
             attributes: Record<string, never> | null;
         };
+        /** BaseCell */
+        BaseCell: {
+            /**
+             * Config
+             * @default null
+             */
+            config: Record<string, never> | null;
+        };
         /** Project */
         Project: {
             /** Id */
@@ -2312,6 +2451,11 @@ export interface components {
         };
         /** QueryCell */
         QueryCell: {
+            /**
+             * Config
+             * @default null
+             */
+            config: Record<string, never> | null;
             /** Id */
             id: string;
             /** Type */
@@ -2330,15 +2474,11 @@ export interface components {
             id: string;
             /** Type */
             type: string;
-            /** @default null */
-            config: components["schemas"]["QueryResultConfig"] | null;
-        };
-        /** QueryResultConfig */
-        QueryResultConfig: {
-            /** Sort */
-            sort: string;
-            /** Groupby */
-            groupBy: string;
+            /**
+             * Config
+             * @default null
+             */
+            config: Record<string, never> | null;
         };
         /** TeamMember */
         TeamMember: {
@@ -2349,6 +2489,11 @@ export interface components {
         };
         /** TextCell */
         TextCell: {
+            /**
+             * Config
+             * @default null
+             */
+            config: Record<string, never> | null;
             /** Id */
             id: string;
             /** Type */

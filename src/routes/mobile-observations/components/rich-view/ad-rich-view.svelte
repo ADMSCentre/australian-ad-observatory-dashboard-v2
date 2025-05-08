@@ -125,9 +125,6 @@
 {#if currentAd}
 	{#snippet richDataJson()}
 		{#if currentAd.richDataObject}
-			<strong>
-				NOTE: The rich data object shown here is mocked and does not represent the actual data.
-			</strong>
 			<Codemirror
 				class=" max-h-[75vh] overflow-auto text-left"
 				lang={json()}
