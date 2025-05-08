@@ -3,13 +3,25 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { DownloadIcon } from 'lucide-svelte';
 	import ExportFieldsSelector from './export-fields-selector.svelte';
-	import { attachRichDataObject, FIELD_GROUPS, getField } from '$lib/api/session/ads/rdo-helper';
+	import {
+		attachRichDataObject,
+		cleanRdo,
+		FIELD_GROUPS,
+		getField
+	} from '$lib/api/session/ads/rdo-helper';
 	import { session } from '$lib/api/session/session.svelte';
-	import { getFields, type Table, tabulateObject, toCsv, download } from '$lib/utils/tabulateJson';
+	import {
+		getFields,
+		type Table as TableObjectType,
+		tabulateObject,
+		toCsv,
+		download
+	} from '$lib/utils/tabulateJson';
 	import AdTable from './ad-table.svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { Progress } from '$lib/components/ui/progress/index.js';
 	import { untrack } from 'svelte';
+	import Table from './table.svelte';
 
 	const { adData }: { adData: RichAdData[] } = $props();
 
@@ -53,7 +65,15 @@
 	let current = $state(0);
 	let progress = $derived(+((current / total) * 100).toFixed(2));
 
-	let tables = $state<Table[]>([]);
+	let tables = $state<TableObjectType[]>([]);
+	const fullTable = $derived.by(() => {
+		const joinedRows = tables.map((t) => t.rows).flat();
+		const joinedTable: TableObjectType = {
+			...tables[0],
+			rows: joinedRows
+		};
+		return joinedTable;
+	});
 
 	const tabulateAd = async (ad: RichAdData) => {
 		await session.ads.enrich(ad, ['richDataObject', 'attributes']);
@@ -106,7 +126,7 @@
 				batch,
 				['richDataObject', 'attributes'],
 				{
-					updateCache: false
+					updateMemoryCache: false
 				}
 			);
 			if (!enrichedAds) {
@@ -143,7 +163,7 @@
 		console.log('Completed fetching tables');
 
 		const joinedRows = tables.map((t) => t.rows).flat();
-		const joinedTable: Table = {
+		const joinedTable: TableObjectType = {
 			...tables[0],
 			rows: joinedRows
 		};
@@ -168,9 +188,13 @@
 			<Dialog.Title>Export Data</Dialog.Title>
 		</Dialog.Header>
 		<div class="flex flex-col gap-4">
-			<ExportFieldsSelector {allKeys} bind:selectedKeys />
+			<ExportFieldsSelector {allKeys} bind:selectedKeys disabled={loading} />
 			<span class="text-lg font-semibold">Preview</span>
-			<AdTable richDataObject={attachRichDataObject(adData[0])} {selectedKeys} class="h-72" />
+			{#if !loading || tables.length == 0}
+				<AdTable richDataObject={attachRichDataObject(adData[0])} {selectedKeys} class="h-72" />
+			{:else}
+				<Table table={fullTable} />
+			{/if}
 			<div class="flex w-full gap-4">
 				<Button onclick={startExport} disabled={loading}>
 					<DownloadIcon />

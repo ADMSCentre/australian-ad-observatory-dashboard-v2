@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { cleanRdo, getField } from '$lib/api/session/ads/rdo-helper';
 	import type { RichDataObject } from '$lib/api/session/ads/rich-data-object-type';
-	import AgGrid from '$lib/components/ag-grid/ag-grid.svelte';
-	import { tabulateObject, type Table } from '$lib/utils/tabulateJson';
-	import { twMerge } from 'tailwind-merge';
+	import { tabulateObject, type Table as TableObjectType } from '$lib/utils/tabulateJson';
+	import Table from './table.svelte';
+
 	let {
 		richDataObject,
 		selectedKeys,
@@ -12,7 +12,7 @@
 	}: {
 		richDataObject: RichDataObject;
 		selectedKeys: string[];
-		table?: Table;
+		table?: TableObjectType;
 		class?: string;
 	} = $props();
 
@@ -29,36 +29,6 @@
 			table = t;
 		});
 	});
-
-	const columnDefs = $derived.by(() => {
-		return table?.columns.map((column) => {
-			const shortKey = column.split('.').slice(-1)[0];
-			return {
-				headerName: getField(column)?.title || shortKey,
-				field: column.replaceAll('.', '_')
-			};
-		});
-	});
-	const rowData = $derived.by(() => {
-		return Object.entries(table?.rows || {}).map(([index, row]) =>
-			table?.columns.reduce(
-				(acc, column) => {
-					acc[column.replaceAll('.', '_')] = row[column];
-					return acc;
-				},
-				{} as { [key: string]: any }
-			)
-		);
-	});
 </script>
 
-<AgGrid
-	{columnDefs}
-	{rowData}
-	pagination
-	paginationAutoPageSize
-	style={{
-		width: '100%'
-	}}
-	class={twMerge('h-96', className)}
-/>
+<Table bind:table class={className} />

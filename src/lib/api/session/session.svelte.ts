@@ -1,7 +1,7 @@
 // This is used to manage interactions with the API, and automatically handle authorisation
 import { auth } from '$lib/api/auth/auth.svelte';
 import type { Query } from '../../../routes/mobile-observations/query/query';
-import { client } from '../client';
+import { client, runWithCache } from '../client';
 import { listAdsForObserver, listAllAds } from '../mobile-observations';
 import { RichDataBuilder } from './ads/enricher';
 import type { ExpandType, IndexGroupType, RichAdData } from './ads/types';
@@ -102,9 +102,9 @@ export class Session {
 			ads: RichAdData[],
 			expands: ExpandType[] = [],
 			{
-				updateCache = true
+				updateMemoryCache = true
 			}: {
-				updateCache?: boolean;
+				updateMemoryCache?: boolean;
 			} = {}
 		) => {
 			if (!auth.token) return;
@@ -138,9 +138,22 @@ export class Session {
 			const presignedUrl = data.presigned_url;
 			if (!presignedUrl) throw new Error('No presigned URL found in response');
 			// Fetch the presigned URL and get the data
-			const presignedData = await fetch(presignedUrl);
+			// const presignedData = await fetch(presignedUrl);
+			const presignedData = await runWithCache({
+				cacheKey: presignedUrl,
+				run: async () => {
+					const res = await fetch(presignedUrl);
+					return res.json();
+				},
+				cache: async (data) => {
+					const urlParams = new URLSearchParams(presignedUrl);
+					const expireAt = urlParams.get('Expires') || -1;
+					const expireAtMs = expireAt !== -1 && +expireAt * 1000;
+					return { data, expireAt: +expireAtMs };
+				}
+			});
 
-			const results = (await presignedData.json()) as {
+			const results = presignedData as {
 				ad_id: string;
 				metadata: Record<string, never>;
 			}[];
@@ -163,7 +176,7 @@ export class Session {
 						richDataObject: ad.metadata.rdo
 					};
 				}) ?? [];
-			if (!updateCache) return enrichedAds;
+			if (!updateMemoryCache) return enrichedAds;
 
 			// Loop through the expanded ads and cache the attributes
 			enrichedAds.forEach((ad) => {

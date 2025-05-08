@@ -68,7 +68,7 @@
 				const BATCH_SIZE = 50000;
 				for (let i = 0; i < ads.length; i += BATCH_SIZE) {
 					const batch = ads.slice(i, i + BATCH_SIZE);
-					await session.ads.getEnrichedData(batch, ['attributes'], { updateCache: true });
+					await session.ads.getEnrichedData(batch, ['attributes'], { updateMemoryCache: true });
 				}
 				await Promise.all(
 					ads.map((ad) => {

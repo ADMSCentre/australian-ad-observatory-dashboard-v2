@@ -8,10 +8,12 @@
 
 	let {
 		allKeys,
-		selectedKeys = $bindable()
+		selectedKeys = $bindable(),
+		disabled
 	}: {
 		allKeys: string[];
 		selectedKeys: string[];
+		disabled?: boolean;
 	} = $props();
 
 	let keys = $state<{
@@ -76,6 +78,7 @@
 							type="checkbox"
 							checked={keys[field.key]}
 							onchange={() => toggleKey(field.key)}
+							{disabled}
 						/>
 						<span>{field.title}</span>
 					</label>
@@ -93,7 +96,7 @@
 		<div class="flex flex-wrap gap-x-4 gap-y-2" transition:slide={{ duration: 200 }}>
 			{#each otherFields as [key]}
 				<label class="flex items-center gap-1">
-					<input type="checkbox" checked={keys[key]} onchange={() => toggleKey(key)} />
+					<input type="checkbox" checked={keys[key]} onchange={() => toggleKey(key)} {disabled} />
 					<span>{key}</span>
 				</label>
 			{/each}
