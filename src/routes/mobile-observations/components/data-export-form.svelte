@@ -102,6 +102,7 @@
 
 	const startExport = async () => {
 		loading = true;
+		tables = [];
 		// Increment the current on an interval to provide some feedback to the user
 		let timePerBatch = 20000;
 		const refreshEta = () => {
