@@ -72,6 +72,22 @@
 				</span>
 			{/snippet}
 			<div class="flex flex-wrap gap-x-4 gap-y-2" transition:slide={{ duration: 200 }}>
+				<label class="flex items-center gap-1">
+					<input
+						type="checkbox"
+						onchange={(event) => {
+							const target = event.target as HTMLInputElement;
+							const checked = target.checked;
+							group.fields.forEach((field) => {
+								keys[field.key] = checked;
+							});
+							selectedKeys = Object.entries(keys)
+								.filter(([key, value]) => value)
+								.map(([key]) => key);
+						}}
+					/>
+					<span>All</span>
+				</label>
 				{#each group.fields as field}
 					<label class="flex items-center gap-1">
 						<input
@@ -94,6 +110,22 @@
 			</span>
 		{/snippet}
 		<div class="flex flex-wrap gap-x-4 gap-y-2" transition:slide={{ duration: 200 }}>
+			<label class="flex items-center gap-1">
+				<input
+					type="checkbox"
+					onchange={(event) => {
+						const target = event.target as HTMLInputElement;
+						const checked = target.checked;
+						otherFields.forEach(([key]) => {
+							keys[key] = checked;
+						});
+						selectedKeys = Object.entries(keys)
+							.filter(([key, value]) => value)
+							.map(([key]) => key);
+					}}
+				/>
+				<span>All</span>
+			</label>
 			{#each otherFields as [key]}
 				<label class="flex items-center gap-1">
 					<input type="checkbox" checked={keys[key]} onchange={() => toggleKey(key)} {disabled} />
