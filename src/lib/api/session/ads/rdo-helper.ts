@@ -1,114 +1,4 @@
-/**
-	 * All fields:
-		observer.uuid
-		observer.joined_at
-		observer.device_dimensions.w
-		observer.device_dimensions.h
-
-		observation.uuid
-		observation.observed_on_device_at
-		observation.submitted_from_device_at
-		observation.platform
-		observation.exposure
-		observation.media_bounds
-		observation.whitespace_derived_color
-		observation.ad_dimensions.w
-		observation.ad_dimensions.h
-		observation.video.n_seconds
-		observation.video.n_frames
-		observation.video.fps
-		observation.keyframes.screenshot_cropped
-		observation.keyframes.observed_at
-		observation.keyframes.y_offset
-		observation.keyframes.ocr_data.x
-		observation.keyframes.ocr_data.y
-		observation.keyframes.ocr_data.w
-		observation.keyframes.ocr_data.h
-		observation.keyframes.ocr_data.text
-		observation.keyframes.ocr_data.confidence
-
-		enrichment.meta_adlibrary_scrape.candidates.ad_library_scrape_candidates_i
-		enrichment.meta_adlibrary_scrape.candidates.data.ad_archive_id
-		enrichment.meta_adlibrary_scrape.candidates.data.categories
-		enrichment.meta_adlibrary_scrape.candidates.data.collation_count
-		enrichment.meta_adlibrary_scrape.candidates.data.collation_id
-		enrichment.meta_adlibrary_scrape.candidates.data.contains_digital_created_media
-		enrichment.meta_adlibrary_scrape.candidates.data.contains_sensitive_content
-		enrichment.meta_adlibrary_scrape.candidates.data.currency
-		enrichment.meta_adlibrary_scrape.candidates.data.end_date
-		enrichment.meta_adlibrary_scrape.candidates.data.entity_type
-		enrichment.meta_adlibrary_scrape.candidates.data.finserv_ad_data.is_deemed_finserv
-		enrichment.meta_adlibrary_scrape.candidates.data.finserv_ad_data.is_limited_delivery
-		enrichment.meta_adlibrary_scrape.candidates.data.gated_type
-		enrichment.meta_adlibrary_scrape.candidates.data.has_user_reported
-		enrichment.meta_adlibrary_scrape.candidates.data.hidden_safety_data
-		enrichment.meta_adlibrary_scrape.candidates.data.hide_data_status
-		enrichment.meta_adlibrary_scrape.candidates.data.impressions_with_index.impressions_index
-		enrichment.meta_adlibrary_scrape.candidates.data.is_aaa_eligible
-		enrichment.meta_adlibrary_scrape.candidates.data.is_active
-		enrichment.meta_adlibrary_scrape.candidates.data.is_profile_page
-		enrichment.meta_adlibrary_scrape.candidates.data.page_id
-		enrichment.meta_adlibrary_scrape.candidates.data.page_is_deleted
-		enrichment.meta_adlibrary_scrape.candidates.data.page_name
-		enrichment.meta_adlibrary_scrape.candidates.data.publisher_platform
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.body.text
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.caption
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.cta_text
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.cta_type
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.current_page_name
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.display_format
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.is_reshared
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.link_description
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.link_url
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.page_categories
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.page_entity_type
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.page_id
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.page_is_deleted
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.page_is_profile_page
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.page_like_count
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.page_name
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.page_profile_picture_url
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.page_profile_uri
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.title
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.videos.video_hd_url
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.videos.video_preview_image_url
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.videos.video_sd_url
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.videos.watermarked_video_hd_url
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.videos.watermarked_video_sd_url
-		enrichment.meta_adlibrary_scrape.candidates.data.start_date
-		enrichment.meta_adlibrary_scrape.candidates.data.archive_types
-		enrichment.meta_adlibrary_scrape.candidates.data.impressions_with_index.impressions_text
-		enrichment.meta_adlibrary_scrape.candidates.data.political_countries
-		enrichment.meta_adlibrary_scrape.candidates.data.reach_estimate
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.images.original_image_url
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.images.resized_image_url
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.images.watermarked_resized_image_url
-		enrichment.meta_adlibrary_scrape.candidates.data.spend
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.cards.body
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.cards.caption
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.cards.cta_text
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.cards.cta_type
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.cards.link_description
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.cards.link_url
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.cards.original_image_url
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.cards.resized_image_url
-		enrichment.meta_adlibrary_scrape.candidates.data.snapshot.cards.watermarked_resized_image_url
-		enrichment.meta_adlibrary_scrape.rankings.this_selected_candidate_i
-		enrichment.meta_adlibrary_scrape.rankings.ranking_pct
-		enrichment.meta_adlibrary_scrape.rankings.components.ocr_coverage
-		enrichment.meta_adlibrary_scrape.rankings.components.rankings_from_images
-		enrichment.meta_adlibrary_scrape.rankings.components.ranking_from_videos
-
-		enrichment.meta_adlibrary_scrape.scraped_at
-		enrichment.meta_adlibrary_scrape.reference.caller.observer_uuid
-		enrichment.meta_adlibrary_scrape.reference.caller.tentative_ad
-		enrichment.meta_adlibrary_scrape.reference.scrape.observer_uuid
-		enrichment.meta_adlibrary_scrape.reference.scrape.tentative_ad
-		enrichment.meta_adlibrary_scrape.query.restitched_image_key
-		enrichment.meta_adlibrary_scrape.query.value
-		enrichment.meta_adlibrary_scrape.query.confidence
-	 */
-
+import { DEMOGRAPHIC_FIELDS } from './demographic-fields';
 import type { Candidate, Ranking, RichDataObject } from './rich-data-object-type';
 import type { RichAdData } from './types';
 
@@ -152,7 +42,7 @@ export const FIELD_GROUPS: {
 		fields: [
 			{
 				key: 'observer.uuid',
-				title: 'Activation Code',
+				title: 'Observer ID',
 				description: 'The unique identifier of the observer'
 			},
 			{
@@ -172,6 +62,12 @@ export const FIELD_GROUPS: {
 				description: "The height of the observer's device"
 			}
 		]
+	},
+	{
+		name: 'Demographic Data',
+		description: 'Demographic data about the observer',
+		open: false,
+		fields: [...DEMOGRAPHIC_FIELDS]
 	},
 	{
 		name: 'Observation Data',
