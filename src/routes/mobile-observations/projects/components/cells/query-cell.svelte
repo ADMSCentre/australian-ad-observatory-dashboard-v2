@@ -3,7 +3,14 @@
 	import Accordion from '$lib/components/accordion/accordion.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { json } from '@codemirror/lang-json';
-	import { Workflow, CodeIcon, ChevronRight, LoaderIcon, PlusIcon } from 'lucide-svelte';
+	import {
+		Workflow,
+		CodeIcon,
+		ChevronRight,
+		LoaderIcon,
+		PlusIcon,
+		AlertTriangle
+	} from 'lucide-svelte';
 	import { PROJECT_MANAGER, ProjectManager } from 'mobile-observations/projects/manager.svelte';
 	import type {
 		Cell,
@@ -168,7 +175,19 @@
 
 		{#if !hidden}
 			<div class="flex flex-col gap-4 py-4" transition:slide={{ axis: 'y' }}>
-				{#if !queryResponse?.loading && queryResults}
+				{#if queryResponse?.loading}
+					<div class="flex items-center gap-2 text-sm font-light text-zinc-500 dark:text-zinc-400">
+						<LoaderIcon class="size-4 animate-spin" />
+						Running query, please wait...
+					</div>
+				{:else if queryResponse?.error}
+					<div class="flex items-center gap-2 text-sm font-light text-red-500 dark:text-red-400">
+						<AlertTriangle class="size-4" />
+						{queryResponse.message}
+					</div>
+				{/if}
+
+				{#if !queryResponse?.loading && queryResults && !queryResponse?.error}
 					<!-- <QueryResults {queryResults} /> -->
 
 					<div class="flex items-center justify-between">
@@ -233,11 +252,6 @@
 							useTab={false}
 						/>
 					</Accordion>
-				{:else}
-					<div class="flex items-center gap-2 text-sm font-light text-zinc-500 dark:text-zinc-400">
-						<LoaderIcon class="size-4 animate-spin" />
-						Running query, please wait...
-					</div>
 				{/if}
 			</div>
 		{/if}

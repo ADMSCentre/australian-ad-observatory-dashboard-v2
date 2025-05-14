@@ -7,6 +7,8 @@ export class ProjectManager {
 	queryResults = $state<{
 		[cellId: string]: {
 			loading: boolean;
+			error: boolean;
+			message?: string;
 			response?: Awaited<ReturnType<typeof session.ads.query>>;
 		};
 	}>({});
@@ -43,15 +45,15 @@ export class ProjectManager {
 		if (!this.project) {
 			return;
 		}
-		const promises = this.project.cells
-			.filter((cell) => cell.type === 'query')
-			.map((cell) => this.runCell(cell.id));
-		await Promise.all(promises);
-		// for (const cell of this.project.cells) {
-		// 	if (cell.type === 'query') {
-		// 		await this.runCell(cell.id);
-		// 	}
-		// }
+		// const promises = this.project.cells
+		// 	.filter((cell) => cell.type === 'query')
+		// 	.map((cell) => this.runCell(cell.id));
+		// await Promise.all(promises);
+		for (const cell of this.project.cells) {
+			if (cell.type === 'query') {
+				await this.runCell(cell.id);
+			}
+		}
 	}
 
 	async runCell(cellId: string) {
@@ -60,13 +62,24 @@ export class ProjectManager {
 		if (!cell) throw new Error('Cell not found');
 		// Create the queryResults if not exists
 		this.queryResults[cell.id] = {
-			loading: true
+			loading: true,
+			error: false
 		};
-		const results = await session.ads.query(cell.content.query);
-		this.queryResults[cell.id] = {
-			loading: false,
-			response: results
-		};
+		try {
+			const results = await session.ads.query(cell.content.query);
+			this.queryResults[cell.id] = {
+				loading: false,
+				error: false,
+				response: results
+			};
+		} catch (e) {
+			this.queryResults[cell.id] = {
+				loading: false,
+				error: true,
+				message:
+					'An error has occured: ' + (e instanceof Error ? e.message : JSON.stringify(e, null, 2))
+			};
+		}
 	}
 
 	insertCell(cell: Cell, index: number) {
