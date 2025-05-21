@@ -51,10 +51,6 @@
 
 {#if projectId && project}
 	<ProjectPage {projectId} />
-	<!-- {#await projectPromise then project}
-		{#if project}
-		{/if}
-	{/await} -->
 {:else}
 	<div class="flex flex-col gap-4">
 		<h1 class="text-4xl font-bold">Projects</h1>
@@ -110,9 +106,9 @@
 			</Dialog.Root>
 		</div>
 
-		<div class="flex flex-row gap-4">
+		<div class="flex flex-row flex-wrap gap-4">
 			{#each session.projects.owned as project (project.id)}
-				<div animate:flip transition:scale class=" max-w-sm">
+				<div animate:flip transition:scale class="h-52 w-96">
 					<ProjectSummaryCard {project} />
 				</div>
 			{/each}

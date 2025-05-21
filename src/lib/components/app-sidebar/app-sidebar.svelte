@@ -14,6 +14,7 @@
 		User,
 		Edit,
 		Users,
+		SettingsIcon,
 		Folder // Import Folder icon
 	} from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
@@ -46,6 +47,12 @@
 					url: withBase('mobile-observations/projects'),
 					icon: Folder,
 					visible: true
+				},
+				{
+					title: 'Settings',
+					url: withBase('mobile-observations/settings'),
+					icon: SettingsIcon,
+					visible: false
 				}
 			]
 		},

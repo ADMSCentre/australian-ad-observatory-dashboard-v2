@@ -7,6 +7,7 @@ import { RichDataBuilder } from './ads/enricher';
 import type { ExpandType, IndexGroupType, RichAdData } from './ads/types';
 import { fetchAttributes, fetchRichDataObject, fetchStitchFrames } from './ads/utils';
 import { ProjectApiAdapter as ProjectsApi } from './projects/index.svelte';
+import { TagApiAdapter } from './tags/index.svelte';
 import { UsersApi } from './users/index.svelte';
 
 export const INDEX_GROUP_TYPES: {
@@ -281,6 +282,7 @@ export class Session {
 
 	projects = new ProjectsApi();
 	users = new UsersApi();
+	tags = new TagApiAdapter();
 }
 
 export const session = new Session();

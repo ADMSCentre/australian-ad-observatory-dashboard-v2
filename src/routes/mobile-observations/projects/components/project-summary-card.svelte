@@ -26,7 +26,7 @@
 	class="flex size-full cursor-pointer flex-col justify-between rounded-lg border bg-card p-4 text-left text-card-foreground shadow-md hover:shadow-2xl"
 	onclick={navigateToProject}
 >
-	<div class="flex flex-row items-center justify-between gap-4">
+	<div class="flex flex-row items-start justify-between gap-4">
 		<h2 class="text-xl font-bold">{project.name}</h2>
 		<!-- <Button size="icon" variant="destructive">
 			<Trash />
@@ -36,7 +36,8 @@
 				<Dialog.Trigger>
 					<Button
 						size="icon"
-						variant="destructive"
+						variant="ghost"
+						class="text-destructive/25 hover:bg-destructive/10 hover:text-destructive"
 						onclick={(e) => {
 							e.stopPropagation();
 							isDeleteDialogOpen = true;
