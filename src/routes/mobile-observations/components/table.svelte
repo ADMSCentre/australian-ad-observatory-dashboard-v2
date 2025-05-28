@@ -43,4 +43,5 @@
 		width: '100%'
 	}}
 	class={twMerge('h-96', className)}
+	downloadable={false}
 />

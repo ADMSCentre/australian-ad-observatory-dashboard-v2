@@ -323,6 +323,9 @@
 		// Convert to entries, sort by date
 		const adsEntries = Object.entries(groupedAds);
 		// console.log('Completed filtering ads');
+		console.log(
+			`Filtered ${ads.length} ads to ${adsEntries.length} groups with ${filteredAds.length} ads`
+		);
 		return adsEntries;
 	});
 
@@ -469,6 +472,15 @@
 			</div>
 		</div>
 	</div>
+
+	{#if groupedAds.length === 0}
+		<div class="flex h-full w-full items-center justify-center">
+			<p class="text-muted-foreground">
+				There are {ads.length} ad{ads.length > 1 ? 's' : ''} in the sample, but none match the filters.
+				Try changing the filters to see the ads.
+			</p>
+		</div>
+	{/if}
 
 	{#each groupedAds as [groupKey, adData]}
 		{@const rowData = createGroup(adData)}
