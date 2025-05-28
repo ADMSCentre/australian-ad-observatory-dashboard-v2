@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { DateRange } from 'bits-ui';
 	import type { BasicAdData, RichAdData } from '$lib/api/session/ads/types';
-	import AdCard, { type Props as AdCardProps, type AdElement } from './ad-card.svelte';
+	import AdCard, { type Props as AdCardProps, type AdElement } from './ad-card/ad-card.svelte';
 	import { dateToCalendarDate } from '../../../lib/api/session/ads/utils';
 	import Accordion from '$lib/components/accordion/accordion.svelte';
 	import { ChevronDown, ChevronRight, LoaderCircleIcon, SearchIcon } from 'lucide-svelte';
@@ -9,7 +9,7 @@
 	import { scale, slide } from 'svelte/transition';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import { getExpandedRowModel } from '@tanstack/table-core';
-	import AdCardBody from './ad-card-body.svelte';
+	import AdCardBody from './ad-card/ad-card-body.svelte';
 	import AdRichView from './rich-view/ad-rich-view.svelte';
 	import { WindowVirtualizer } from 'virtua/svelte';
 	import { untrack } from 'svelte';
@@ -60,6 +60,8 @@
 	$effect(() => {
 		ads.length;
 		untrack(() => {
+			session.tags.fetch();
+
 			if (!allowAttributesFilter) return;
 			console.log('Enriching ads with attributes...');
 			// session.ads.getEnrichedData(ads.slice(0, 100), ['attributes'], { updateCache: true });
@@ -68,11 +70,13 @@
 				const BATCH_SIZE = 50000;
 				for (let i = 0; i < ads.length; i += BATCH_SIZE) {
 					const batch = ads.slice(i, i + BATCH_SIZE);
-					await session.ads.getEnrichedData(batch, ['attributes'], { updateMemoryCache: true });
+					await session.ads.getEnrichedData(batch, ['attributes', 'tags'], {
+						updateMemoryCache: true
+					});
 				}
 				await Promise.all(
 					ads.map((ad) => {
-						return session.ads.enrich(ad, ['attributes']);
+						return session.ads.enrich(ad, ['attributes', 'tags']);
 					})
 				);
 				loading = false;
@@ -172,6 +176,7 @@
 		attribute: string;
 		label: string;
 		value: string | boolean | undefined;
+		mode: 'single' | 'multiple';
 		options: {
 			value: string;
 			label: string;
@@ -182,6 +187,7 @@
 			attribute: 'hidden',
 			label: 'Hidden',
 			value: 'false',
+			mode: 'single',
 			options: [
 				{
 					value: 'all',
@@ -208,6 +214,7 @@
 			attribute: 'starred',
 			label: 'Starred',
 			value: 'all',
+			mode: 'single',
 			options: [
 				{
 					value: 'all',
@@ -236,6 +243,7 @@
 	let sortBy = $state(sortOptions.find((s) => s.value === sortParam) || sortOptions[0]);
 	let attributeFilters = $state(attributeFilterOptions);
 	let searchKey = $state(defaultSearchKey);
+	let selectedTagIds = $state<(string | null)[]>([...session.tags.all.map((t) => t.id), null]);
 
 	const debounce = (fn: Function, delay: number) => {
 		let timeout: NodeJS.Timeout;
@@ -284,6 +292,12 @@
 					const selectedOption = filter.options.find((o) => o.value === filter.value);
 					return selectedOption?.filter(attr) || false;
 				});
+			})
+			// Filter by tags
+			.filter((ad) => {
+				// Ad has no tags and "No tag" is selected
+				if (ad.tags?.length === 0 && selectedTagIds.includes(null)) return true;
+				return ad.tags?.some((tagId) => selectedTagIds.includes(tagId)) || false;
 			})
 			.toSorted(sortBy.sort);
 
@@ -396,6 +410,25 @@
 					{/each}
 				</div>
 			{/if}
+
+			<div class="flex items-center gap-2">
+				<span>Tags</span>
+				{#if loading}
+					<LoaderCircleIcon class="animate-spin" size={16} />
+				{:else}
+					<Dropdown
+						mode="multiple"
+						options={[
+							...session.tags.all.map((t) => ({ value: t.id, label: t.name })),
+							{ value: null, label: 'No tag' }
+						]}
+						disabled={session.tags.loading}
+						bind:selected={selectedTagIds}
+						clearable={true}
+						searchable={true}
+					/>
+				{/if}
+			</div>
 		</div>
 		<div class="flex items-center gap-2">
 			<div class="flex items-center gap-2">

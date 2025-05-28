@@ -96,7 +96,9 @@
 	}
 </script>
 
-<div class="group/cell relative flex w-full flex-col gap-2 rounded border p-4 shadow">
+<div
+	class="group/cell relative flex max-w-full flex-col gap-2 overflow-auto rounded border p-4 shadow"
+>
 	{#if editorMode === 'visual'}
 		<QueryBuilder
 			bind:query={cell.content.query}
@@ -117,35 +119,31 @@
 		/>
 	{/if}
 	<!-- Query controls -->
-	<div class="flex justify-between gap-2">
-		<div>
-			<Button
-				class={twMerge(
-					'absolute bottom-0 left-0 size-fit gap-0 rounded-none rounded-bl-sm bg-muted-foreground p-0 py-0.5 pr-1 text-xs font-light leading-none opacity-0 transition-opacity group-hover/cell:opacity-100 ',
-					hidden && 'opacity-100'
-				)}
-				onclick={() => {
-					setHidden(!hidden);
-				}}
-			>
-				{#if !queryResponse?.loading}
-					<ChevronRight
-						class={twMerge('size-3 transition', !hidden ? 'rotate-90 transform' : '')}
-					/>
+	<div class="sticky left-0 flex w-full items-end justify-between gap-2">
+		<Button
+			class={twMerge(
+				'-m-4 size-fit gap-0 rounded-none rounded-bl-sm bg-muted-foreground p-0 pr-1 text-xs font-light leading-none opacity-0 transition-opacity group-hover/cell:opacity-100 ',
+				hidden && 'opacity-100'
+			)}
+			onclick={() => {
+				setHidden(!hidden);
+			}}
+		>
+			{#if !queryResponse?.loading}
+				<ChevronRight class={twMerge('size-3 transition', !hidden ? 'rotate-90 transform' : '')} />
+			{/if}
+			<span class="flex items-center gap-1">
+				{#if queryResponse?.loading}
+					<LoaderIcon class="ml-1 size-3 animate-spin" />
+					(loading...)
+				{:else if !hidden}
+					Hide output
+				{:else if hidden}
+					Show {queryResults.length} results
 				{/if}
-				<span class="flex items-center gap-1">
-					{#if queryResponse?.loading}
-						<LoaderIcon class="ml-1 size-3 animate-spin" />
-						(loading...)
-					{:else if !hidden}
-						Hide output
-					{:else if hidden}
-						Show {queryResults.length} results
-					{/if}
-				</span>
-			</Button>
-		</div>
-		<div class="flex">
+			</span>
+		</Button>
+		<div class="flex w-full items-center justify-end gap-2">
 			<Button
 				variant={editorMode === 'visual' ? 'secondary' : 'ghost'}
 				size="sm"

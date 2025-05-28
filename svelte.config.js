@@ -1,5 +1,8 @@
 import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import * as child_process from 'node:child_process';
+
+const version = child_process.execSync('git rev-parse --short HEAD').toString().trim();
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -22,6 +25,9 @@ const config = {
 		}),
 		alias: {
 			'mobile-observations': 'src/routes/mobile-observations'
+		},
+		version: {
+			name: version
 		},
 		paths: {
 			base: process.argv.includes('dev') ? '' : process.env.BASE_PATH

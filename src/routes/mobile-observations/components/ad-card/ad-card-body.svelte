@@ -1,5 +1,15 @@
 <script lang="ts">
-	import { RotateCcw, Braces, Download, Star, EyeOff, Eye, Play, Pause } from 'lucide-svelte';
+	import {
+		RotateCcw,
+		Braces,
+		Download,
+		Star,
+		EyeOff,
+		Eye,
+		Play,
+		Pause,
+		TagsIcon
+	} from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
 	import { Button } from '$lib/components/ui/button';
 	import { Slider } from '$lib/components/ui/slider';
@@ -8,10 +18,13 @@
 	import { client } from '$lib/api/client';
 	import { auth } from '$lib/api/auth/auth.svelte';
 	import { json } from '@codemirror/lang-json';
-	import ImagesGif from '../observer/images-gif.svelte';
+	import ImagesGif from '../../observer/images-gif.svelte';
 	import type { RichAdData } from '$lib/api/session/ads/types';
 	import { session } from '$lib/api/session/session.svelte';
 	import { untrack } from 'svelte';
+	import * as Popover from '$lib/components/ui/popover/index.js';
+	import { type Tag } from '$lib/api/session/tags/index.svelte';
+	import TagsSelector from './tags-selector.svelte';
 
 	// {adData} {adData.rawFrames} {completed} {currentIndex} {autoPlay} {onSliderChange}
 	type Props = {
@@ -29,7 +42,7 @@
 
 	$effect(() => {
 		untrack(() => {
-			session.ads.enrich(adData, ['stitchedFrames', 'attributes']).then(() => {
+			session.ads.enrich(adData, ['stitchedFrames', 'attributes', 'tags']).then(() => {
 				loading = false;
 			});
 		});
@@ -39,7 +52,7 @@
 		return adData.stitchedFrames;
 	});
 
-	$inspect({ attributes: adData.attributes, isUpdatingAttributes });
+	$inspect({ attributes: adData.attributes, isUpdatingAttributes, tags: adData.tags });
 
 	const setAttribute = async (key: string, value: any) => {
 		// Optimistically update the attributes state
@@ -105,7 +118,7 @@
 	<!-- Main image -->
 	<div
 		class={twMerge(
-			'group flex min-h-40 w-full max-w-full flex-auto transform flex-col gap-2 overflow-hidden rounded border-4 border-transparent shadow-lg transition-transform hover:border-inherit dark:shadow-zinc-800',
+			'group/image flex min-h-40 w-full max-w-full flex-auto transform flex-col gap-2 overflow-hidden rounded border-4 border-transparent shadow-lg transition-transform hover:border-inherit dark:shadow-zinc-800',
 			className
 		)}
 	>
@@ -125,7 +138,7 @@
 		<!-- Replay button (center, overlay) -->
 		{#if frames && frames.length > 1 && completed}
 			<div
-				class="absolute top-0 flex h-full w-full flex-col items-center justify-center bg-foreground bg-opacity-25 text-white opacity-0 transition group-hover:opacity-100"
+				class="absolute top-0 flex h-full w-full flex-col items-center justify-center bg-foreground bg-opacity-25 text-white opacity-0 transition group-hover/image:opacity-100"
 			>
 				<Button variant="ghost" onclick={replay} class="z-50">
 					<RotateCcw />
@@ -171,6 +184,17 @@
 
 				{#if !auth.isGuest}
 					<div class="mr-1 flex flex-col">
+						<Popover.Root>
+							<Popover.Trigger>
+								<Button variant="ghost" size="sm" class="size-full p-2" onclick={() => {}}>
+									<TagsIcon class="!size-5 drop-shadow-strong" />
+								</Button>
+							</Popover.Trigger>
+							<Popover.Content align="start" class="flex flex-col gap-4">
+								<TagsSelector bind:adData />
+							</Popover.Content>
+						</Popover.Root>
+
 						<Button
 							variant="ghost"
 							size="sm"

@@ -52,7 +52,7 @@
 					title: 'Settings',
 					url: withBase('mobile-observations/settings'),
 					icon: SettingsIcon,
-					visible: false
+					visible: true
 				}
 			]
 		},

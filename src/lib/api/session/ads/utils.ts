@@ -137,6 +137,27 @@ export const fetchAttributes = async (adData: BasicAdData, token: string) => {
 	return data.attributes || {};
 };
 
+export const fetchTags = async (adData: BasicAdData, token: string): Promise<string[]> => {
+	const { data, error } = await client.GET('/ads/{observer_id}/{timestamp}.{ad_id}/tags', {
+		headers: {
+			Authorization: `Bearer ${token}`
+		},
+		params: {
+			path: {
+				observer_id: adData.observer,
+				timestamp: adData.timestamp.toString(),
+				ad_id: adData.adId
+			}
+		}
+	});
+	if (error) {
+		console.error(error);
+		return [];
+	}
+	console.log('Found tags for ad:', adData.adId, data);
+	return data.tag_ids || [];
+};
+
 export const fetchRichDataObject = async (
 	adData: BasicAdData,
 	token: string

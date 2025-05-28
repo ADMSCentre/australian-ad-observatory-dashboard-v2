@@ -6,7 +6,7 @@
 	import { json } from '@codemirror/lang-json';
 
 	import { fetchRichDataObject } from '$lib/api/session/ads/utils';
-	import AdCardBody from '../ad-card-body.svelte';
+	import AdCardBody from '../ad-card/ad-card-body.svelte';
 	import OcrView from './ocr-view.svelte';
 	import CandidatesView from './candidates-view.svelte';
 	import type {

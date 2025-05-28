@@ -12,9 +12,11 @@
 		SquareBottomDashedScissors,
 		CircleEllipsis,
 		ScanSearch,
-		Check
+		Check,
+		TagIcon,
+		TagsIcon
 	} from 'lucide-svelte/icons';
-	import ImagesGif from '../observer/images-gif.svelte';
+	import ImagesGif from '../../observer/images-gif.svelte';
 	import type { BasicAdData, IndexGroupType, RichAdData } from '$lib/api/session/ads/types';
 	import { auth } from '$lib/api/auth/auth.svelte';
 	import IntersectionObserverSvelte from 'svelte-intersection-observer/IntersectionObserver.svelte';
@@ -25,6 +27,7 @@
 	import AdCardBody from './ad-card-body.svelte';
 	import { INDEX_GROUP_TYPES, session } from '$lib/api/session/session.svelte';
 	import { untrack } from 'svelte';
+	import { type Tag } from '$lib/api/session/tags/index.svelte';
 
 	export type AdElement = 'adId' | 'time' | 'date' | 'observer';
 
@@ -56,7 +59,38 @@
 			return adData.types.includes(type.value);
 		}
 	);
+
+	const appliedTags = $derived.by(() => {
+		if (!adData.tags || adData.tags.length === 0) {
+			return [];
+		}
+		return adData.tags
+			.map((tagId) => {
+				return session.tags.getById(tagId);
+			})
+			.filter((t) => t !== undefined);
+	});
 </script>
+
+{#snippet tag(tag: Tag)}
+	<span
+		class="group/tag-button relative flex size-fit items-center gap-2 overflow-clip rounded-md p-0"
+	>
+		<span
+			class={twMerge(
+				'z-10 inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs',
+				'font-medium !text-white'
+			)}
+			style="color: {tag.hex};"
+		>
+			{tag.name}
+		</span>
+		<div
+			class={twMerge('absolute left-0 top-0 size-full opacity-100')}
+			style="background-color: {tag.hex}"
+		></div>
+	</span>
+{/snippet}
 
 <IntersectionObserverSvelte {element} threshold={0.25} once bind:intersecting>
 	<div
@@ -132,6 +166,11 @@
 						</span>
 						<Check size={10} />
 					</div>
+				{/each}
+			</div>
+			<div class="flex w-fit max-w-full flex-wrap items-center gap-2 text-sm">
+				{#each appliedTags as t}
+					{@render tag(t)}
 				{/each}
 			</div>
 		</div>

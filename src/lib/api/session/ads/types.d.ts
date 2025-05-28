@@ -3,6 +3,7 @@ import { RichDataObject } from './rich-data-object-type';
 export type ExpandType =
 	| 'attributes'
 	| 'richDataObject'
+	| 'tags'
 	// | 'rawFrames'
 	| 'stitchedFrames'
 	// | 'dimensions'
@@ -48,6 +49,7 @@ export type RichAdData = BasicAdData & {
 			modifiedAt?: string;
 		};
 	};
+	tags?: string[];
 	richDataObject?: RichDataObject;
 	stitchedFrames?: string[];
 	metaLibraryScrape?: {

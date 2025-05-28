@@ -893,6 +893,310 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all tags. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of tags */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Tag"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Create a new tag. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        name?: string;
+                        description?: string;
+                        hex?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Tag created successfully */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            tag?: components["schemas"]["Tag"];
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tags/{tag_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Retrieve a tag by ID. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    tag_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Tag retrieved successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Tag"];
+                    };
+                };
+                /** @description Tag not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        /** Update an existing tag. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    tag_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        name?: string;
+                        description?: string;
+                        hex?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Tag updated successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example true */
+                            success?: boolean;
+                            tag?: components["schemas"]["Tag"];
+                        };
+                    };
+                };
+                /** @description Tag not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example Tag not found */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        /** Delete a tag by ID. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    tag_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Tag deleted successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example true */
+                            success?: boolean;
+                        };
+                    };
+                };
+                /** @description Tag not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example Tag not found */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ads/{observer_id}/{timestamp}.{ad_id}/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Retrieve all tag IDs for an ad. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    observer_id: string;
+                    timestamp: string;
+                    ad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example true */
+                            success?: boolean;
+                            tag_ids?: string[];
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example ERROR_RETRIEVING_TAG_IDS */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        /** Update tag IDs for an ad. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    observer_id: string;
+                    timestamp: string;
+                    ad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        tag_ids?: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Tag IDs updated successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example true */
+                            success?: boolean;
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example ERROR_UPDATING_TAG_IDS */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/ads/{observer_id}": {
         parameters: {
             query?: never;
@@ -994,7 +1298,7 @@ export interface paths {
                             timestamp?: string;
                             ad_id?: string;
                         }[];
-                        metadata_types?: ("attributes" | "rdo")[];
+                        metadata_types?: ("attributes" | "tags" | "rdo")[];
                     };
                 };
             };
@@ -1066,7 +1370,7 @@ export interface paths {
                             timestamp?: string;
                             ad_id?: string;
                         }[];
-                        metadata_types?: ("attributes" | "rdo")[];
+                        metadata_types?: ("attributes" | "tags" | "rdo")[];
                     };
                 };
             };
@@ -2419,6 +2723,13 @@ export interface components {
             /** Attributes */
             attributes: Record<string, never> | null;
         };
+        /** AdTag */
+        AdTag: {
+            /** Id */
+            id: string;
+            /** Tags */
+            tags: string[];
+        };
         /** BaseCell */
         BaseCell: {
             /**
@@ -2479,6 +2790,17 @@ export interface components {
              * @default null
              */
             config: Record<string, never> | null;
+        };
+        /** Tag */
+        Tag: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description: string;
+            /** Hex */
+            hex: string;
         };
         /** TeamMember */
         TeamMember: {

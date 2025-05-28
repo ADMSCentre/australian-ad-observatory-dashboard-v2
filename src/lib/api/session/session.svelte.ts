@@ -5,7 +5,7 @@ import { client, runWithCache } from '../client';
 import { listAdsForObserver, listAllAds } from '../mobile-observations';
 import { RichDataBuilder } from './ads/enricher';
 import type { ExpandType, IndexGroupType, RichAdData } from './ads/types';
-import { fetchAttributes, fetchRichDataObject, fetchStitchFrames } from './ads/utils';
+import { fetchAttributes, fetchTags, fetchRichDataObject, fetchStitchFrames } from './ads/utils';
 import { ProjectApiAdapter as ProjectsApi } from './projects/index.svelte';
 import { TagApiAdapter } from './tags/index.svelte';
 import { UsersApi } from './users/index.svelte';
@@ -123,6 +123,8 @@ export class Session {
 								switch (e) {
 									case 'attributes':
 										return 'attributes';
+									case 'tags':
+										return 'tags';
 									case 'richDataObject':
 										return 'rdo';
 									default:
@@ -173,22 +175,28 @@ export class Session {
 					if (!originalAd) throw new Error('Ad not found in original ads');
 					return {
 						...originalAd,
-						attributes: ad.metadata.attributes,
-						richDataObject: ad.metadata.rdo
+						// attributes: ad.metadata.attributes,
+						// richDataObject: ad.metadata.rdo,
+						// tags: ad.metadata.tags
+						...ad.metadata
 					};
 				}) ?? [];
 			if (!updateMemoryCache) return enrichedAds;
 
 			// Loop through the expanded ads and cache the attributes
-			enrichedAds.forEach((ad) => {
-				const adId = ad.adId;
-				if (!this.enrichedAds[adId]) this.enrichedAds[adId] = { ...ad };
-				if (ad.attributes) {
-					this.enrichedAds[adId].attributes = ad.attributes;
-				}
-				if (ad.richDataObject) {
-					this.enrichedAds[adId].richDataObject = ad.richDataObject;
-				}
+			enrichedAds.forEach((enrichedAd) => {
+				const adId = enrichedAd.adId;
+				if (!this.enrichedAds[adId]) this.enrichedAds[adId] = { ...enrichedAd };
+				// if (ad.attributes) {
+				// 	this.enrichedAds[adId].attributes = ad.attributes;
+				// }
+				// if (ad.richDataObject) {
+				// 	this.enrichedAds[adId].richDataObject = ad.richDataObject;
+				// }
+				this.enrichedAds[adId] = {
+					...this.enrichedAds[adId],
+					...enrichedAd
+				};
 			});
 			// results.forEach((ad) => {
 			// 	const adId = ad.ad_id;
@@ -218,64 +226,77 @@ export class Session {
 			const enrichedData: RichAdData = {
 				...ad
 			};
-			await Promise.all(
-				expands.map(async (expand) => {
-					switch (expand) {
-						case 'stitchedFrames':
-							if (auth.token) {
-								const res =
-									this.getCache(ad, expand, preferCache) ??
-									(await fetchStitchFrames(ad, auth.token));
-								// Throw error if incompatible types
-								if (!Array.isArray(res)) throw new Error('Incompatible types for stitchedFrames');
-								this.updateCache(ad, expand, res);
-								if (!inPlace) {
-									enrichedData.stitchedFrames = res;
-									break;
-								}
-								ad.stitchedFrames = res;
+			const promises: Promise<void>[] = expands.map(async (expand) => {
+				switch (expand) {
+					case 'stitchedFrames':
+						if (auth.token) {
+							const res =
+								this.getCache(ad, expand, preferCache) ?? (await fetchStitchFrames(ad, auth.token));
+							// Throw error if incompatible types
+							if (!Array.isArray(res)) throw new Error('Incompatible types for stitchedFrames');
+							this.updateCache(ad, expand, res);
+							if (!inPlace) {
+								enrichedData.stitchedFrames = res;
+								break;
 							}
-							break;
-						case 'attributes':
-							if (auth.token) {
-								const res =
-									this.getCache(ad, expand, preferCache) ?? (await fetchAttributes(ad, auth.token));
-								this.updateCache(ad, expand, res);
-								if (!inPlace) {
-									enrichedData.attributes = res;
-									break;
-								}
-								ad.attributes = res;
+							ad.stitchedFrames = res;
+						}
+						break;
+					case 'tags':
+						if (auth.token) {
+							const res =
+								this.getCache(ad, expand, preferCache) ?? (await fetchTags(ad, auth.token));
+							this.updateCache(ad, expand, res);
+							if (!inPlace) {
+								enrichedData.tags = res;
+								break;
 							}
-							break;
-						case 'richDataObject':
-							if (auth.token) {
-								const res =
-									this.getCache(ad, expand, preferCache) ??
-									(await fetchRichDataObject(ad, auth.token));
-								this.updateCache(ad, expand, res);
-								if (!inPlace) {
-									enrichedData.richDataObject = res;
-									break;
-								}
-								ad.richDataObject = res;
+							ad.tags = res;
+						}
+						break;
+					case 'attributes':
+						if (auth.token) {
+							const res =
+								this.getCache(ad, expand, preferCache) ?? (await fetchAttributes(ad, auth.token));
+							this.updateCache(ad, expand, res);
+							if (!inPlace) {
+								enrichedData.attributes = res;
+								break;
 							}
-							break;
-						case 'metaLibraryScrape':
-							{
-								const res =
-									this.getCache(ad, expand, preferCache) ?? (await enricher.getCandidates());
-								this.updateCache(ad, expand, res);
-								if (!inPlace) {
-									enrichedData.metaLibraryScrape = res;
-									break;
-								}
-								ad.metaLibraryScrape = res;
+							ad.attributes = res;
+						}
+						break;
+					case 'richDataObject':
+						if (auth.token) {
+							const res =
+								this.getCache(ad, expand, preferCache) ??
+								(await fetchRichDataObject(ad, auth.token));
+							this.updateCache(ad, expand, res);
+							if (!inPlace) {
+								enrichedData.richDataObject = res;
+								break;
 							}
-							break;
-					}
-				})
-			);
+							ad.richDataObject = res;
+						}
+						break;
+					case 'metaLibraryScrape':
+						{
+							const res =
+								this.getCache(ad, expand, preferCache) ?? (await enricher.getCandidates());
+							this.updateCache(ad, expand, res);
+							if (!inPlace) {
+								enrichedData.metaLibraryScrape = res;
+								break;
+							}
+							ad.metaLibraryScrape = res;
+						}
+						break;
+				}
+			});
+			// for (const promise of promises) {
+			// 	await promise;
+			// }
+			await Promise.all(promises);
 			if (!inPlace) return enrichedData;
 		}
 	});
@@ -286,5 +307,4 @@ export class Session {
 }
 
 export const session = new Session();
-session.projects.fetch();
 session.users.fetch();

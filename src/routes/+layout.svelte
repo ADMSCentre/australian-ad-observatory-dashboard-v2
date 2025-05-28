@@ -15,9 +15,10 @@
 	import { classList } from 'svelte-body';
 	import { Bug } from 'lucide-svelte';
 	import DebugToolbar from './debug-toolbar.svelte';
+	import { version } from '$app/environment';
 
 	let { children } = $props();
-	$effect.pre(() => {
+	$effect(() => {
 		if (!isRouteProtected($page.url.pathname)) return;
 		if (!auth.loading && !auth.currentUser) {
 			goto(withBase(`/login?redirect=${$page.url.pathname}${$page.url.search}`));
@@ -42,6 +43,11 @@
 		<Header />
 		<div class="flex flex-1 flex-col p-1 sm:p-4 sm:pb-0">
 			{@render children()}
+		</div>
+		<div
+			class="pointer-events-none fixed bottom-1 right-1 z-50 flex items-center justify-end text-3xs text-muted-foreground"
+		>
+			{process.env.NODE_ENV} build v{version}
 		</div>
 	</main>
 </Sidebar.Provider>

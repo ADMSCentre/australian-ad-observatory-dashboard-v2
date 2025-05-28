@@ -47,6 +47,13 @@ export class Authentication {
 		return !this.currentUser || this.currentUser.role === 'guest';
 	});
 
+	headers = $derived.by(() => {
+		if (!this.token) return {};
+		return {
+			Authorization: `Bearer ${this.token}`
+		};
+	});
+
 	refresh = async () => {
 		const { data, error } = await client.POST('/auth/refresh', {
 			body: {

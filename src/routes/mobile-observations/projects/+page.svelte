@@ -13,17 +13,24 @@
 	import { scale } from 'svelte/transition';
 	import { untrack } from 'svelte';
 	import { auth } from '$lib/api/auth/auth.svelte';
+	import PageLoader from '$lib/components/page-loader/page-loader.svelte';
 
 	const projectId = $derived($page.url.searchParams.get('project_id'));
 	let project = $state<Project | null>(null);
+
+	let loading = $state(false);
 
 	$effect(() => {
 		auth.currentUser;
 		projectId;
 		untrack(async () => {
+			loading = true;
 			await session.projects.fetch();
+			loading = false;
 			if (projectId) {
+				loading = true;
 				project = (await session.projects.get(projectId)) ?? null;
+				loading = false;
 			}
 		});
 	});
@@ -49,9 +56,15 @@
 	{/if}
 </svelte:head>
 
-{#if projectId && project}
-	<ProjectPage {projectId} />
-{:else}
+{#if loading}
+	<PageLoader />
+{/if}
+
+{#if projectId}
+	{#if !loading}
+		<ProjectPage {projectId} />
+	{/if}
+{:else if !loading}
 	<div class="flex flex-col gap-4">
 		<h1 class="text-4xl font-bold">Projects</h1>
 		<p class="text-lg">Select a project to view its observations.</p>

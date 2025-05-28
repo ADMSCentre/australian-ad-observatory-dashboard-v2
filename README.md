@@ -11,6 +11,17 @@ npm run dev
 npm run dev -- --open
 ```
 
+## Configuration
+
+The `src/app.config.js` file exports the `development` and `production` configurations for the app. These configurations are parsed by the `src/lib/config.ts` file, which provides the `config` object depending on whether the app is running in development or production mode.
+
+The `config` object can be imported in any Svelte component or TypeScript file like this:
+
+```typescript
+import { config } from '$lib/config';
+const { apiUrl } = config; // Do something with the config
+```
+
 ## Building
 
 To create a production build, run:
@@ -28,10 +39,16 @@ serve build
 
 ## Generate Types from OpenAPI for `openapi-fetch`
 
-To generate types from an OpenAPI spec (when the API changes), run:
+To generate types from an OpenAPI spec (when the production API changes), run from the project root:
 
 ```bash
 npx openapi-typescript https://admscentre.github.io/australian-ad-observatory-api/swagger.yaml -o ./src/lib/api/openapi-paths.ts
+```
+
+For development API, you will need to generate a `swagger.yaml` file from the OpenAPI spec and copy it to a `swagger.yaml` file at the root of the project, then run:
+
+```bash
+npx openapi-typescript ./swagger.yaml -o ./src/lib/api/openapi-paths.ts
 ```
 
 Which will create an `openapi-paths.ts` file in the `src/lib/api` directory with types for the OpenAPI paths defined at `https://admscentre.github.io/australian-ad-observatory-api`.
