@@ -15,6 +15,7 @@
 		disabled = false,
 		searchable = false,
 		clearable = false,
+		allowSelectAll = false,
 		placeholder = 'Select an option...',
 		triggerClass = '',
 		contentClass = '',
@@ -26,6 +27,7 @@
 		disabled?: boolean;
 		placeholder?: string;
 		searchable?: boolean;
+		allowSelectAll?: boolean;
 		clearable?: boolean;
 		triggerClass?: string;
 		contentClass?: string;
@@ -138,8 +140,8 @@
 							{option.label}
 						</Command.Item>
 					{/each}
+					<Command.Separator />
 					{#if clearable && mode === 'multiple' && selected.length > 0}
-						<Command.Separator />
 						<Command.Item
 							onSelect={() => {
 								selected = [];
@@ -149,6 +151,18 @@
 							class="pl-10 text-destructive"
 						>
 							Clear selection
+						</Command.Item>
+					{/if}
+					{#if allowSelectAll && mode === 'multiple'}
+						<Command.Item
+							onSelect={() => {
+								selected = options.map((f) => f.value);
+								closeAndFocusTrigger();
+								onSelected?.(selected);
+							}}
+							class="pl-10"
+						>
+							Select all
 						</Command.Item>
 					{/if}
 				</Command.Group>

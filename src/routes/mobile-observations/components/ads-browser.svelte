@@ -429,6 +429,7 @@
 						bind:selected={selectedTagIds}
 						clearable={true}
 						searchable={true}
+						allowSelectAll={true}
 					/>
 				{/if}
 			</div>
