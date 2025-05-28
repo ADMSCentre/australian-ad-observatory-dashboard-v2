@@ -295,9 +295,12 @@
 			})
 			// Filter by tags
 			.filter((ad) => {
+				// If the tag ids are invalid, remove them
+				const validAppliedTags =
+					ad.tags?.filter((tagId) => session.tags.getById(tagId) !== undefined) || [];
 				// Ad has no tags and "No tag" is selected
-				if (ad.tags?.length === 0 && selectedTagIds.includes(null)) return true;
-				return ad.tags?.some((tagId) => selectedTagIds.includes(tagId)) || false;
+				if (validAppliedTags.length === 0 && selectedTagIds.includes(null)) return true;
+				return validAppliedTags.some((tagId) => selectedTagIds.includes(tagId)) || false;
 			})
 			.toSorted(sortBy.sort);
 

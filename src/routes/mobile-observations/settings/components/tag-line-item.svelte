@@ -78,7 +78,7 @@
 </script>
 
 <div class="flex flex-col items-start gap-2 rounded-md border p-2">
-	<div class="grid w-full grid-cols-[120px_auto_140px_120px] items-center justify-between gap-2">
+	<div class="grid w-full grid-cols-[120px_auto_140px_120px] items-center gap-2">
 		{#if mode === 'view'}
 			<span
 				class="inline-flex w-fit items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
