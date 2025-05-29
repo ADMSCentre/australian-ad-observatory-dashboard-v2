@@ -95,6 +95,7 @@
 		"svelte-loading-spinners": "^0.3.6",
 		"svelte-tiptap": "^2.1.0",
 		"tailwindcss-content-visibility": "^1.0.0",
+		"uuid": "^11.1.0",
 		"virtua": "^0.39.3"
 	}
 }

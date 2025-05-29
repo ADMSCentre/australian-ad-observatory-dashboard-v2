@@ -6,7 +6,7 @@
 	import type { QueryCell, TextCell } from 'mobile-observations/projects/types';
 	import { DEFAULT_QUERY } from 'mobile-observations/query/query';
 	import { twMerge } from 'tailwind-merge';
-	import { session } from '$lib/api/session/session.svelte';
+	import { v4 as uuid } from 'uuid';
 
 	const {
 		class: className = '',
@@ -24,7 +24,7 @@
 
 	const insertTextCell = () => {
 		const newCell: TextCell = {
-			id: Math.random().toString(36).substring(7),
+			id: uuid(),
 			type: 'text',
 			content: ''
 		};
@@ -34,7 +34,7 @@
 
 	const insertQueryCell = () => {
 		const newCell: QueryCell = {
-			id: Math.random().toString(36).substring(7),
+			id: uuid(),
 			type: 'query',
 			content: {
 				query: DEFAULT_QUERY,
