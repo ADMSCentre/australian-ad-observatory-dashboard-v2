@@ -77,7 +77,9 @@ export class ProjectManager {
 				loading: false,
 				error: true,
 				message:
-					'An error has occured: ' + (e instanceof Error ? e.message : JSON.stringify(e, null, 2))
+					'An error has occured: ' +
+					(e instanceof Error ? e.message : JSON.stringify(e, null, 2)) +
+					'. Try running the query again. If the error persists, please contact support.'
 			};
 		}
 	}

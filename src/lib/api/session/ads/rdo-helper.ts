@@ -445,6 +445,7 @@ export function getField(key: string) {
 
 // Attach other attributes to the rich data object for export
 export function attachRichDataObject(ad: RichAdData) {
+	if (!ad.richDataObject) throw new Error('Ad does not have a rich data object');
 	return {
 		...ad.richDataObject,
 		attributes: ad.attributes || {}

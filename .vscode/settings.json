@@ -17,5 +17,6 @@
 		{
 			"file": "docs/.copilot/commit-message-instructions.md"
 		}
-	]
+	],
+	"editor.rulers": [100]
 }

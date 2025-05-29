@@ -6,7 +6,8 @@
 		Trash,
 		X,
 		Check,
-		LoaderCircle
+		LoaderCircle,
+		SaveIcon
 	} from 'lucide-svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { twMerge } from 'tailwind-merge';
@@ -30,19 +31,23 @@
 		);
 
 	let isDeleting = $state(false);
-	$inspect({ cell, projectManager });
 	const queryResult = $derived(projectManager.queryResults[cell.id]);
+
+	let saving = $state(false);
 </script>
 
 {#snippet actionButton(props: {
 	iconComponent: any;
+	classes?: {
+		icon?: string;
+	};
 	tooltip: string;
 	onclick: () => void;
 	disabled?: boolean;
 })}
 	<Tooltip.Provider>
 		<Tooltip.Root>
-			<Tooltip.Trigger>
+			<Tooltip.Trigger disabled={props.disabled}>
 				<Button
 					variant="ghost"
 					size="icon"
@@ -50,7 +55,7 @@
 					onclick={props.onclick}
 					disabled={props.disabled}
 				>
-					<props.iconComponent />
+					<props.iconComponent class={props.classes?.icon || ''} />
 				</Button>
 			</Tooltip.Trigger>
 			<Tooltip.Content>{props.tooltip}</Tooltip.Content>
@@ -62,7 +67,7 @@
 	<div class={twMerge('flex gap-1 border bg-background p-1', className)}>
 		{#if !isDeleting}
 			{#if cell.type === 'query'}
-				{#if !queryResult || !queryResult.loading}
+				<!-- {#if !queryResult || !queryResult.loading}
 					{@render actionButton({
 						iconComponent: Play,
 						tooltip: 'Run',
@@ -72,9 +77,32 @@
 					<Button disabled variant="ghost" size="icon" class="size-fit p-1">
 						<LoaderCircle class="animate-spin" />
 					</Button>
-				{/if}
+				{/if} -->
+				{@render actionButton({
+					iconComponent: queryResult?.loading ? LoaderCircle : Play,
+					tooltip: 'Run',
+					classes: {
+						icon: queryResult?.loading ? 'animate-spin' : ''
+					},
+					onclick: async () => await projectManager.runCell(cell.id),
+					disabled: queryResult?.loading
+				})}
 			{/if}
 			{#if projectManager.currentUser.isEditor}
+				{@render actionButton({
+					iconComponent: saving ? LoaderCircle : SaveIcon,
+					classes: {
+						icon: saving ? 'animate-spin' : ''
+					},
+					tooltip: 'Save',
+					onclick: async () => {
+						saving = true;
+						await projectManager.update();
+						saving = false;
+						cell.hasChanges = false;
+					},
+					disabled: !cell.hasChanges || saving
+				})}
 				{@render actionButton({
 					iconComponent: ArrowUpFromLine,
 					tooltip: 'Shift Cell Up',

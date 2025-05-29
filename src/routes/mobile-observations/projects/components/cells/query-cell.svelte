@@ -9,7 +9,8 @@
 		ChevronRight,
 		LoaderIcon,
 		PlusIcon,
-		AlertTriangle
+		AlertTriangle,
+		SquareChevronDown
 	} from 'lucide-svelte';
 	import { PROJECT_MANAGER, ProjectManager } from 'mobile-observations/projects/manager.svelte';
 	import type {
@@ -21,8 +22,8 @@
 	import QueryBuilder from 'mobile-observations/query/components/query-builder.svelte';
 	import QueryResults from 'mobile-observations/query/components/query-results.svelte';
 	import QueryTextEditor from 'mobile-observations/query/components/query-text-editor.svelte';
-	import type { Query } from 'mobile-observations/query/query';
-	import { getContext } from 'svelte';
+	import { getMethodByValue, type Query } from 'mobile-observations/query/query';
+	import { getContext, untrack } from 'svelte';
 	import { twMerge } from 'tailwind-merge';
 	import CodeMirror from 'svelte-codemirror-editor';
 	import { slide } from 'svelte/transition';
@@ -30,10 +31,20 @@
 	import VisualisationSelector from '../query-visualisation/visualisation-selector.svelte';
 	import Visualisation from '../query-visualisation/visualisation.svelte';
 	import { flip } from 'svelte/animate';
+	import MultiSelect from '$lib/components/multi-select/multi-select.svelte';
+	import { session } from '$lib/api/session/session.svelte';
+	import { QueryModeSelector } from 'mobile-observations/query/query-modes.svelte';
 
 	let { cell = $bindable() }: { cell: QueryCell } = $props();
 
-	let editorMode: 'visual' | 'text' = $state('visual');
+	let editorModeSelector = $state(new QueryModeSelector());
+
+	$effect(() => {
+		const method = cell.content.query?.method;
+		untrack(() => {
+			editorModeSelector.setMethod(method);
+		});
+	});
 
 	const projectManager = (getContext(PROJECT_MANAGER) as () => ProjectManager | undefined)();
 	if (!projectManager)
@@ -55,10 +66,18 @@
 		}
 	});
 
+	function updateCell() {
+		cell.hasChanges = true;
+		// if (!projectManager) throw new Error('Project manager is not defined');
+		// projectManager?.update();
+	}
+
+	const originalConfig = JSON.stringify(cell.config);
+
 	// Whenever the config change, update the cell
 	$effect(() => {
-		if (cell.config) {
-			projectManager.update();
+		if (JSON.stringify(cell.config) !== originalConfig) {
+			updateCell();
 		}
 	});
 
@@ -74,7 +93,7 @@
 		if (!cell.config) throw new Error('Cell config is not defined');
 		if (!projectManager) throw new Error('Project manager is not defined');
 		cell.config['hidden'] = value;
-		projectManager.update();
+		updateCell();
 	}
 
 	let newVisualisationType = $state<(typeof VISUALISATION_TYPES)[number] | null>(null);
@@ -90,30 +109,55 @@
 			}
 		} as QueryResult);
 
-		projectManager.update();
+		updateCell();
 
 		newVisualisationType = null;
 	}
 </script>
 
 <div
-	class="group/cell relative flex max-w-full flex-col gap-2 overflow-auto rounded border p-4 shadow"
+	class="group/cell relative flex max-w-full flex-col gap-2 overflow-x-auto overflow-y-hidden rounded border p-4 shadow"
 >
-	{#if editorMode === 'visual'}
+	{#if editorModeSelector.currentMode.type === 'multi-select'}
+		<div class="flex flex-col gap-2">
+			<p class="text-sm font-light text-zinc-500 dark:text-zinc-400">
+				Click on the field below to select items for the query <span class="font-normal"
+					>{getMethodByValue(cell.content.query.method).label}</span
+				>.
+			</p>
+			<MultiSelect
+				options={session.observers.activationCodes.map((code) => ({
+					value: code,
+					label: code
+				}))}
+				selected={cell.content.query.args}
+				placeholder="Select observers"
+				onSelected={(selected) => {
+					cell.content.query.args = selected;
+					updateCell();
+				}}
+				{disabled}
+				searchable
+				clearable
+			/>
+		</div>
+	{/if}
+	{#if editorModeSelector.currentMode.type === 'visual'}
 		<QueryBuilder
 			bind:query={cell.content.query}
 			class="border-none p-0"
 			onchange={() => {
-				projectManager.update();
+				updateCell();
 			}}
 			{disabled}
 		/>
-	{:else}
+	{/if}
+	{#if editorModeSelector.currentMode.type === 'text'}
 		<QueryTextEditor
 			bind:query={cell.content.query}
 			class="text-lg"
 			onsaved={() => {
-				projectManager.update();
+				updateCell();
 			}}
 			{disabled}
 		/>
@@ -144,22 +188,17 @@
 			</span>
 		</Button>
 		<div class="flex w-full items-center justify-end gap-2">
-			<Button
-				variant={editorMode === 'visual' ? 'secondary' : 'ghost'}
-				size="sm"
-				onclick={() => (editorMode = 'visual')}
-			>
-				<Workflow />
-				Visual
-			</Button>
-			<Button
-				variant={editorMode === 'text' ? 'secondary' : 'ghost'}
-				size="sm"
-				onclick={() => (editorMode = 'text')}
-			>
-				<CodeIcon />
-				Text
-			</Button>
+			{#each editorModeSelector.availableModes as mode}
+				<Button
+					variant={editorModeSelector.currentMode.type === mode.type ? 'secondary' : 'ghost'}
+					size="sm"
+					onclick={() => editorModeSelector.setMode(mode)}
+					title={mode.tooltip}
+				>
+					<mode.icon />
+					{mode.label}
+				</Button>
+			{/each}
 		</div>
 	</div>
 </div>
@@ -214,7 +253,7 @@
 										// Remove the result from the array
 										cell.content.results.splice(indexToDelete, 1);
 									}
-									projectManager.update();
+									updateCell();
 								}}
 							/>
 						</div>

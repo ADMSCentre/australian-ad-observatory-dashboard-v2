@@ -147,7 +147,7 @@ export const FIELD_GROUPS: {
 		fields: [
 			{
 				key: 'observer.uuid',
-				title: 'Activation Code',
+				title: 'Observer ID',
 				description: 'The unique identifier of the observer'
 			},
 			{

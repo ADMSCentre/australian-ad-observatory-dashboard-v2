@@ -6,6 +6,7 @@ import { listAdsForObserver, listAllAds } from '../mobile-observations';
 import { RichDataBuilder } from './ads/enricher';
 import type { ExpandType, IndexGroupType, RichAdData } from './ads/types';
 import { fetchAttributes, fetchTags, fetchRichDataObject, fetchStitchFrames } from './ads/utils';
+import { ObserversApiAdapter } from './observers/index.svelte';
 import { ProjectApiAdapter as ProjectsApi } from './projects/index.svelte';
 import { TagApiAdapter } from './tags/index.svelte';
 import { UsersApi } from './users/index.svelte';
@@ -304,7 +305,15 @@ export class Session {
 	projects = new ProjectsApi();
 	users = new UsersApi();
 	tags = new TagApiAdapter();
+
+	observers = new ObserversApiAdapter();
+
+	async refresh() {
+		console.log('Refreshing session data');
+		this.users.fetch();
+		this.observers.fetch();
+	}
 }
 
 export const session = new Session();
-session.users.fetch();
+await session.refresh();

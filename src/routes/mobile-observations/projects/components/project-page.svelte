@@ -18,6 +18,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { twMerge } from 'tailwind-merge';
 	import { session } from '$lib/api/session/session.svelte';
+	import Cell from './cells/cell.svelte';
 
 	const { projectId }: { projectId: string } = $props();
 
@@ -60,14 +61,7 @@
 					>
 						<CellCreateMenu {index} />
 					</div>
-					<div class="relative size-full flex-1">
-						{#if cell.type === 'text'}
-							<TextCell bind:content={cell.content} />
-						{:else if cell.type === 'query'}
-							<QueryCell bind:cell={manager.project.cells[index] as QueryCellType} />
-						{/if}
-						<CellControls {cell} class=" absolute right-4 top-0 -translate-y-1/2 " />
-					</div>
+					<Cell bind:cell={manager.project.cells[index]} />
 				</div>
 			{/each}
 			{#if manager.project.cells.length === 0}

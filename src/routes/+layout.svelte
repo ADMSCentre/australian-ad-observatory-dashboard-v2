@@ -16,6 +16,8 @@
 	import { Bug } from 'lucide-svelte';
 	import DebugToolbar from './debug-toolbar.svelte';
 	import { version } from '$app/environment';
+	import { untrack } from 'svelte';
+	import { session } from '$lib/api/session/session.svelte';
 
 	let { children } = $props();
 	$effect(() => {
@@ -23,6 +25,10 @@
 		if (!auth.loading && !auth.currentUser) {
 			goto(withBase(`/login?redirect=${$page.url.pathname}${$page.url.search}`));
 		}
+		// If authentication changes, refresh the session
+		untrack(() => {
+			session.refresh();
+		});
 	});
 </script>
 

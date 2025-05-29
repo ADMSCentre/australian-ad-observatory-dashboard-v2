@@ -191,7 +191,7 @@
 		<div class="flex flex-col gap-4">
 			<ExportFieldsSelector {allKeys} bind:selectedKeys disabled={loading} />
 			<span class="text-lg font-semibold">Preview</span>
-			{#if !loading || tables.length == 0}
+			{#if (!loading || tables.length == 0) && adData.length > 0 && adData[0].richDataObject}
 				<AdTable richDataObject={attachRichDataObject(adData[0])} {selectedKeys} class="h-72" />
 			{:else}
 				<Table table={fullTable} />

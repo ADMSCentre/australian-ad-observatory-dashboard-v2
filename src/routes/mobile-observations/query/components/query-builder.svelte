@@ -109,9 +109,13 @@
 		}, 300);
 	}
 
+	const originalQueryContent = JSON.stringify(query);
+
 	$effect(() => {
-		console.log('Query changed');
-		debouncedOnChange(query);
+		if (JSON.stringify(query) !== originalQueryContent) {
+			// If the query has changed, call the debounced onchange function
+			debouncedOnChange(query);
+		}
 	});
 
 	let showAndOr = $state(false);

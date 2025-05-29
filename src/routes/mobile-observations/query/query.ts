@@ -67,7 +67,7 @@ export const METHODS: {
 		inputType: 'datetime'
 	},
 	OBSERVER_ID_CONTAINS: {
-		label: 'OBSERVER ID CONTAINS',
+		label: 'ACTIVATION CODE CONTAINS',
 		value: 'OBSERVER_ID_CONTAINS',
 		type: 'function',
 		precedence: 4,
@@ -93,6 +93,14 @@ export const METHODS: {
 	PAGE_NAME_CONTAINS: {
 		label: 'PAGE NAME CONTAINS',
 		value: 'PAGE_NAME_CONTAINS',
+		type: 'function',
+		precedence: 4,
+		associativity: 'right',
+		inputType: 'multi-text'
+	},
+	REFERENCE_QUERY: {
+		label: 'REFERENCE QUERY',
+		value: 'REFERENCE_QUERY',
 		type: 'function',
 		precedence: 4,
 		associativity: 'right',
