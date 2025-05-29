@@ -316,4 +316,4 @@ export class Session {
 }
 
 export const session = new Session();
-await session.refresh();
+session.refresh();
