@@ -100,6 +100,7 @@
 			className
 		)}
 		bind:this={element}
+		style="content-visibility: auto"
 	>
 		<!-- Header -->
 		<div class="flex flex-col gap-0.5">
