@@ -187,7 +187,11 @@
 						<Popover.Root>
 							<Popover.Trigger>
 								<Button variant="ghost" size="sm" class="size-full p-2" onclick={() => {}}>
-									<TagsIcon class="!size-5 drop-shadow-strong" />
+									{#if adData.tags && adData.tags.length > 0}
+										<TagsIcon class="!size-5 fill-emerald-500 drop-shadow-strong" />
+									{:else}
+										<TagsIcon class="!size-5 drop-shadow-strong" />
+									{/if}
 								</Button>
 							</Popover.Trigger>
 							<Popover.Content align="start" class="flex flex-col gap-4">
