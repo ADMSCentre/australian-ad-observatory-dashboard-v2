@@ -37,10 +37,10 @@
 	let searchTerms = $state('');
 
 	$effect(() => {
-		// new Grid(gridDiv, gridOptions);
 		const gridOptions = {
 			columnDefs,
 			rowData,
+			enableCellTextSelection: true,
 			...options
 		};
 		// Clear the gridDiv before creating a new grid
