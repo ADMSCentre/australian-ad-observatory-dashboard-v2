@@ -509,15 +509,15 @@
 					/>
 				{/each} -->
 
-				<WindowVirtualizer data={rowData} overscan={1}>
+				<WindowVirtualizer data={rowData} overscan={3} itemSize={450}>
 					{#snippet children(item, index)}
-						<div class="flex w-full flex-col items-center" transition:scale={{ duration: 300 }}>
+						<div class="flex w-full flex-col items-center">
 							<div
 								class="grid w-full gap-10"
 								style={`grid-template-columns: repeat(${groupSize}, 1fr)`}
 							>
 								{#each item as adData (adData.adId)}
-									<div animate:flip={{ duration: 150 }} transition:scale={{ duration: 150 }}>
+									<div class="will-change-transform">
 										<AdCard
 											adData={ads[getIndex(adData)]}
 											{exclude}
