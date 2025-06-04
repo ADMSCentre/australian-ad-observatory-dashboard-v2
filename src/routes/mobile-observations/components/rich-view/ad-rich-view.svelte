@@ -53,7 +53,17 @@
 	});
 	const candidates = $derived.by(() => {
 		if (!currentAd || !currentAd.richDataObject) return null;
-		return currentAd.richDataObject.enrichment.meta_adlibrary_scrape.candidates;
+		const rdoMetaAdLibraryCandidates =
+			currentAd.richDataObject.enrichment.meta_adlibrary_scrape.candidates;
+		if (rdoMetaAdLibraryCandidates && rdoMetaAdLibraryCandidates.length > 0)
+			return rdoMetaAdLibraryCandidates;
+		const cclCandidates = (currentAd.richDataObject.enrichment as any).ccl?.scrapes?.[0]?.response
+			?.response_interpreted?.json_raw;
+		if (cclCandidates && cclCandidates.length > 0)
+			return cclCandidates.map((value: any) => ({
+				data: value
+			}));
+		return [];
 	});
 	// const candidates = $derived(
 	// 	(currentAd?.metaLibraryScrape?.candidates.map((c, index) => {

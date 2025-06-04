@@ -414,9 +414,7 @@
 												{/await}
 											{/each}
 											{#if medias.length === 0}
-												<div>
-													Unable to load video <pre>{JSON.stringify(video, null, 2)}</pre>
-												</div>
+												<div>Unable to load video</div>
 											{/if}
 											<!-- <pre>{JSON.stringify(mapMedia(video), null, 2)}</pre> -->
 										{/each}
