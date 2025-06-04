@@ -9,7 +9,7 @@
 	import { cn } from '$lib/utils.js';
 	import { twMerge } from 'tailwind-merge';
 	import MultiSelectItem from './multi-select-item.svelte';
-	import { ChevronDownIcon } from 'lucide-svelte';
+	import { ChevronDownIcon, PlusIcon } from 'lucide-svelte';
 
 	let {
 		options,
@@ -122,8 +122,31 @@
 					/>
 				{/if}
 				<Command.List>
-					<Command.Empty>No results found.</Command.Empty>
+					<!-- Enable user to add terms not included in the list -->
+					{#if searchTerm.trimEnd() !== ''}
+						<Command.Item
+							value={searchTerm}
+							keywords={[searchTerm]}
+							onSelect={() => {
+								if (searchTerm.trim() !== '') {
+									toggleSelection(searchTerm);
+								}
+							}}
+							onclick={(e) => {
+								e.stopPropagation();
+								e.preventDefault();
+								if (searchTerm.trim() !== '') {
+									toggleSelection(searchTerm);
+								}
+							}}
+						>
+							<PlusIcon class="mr-2 size-4" />
+							{searchTerm}
+						</Command.Item>
+					{/if}
+					<!-- <Command.Empty>No results found.</Command.Empty> -->
 					<Command.Group>
+						<!-- Allow entering items not in list -->
 						{#each unselectedOptions as option}
 							<Command.Item
 								value={option.value}
