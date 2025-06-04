@@ -39,16 +39,26 @@ export const listAllAds = async (
 	const presignedRes = await fetch(presignedUrl);
 
 	// value structure: fda7681c-d7f1-4420-8499-46b4695d224a/temp/1729261457039.c979d19c-0546-412b-a2d9-63a247d7c250/
-	const raw = await presignedRes.json();
+	// const raw = await presignedRes.json();
 
-	const observationTypes = Object.keys(raw);
-	const index: ObservationIndex = observationTypes.reduce((acc, category) => {
-		if (!acc) acc = {};
-		acc[category] = raw[category].map((path: string) => parseAdPath(path));
-		return acc;
-	}, {} as ObservationIndex);
+	// const observationTypes = Object.keys(raw);
+	// const index: ObservationIndex = observationTypes.reduce((acc, category) => {
+	// 	if (!acc) acc = {};
+	// 	acc[category] = raw[category].map((path: string) => parseAdPath(path));
+	// 	return acc;
+	// }, {} as ObservationIndex);
+
+	// const ads = await presignedRes.json();
+
+	const index = {
+		ads_passed_rdo_construction: (await presignedRes.json()).map((path: string) =>
+			parseAdPath(path)
+		)
+	} satisfies ObservationIndex;
+	console.log('Parsed Index:', index);
 
 	const ads = parseAdsIndex(index, types) as RichAdData[];
+	console.log('Parsed Ads:', ads);
 	return ads.filter((ad) => filters.every((filter) => filter(ad)));
 };
 

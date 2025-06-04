@@ -116,7 +116,8 @@
 <div class="flex flex-col gap-4">
 	<h1>Observations Timeline</h1>
 
-	The timeline below shows the number of observations identified as ads over time.
+	The timeline below shows the number of observations identified as ads over time. A total of
+	{ads.length} ads were observed in the selected date range.
 
 	<ObservationsTimeline {ads} {dateRange} />
 </div>
