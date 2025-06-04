@@ -104,7 +104,7 @@
 		loading = true;
 		tables = [];
 		// Increment the current on an interval to provide some feedback to the user
-		let timePerBatch = 20000;
+		let timePerBatch = 29000;
 		const refreshEta = () => {
 			eta = (total - current) * (timePerBatch / BATCH_SIZE);
 		};
@@ -139,7 +139,6 @@
 			const batchTables = await Promise.all(
 				enrichedAds?.map((ad) => {
 					const richDataObject = attachRichDataObject(ad);
-					console;
 					if (!richDataObject) return;
 					return tabulateObject(
 						richDataObject,

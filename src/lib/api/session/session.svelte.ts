@@ -4,6 +4,7 @@ import type { Query } from '../../../routes/mobile-observations/query/query';
 import { client, runWithCache } from '../client';
 import { listAdsForObserver, listAllAds } from '../mobile-observations';
 import { RichDataBuilder } from './ads/enricher';
+import type { RichDataObject } from './ads/rich-data-object-type';
 import type { ExpandType, IndexGroupType, RichAdData } from './ads/types';
 import { fetchAttributes, fetchTags, fetchRichDataObject, fetchStitchFrames } from './ads/utils';
 import { ObserversApiAdapter } from './observers/index.svelte';
@@ -174,13 +175,17 @@ export class Session {
 				results?.map((ad) => {
 					const originalAd = adsLookupTable[ad.ad_id];
 					if (!originalAd) throw new Error('Ad not found in original ads');
+					const { rdo, ...rest } = ad.metadata as {
+						rdo?: RichDataObject;
+						[key: string]: unknown;
+					};
 					return {
 						...originalAd,
-						// attributes: ad.metadata.attributes,
-						// richDataObject: ad.metadata.rdo,
-						// tags: ad.metadata.tags
-						...ad.metadata
-					};
+						// We need to convert .rdo to .richDataObject to fit the field name in RichAdData
+						richDataObject: rdo,
+						// Other metadata fields are already in the correct format
+						...rest
+					} satisfies RichAdData;
 				}) ?? [];
 			if (!updateMemoryCache) return enrichedAds;
 
@@ -188,27 +193,11 @@ export class Session {
 			enrichedAds.forEach((enrichedAd) => {
 				const adId = enrichedAd.adId;
 				if (!this.enrichedAds[adId]) this.enrichedAds[adId] = { ...enrichedAd };
-				// if (ad.attributes) {
-				// 	this.enrichedAds[adId].attributes = ad.attributes;
-				// }
-				// if (ad.richDataObject) {
-				// 	this.enrichedAds[adId].richDataObject = ad.richDataObject;
-				// }
 				this.enrichedAds[adId] = {
 					...this.enrichedAds[adId],
 					...enrichedAd
 				};
 			});
-			// results.forEach((ad) => {
-			// 	const adId = ad.ad_id;
-			// 	if (!this.enrichedAds[adId]) this.enrichedAds[adId] = { ...ad };
-			// 	if (ad.metadata?.attributes) {
-			// 		this.enrichedAds[adId].attributes = ad.metadata.attributes;
-			// 	}
-			// 	if (ad.metadata?.rdo) {
-			// 		this.enrichedAds[adId].richDataObject = ad.metadata.rdo;
-			// 	}
-			// });
 			return enrichedAds;
 		},
 		enrich: async (
