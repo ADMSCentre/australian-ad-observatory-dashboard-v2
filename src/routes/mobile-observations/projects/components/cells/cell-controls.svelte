@@ -12,7 +12,7 @@
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { twMerge } from 'tailwind-merge';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import type { Cell } from 'mobile-observations/projects/types';
+	import type { Cell, QueryCell } from 'mobile-observations/projects/types';
 	import { getContext } from 'svelte';
 	import { PROJECT_MANAGER, ProjectManager } from 'mobile-observations/projects/manager.svelte';
 
@@ -44,23 +44,26 @@
 	tooltip: string;
 	onclick: () => void;
 	disabled?: boolean;
+	hidden?: boolean;
 })}
-	<Tooltip.Provider>
-		<Tooltip.Root>
-			<Tooltip.Trigger disabled={props.disabled}>
-				<Button
-					variant="ghost"
-					size="icon"
-					class="size-fit p-1"
-					onclick={props.onclick}
-					disabled={props.disabled}
-				>
-					<props.iconComponent class={props.classes?.icon || ''} />
-				</Button>
-			</Tooltip.Trigger>
-			<Tooltip.Content>{props.tooltip}</Tooltip.Content>
-		</Tooltip.Root>
-	</Tooltip.Provider>
+	{#if !props.hidden}
+		<Tooltip.Provider>
+			<Tooltip.Root>
+				<Tooltip.Trigger disabled={props.disabled}>
+					<Button
+						variant="ghost"
+						size="icon"
+						class="size-fit p-1"
+						onclick={props.onclick}
+						disabled={props.disabled}
+					>
+						<props.iconComponent class={props.classes?.icon || ''} />
+					</Button>
+				</Tooltip.Trigger>
+				<Tooltip.Content>{props.tooltip}</Tooltip.Content>
+			</Tooltip.Root>
+		</Tooltip.Provider>
+	{/if}
 {/snippet}
 
 {#if projectManager}
@@ -88,21 +91,24 @@
 					disabled: queryResult?.loading
 				})}
 			{/if}
+			{@render actionButton({
+				iconComponent: saving ? LoaderCircle : SaveIcon,
+				classes: {
+					icon: saving ? 'animate-spin' : ''
+				},
+				tooltip: 'Save',
+				onclick: async () => {
+					saving = true;
+					await projectManager.update();
+					saving = false;
+					cell.hasChanges = false;
+				},
+				disabled: !cell.hasChanges || saving,
+				hidden:
+					!projectManager.currentUser.isEditor &&
+					(cell as QueryCell).content.query.method !== 'OBSERVER_ID_CONTAINS'
+			})}
 			{#if projectManager.currentUser.isEditor}
-				{@render actionButton({
-					iconComponent: saving ? LoaderCircle : SaveIcon,
-					classes: {
-						icon: saving ? 'animate-spin' : ''
-					},
-					tooltip: 'Save',
-					onclick: async () => {
-						saving = true;
-						await projectManager.update();
-						saving = false;
-						cell.hasChanges = false;
-					},
-					disabled: !cell.hasChanges || saving
-				})}
 				{@render actionButton({
 					iconComponent: ArrowUpFromLine,
 					tooltip: 'Shift Cell Up',
