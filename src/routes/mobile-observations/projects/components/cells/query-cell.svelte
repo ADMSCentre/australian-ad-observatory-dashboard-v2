@@ -139,6 +139,7 @@
 				{disabled}
 				searchable
 				clearable
+				allowPasting
 			/>
 		</div>
 	{/if}

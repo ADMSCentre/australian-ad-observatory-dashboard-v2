@@ -9,13 +9,15 @@
 	import { cn } from '$lib/utils.js';
 	import { twMerge } from 'tailwind-merge';
 	import MultiSelectItem from './multi-select-item.svelte';
-	import { ChevronDownIcon, PlusIcon } from 'lucide-svelte';
+	import { ChevronDownIcon, ClipboardPasteIcon, PlusIcon } from 'lucide-svelte';
+	import { toast } from 'svelte-sonner';
 
 	let {
 		options,
 		selected = $bindable([]),
 		searchable = false,
 		clearable = false,
+		allowPasting = false,
 		placeholder = 'Select options...',
 		contentClass = '',
 		onSelected
@@ -26,6 +28,7 @@
 		placeholder?: string;
 		searchable?: boolean;
 		clearable?: boolean;
+		allowPasting?: boolean;
 		contentClass?: string;
 		onSelected?: (value: any[]) => void;
 	} = $props();
@@ -36,6 +39,32 @@
 
 	// Find the unselected options
 	const unselectedOptions = $derived(options.filter((option) => !selected.includes(option.value)));
+
+	// Allow pasting options from clipboard
+	async function parseClipboard(): Promise<string[]> {
+		if (!allowPasting) return [];
+		if (!navigator.clipboard || !navigator.clipboard.readText) {
+			console.warn('Clipboard API not supported');
+			return [];
+		}
+		try {
+			const text = await navigator.clipboard.readText();
+			const SEPARATORS = [',', ';', '\n'];
+			const regex = new RegExp(`\\s*[${SEPARATORS.join('')}]+\\s*`);
+			return (
+				text
+					.split(regex)
+					.filter((item) => item.trim() !== '')
+					// Remove quotes
+					.map((i) => i.replaceAll('"', '').replaceAll("'", ''))
+					.map((i) => i.toLocaleLowerCase())
+					.map((i) => i.trim())
+			);
+		} catch (error) {
+			console.warn('Failed to read clipboard contents:', error);
+			return [];
+		}
+	}
 
 	function isSelected(value: any) {
 		return selected.includes(value);
@@ -88,22 +117,45 @@
 						{placeholder}
 					</div>
 				{/if}
-				{#if clearable && selected.length > 0}
-					<div class="flex w-full items-center gap-2">
+				<div class="flex w-fit items-center gap-2">
+					{#if clearable && selected.length > 0}
+						<div class="flex w-full items-center gap-2">
+							<Button
+								variant="ghost"
+								class="size-fit px-1 py-0.5 text-xs font-medium"
+								onclick={(e) => {
+									e.stopPropagation();
+									selected = [];
+									onSelected?.(selected);
+								}}
+							>
+								<X size={16} />
+								Clear
+							</Button>
+						</div>
+					{/if}
+					{#if allowPasting}
 						<Button
 							variant="ghost"
 							class="size-fit px-1 py-0.5 text-xs font-medium"
-							onclick={(e) => {
+							onclick={async (e) => {
 								e.stopPropagation();
-								selected = [];
-								onSelected?.(selected);
+								const items = (await parseClipboard()).filter((i) => i.trim() !== '');
+								const newItems = items.filter((item) => !isSelected(item));
+								if (newItems.length > 0) {
+									selected = [...selected, ...newItems];
+									onSelected?.(selected);
+								}
+								toast.success(
+									`Pasted ${items.length} item${items.length > 1 ? 's' : ''} (${newItems.length} new) from clipboard.`
+								);
 							}}
 						>
-							<X size={16} />
-							Clear selection
+							<ClipboardPasteIcon class="size-4" />
+							Paste
 						</Button>
-					</div>
-				{/if}
+					{/if}
+				</div>
 			</div>
 			<ChevronDownIcon size={20} />
 		</div>
