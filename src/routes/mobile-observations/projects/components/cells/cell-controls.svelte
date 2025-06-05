@@ -106,7 +106,7 @@
 				disabled: !cell.hasChanges || saving,
 				hidden:
 					!projectManager.currentUser.isEditor &&
-					(cell as QueryCell).content.query.method !== 'OBSERVER_ID_CONTAINS'
+					!(cell.type === 'query' && cell.content.query.method === 'OBSERVER_ID_CONTAINS')
 			})}
 			{#if projectManager.currentUser.isEditor}
 				{@render actionButton({
