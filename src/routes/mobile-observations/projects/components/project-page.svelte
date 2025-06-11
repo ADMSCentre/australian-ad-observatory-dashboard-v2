@@ -8,7 +8,7 @@
 	import QueryCell from './cells/query-cell.svelte';
 	import ProjectHeader from './project-header.svelte';
 	import CellControls from './cells/cell-controls.svelte';
-	import { getContext, onMount, setContext, untrack } from 'svelte';
+	import { getContext, onDestroy, onMount, setContext, untrack } from 'svelte';
 	import { PROJECT_MANAGER, ProjectManager } from '../manager.svelte';
 	import { flip } from 'svelte/animate';
 	import CellCreateMenu from './cells/cell-create-menu.svelte';
@@ -23,24 +23,33 @@
 	const { projectId }: { projectId: string } = $props();
 
 	let manager = $state<ProjectManager | null>();
-	$effect(() => {
-		untrack(() => {
-			session.projects.get(projectId).then((p) => {
-				if (p) {
-					manager = new ProjectManager(p);
-					manager.runAllCells();
-				}
-			});
-		});
-
-		return () => {
-			if (manager) {
-				console.log('Destroying project manager');
+	onMount(() => {
+		console.log(`Project page mounted with projectId: ${projectId}, running all queries...`);
+		session.projects.get(projectId).then((p) => {
+			if (p) {
+				manager = new ProjectManager(p);
+				manager.runAllCells();
 			}
-		};
+		});
+	});
+
+	onDestroy(() => {
+		console.log('Project page destroyed, aborting all cells...');
+		if (manager) {
+			manager.abortAllCells();
+			manager = null;
+		}
 	});
 	setContext(PROJECT_MANAGER, () => manager);
 </script>
+
+<svelte:head>
+	{#if manager && manager.project}
+		<title>{manager.project.name}</title>
+	{:else}
+		<title>Project not found</title>
+	{/if}
+</svelte:head>
 
 {#if manager && manager.project}
 	<div class="flex h-full flex-col gap-8 p-4">

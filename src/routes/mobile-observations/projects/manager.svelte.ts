@@ -9,6 +9,7 @@ export class ProjectManager {
 		[cellId: string]: {
 			loading: boolean;
 			error: boolean;
+			aborted?: boolean;
 			message?: string;
 			response?: QueryState;
 		};
@@ -64,7 +65,33 @@ export class ProjectManager {
 		for (const cell of queryCells) await this.runCell(cell.id);
 	}
 
+	abortAllCells() {
+		if (!this.project) {
+			return;
+		}
+		const queryCells = this.project.cells.filter((cell) => cell.type === 'query');
+		for (const cell of queryCells) {
+			this.abortCell(cell.id);
+		}
+	}
+
+	abortCell(cellId: string) {
+		const cell = this.getCell(cellId);
+		if (cell?.type !== 'query') throw new Error('Cell is not abortable');
+		if (!cell) throw new Error('Cell not found');
+		const response = this.queryResults[cell.id]?.response;
+		if (response && response.running) {
+			response.abort();
+		}
+		this.queryResults[cell.id] = {
+			loading: false,
+			error: false,
+			aborted: true
+		};
+	}
+
 	async runCell(cellId: string) {
+		if (this.queryResults[cellId]?.aborted) return;
 		const cell = this.getCell(cellId);
 		if (cell?.type !== 'query') throw new Error('Cell is not runnable');
 		if (!cell) throw new Error('Cell not found');
@@ -113,6 +140,10 @@ export class ProjectManager {
 		}
 		const target = this.project.cells.find((cell) => cell.id === cellId);
 		this.project.cells = this.project.cells.filter((cell) => cell.id !== cellId);
+		// Abort the cell if it is a query
+		if (target?.type === 'query') {
+			this.abortCell(target.id);
+		}
 		return target;
 	}
 

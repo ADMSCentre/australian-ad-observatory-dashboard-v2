@@ -9,10 +9,16 @@ export class QueryState {
   success = $state<boolean>(false);
   total = $state<number>(0);
   running = $state<boolean>(false);
+  aborted = $state<boolean>(false);
 
   constructor(public query: Query) { }
 
+  abort(): void {
+    this.aborted = true;
+  }
+
   async fetch(): Promise<QueryState> {
+    if (this.aborted) return this;
     this.running = true;
     const { data, error } = await client.POST('/ads/query', {
       headers: auth.headers,
@@ -52,6 +58,7 @@ class PaginatedQueryState extends QueryState {
   }
 
   async fetch(): Promise<QueryState> {
+    if (this.aborted) return this;
     if (!this.sessionId) {
       this.running = true;
       this.sessionId = await this.getSessionId();
