@@ -49,10 +49,13 @@
 		// 	return res;
 		// });
 		if (!queryObj) return;
-		promise = session.ads.query(queryObj).then((res) => {
-			loading = false;
-			return res.result ?? [];
-		});
+		promise = session.query
+			.prepare(queryObj)
+			.fetch()
+			.then((res) => {
+				loading = false;
+				return res.paths ?? [];
+			});
 	};
 
 	let editorMode = $state<'visual' | 'text'>('visual');

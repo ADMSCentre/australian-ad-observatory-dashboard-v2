@@ -16,22 +16,14 @@
 	import PageLoader from '$lib/components/page-loader/page-loader.svelte';
 
 	const projectId = $derived($page.url.searchParams.get('project_id'));
-	let project = $state<Project | null>(null);
-
 	let loading = $state(false);
 
 	$effect(() => {
 		auth.currentUser;
-		projectId;
 		untrack(async () => {
 			loading = true;
 			await session.projects.fetch();
 			loading = false;
-			if (projectId) {
-				loading = true;
-				project = (await session.projects.get(projectId)) ?? null;
-				loading = false;
-			}
 		});
 	});
 
@@ -40,20 +32,10 @@
 		name: '',
 		description: ''
 	});
-
-	$inspect({ project });
 </script>
 
 <svelte:head>
-	{#if projectId}
-		{#if project}
-			<title>{project?.name}</title>
-		{:else}
-			<title>Project not found</title>
-		{/if}
-	{:else}
-		<title>Projects</title>
-	{/if}
+	<title>Projects</title>
 </svelte:head>
 
 {#if loading}
@@ -61,10 +43,10 @@
 {/if}
 
 {#if projectId}
-	{#if !loading}
-		<ProjectPage {projectId} />
-	{/if}
-{:else if !loading}
+	<ProjectPage {projectId} />
+{/if}
+
+{#if !projectId && !loading}
 	<div class="flex flex-col gap-4">
 		<h1 class="text-4xl font-bold">Projects</h1>
 		<p class="text-lg">Select a project to view its observations.</p>

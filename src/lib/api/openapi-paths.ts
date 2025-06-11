@@ -1270,6 +1270,84 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/ads/{observer_id}/recent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a list of ads that passed RDO construction by a specific observer in the last 7 days.
+         * @description This is an open endpoint "authenticated" by the observer_id in the path.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The full ID of the observer. */
+                    observer_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A list of ad paths seen by the observer in the last 7 days. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example true */
+                            success?: boolean;
+                            /** @example [
+                             *       "observer-id-123/temp/1678886400000.ad-id-abc",
+                             *       "observer-id-123/temp/1678972800000.ad-id-def"
+                             *     ] */
+                            ads?: string[];
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example OBSERVER_NOT_PROVIDED_IN_PATH */
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description No cache found for observer */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example NO_CACHE_FOUND_FOR_OBSERVER */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/ads/batch": {
         parameters: {
             query?: never;
@@ -1983,6 +2061,62 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/ads/query/new-session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Create a new query session for ads.
+         * @description This endpoint is used to create a new query session for ads, allowing users to perform queries on ads.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            session_id?: string;
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example SESSION_CREATION_FAILED */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/ads/query": {
         parameters: {
             query?: never;
@@ -2009,6 +2143,21 @@ export interface paths {
                         /** @example OR */
                         method?: string;
                         args?: Record<string, never>[];
+                        /** @example my-session-id */
+                        session_id?: string;
+                        /** @description Additional context for the query. */
+                        context?: {
+                            /**
+                             * @description The continuation key for the next page of results, if applicable.
+                             * @example 1729261457039
+                             */
+                            continuation_key?: string;
+                            /**
+                             * @description The number of results to return per page.
+                             * @example 1000
+                             */
+                            page_size?: number;
+                        };
                     };
                 };
             };
@@ -2023,6 +2172,18 @@ export interface paths {
                             success?: boolean;
                             result?: string[];
                             expand?: components["schemas"]["Ad"][];
+                            context?: {
+                                /**
+                                 * @description The continuation key for the next page of results, if applicable.
+                                 * @example 1729261457039
+                                 */
+                                continuation_key?: string;
+                                /**
+                                 * @description The total number of results available for the query.
+                                 * @example 10000
+                                 */
+                                total_results?: number;
+                            };
                         };
                     };
                 };

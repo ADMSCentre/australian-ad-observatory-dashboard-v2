@@ -1,6 +1,5 @@
 // This is used to manage interactions with the API, and automatically handle authorisation
 import { auth } from '$lib/api/auth/auth.svelte';
-import type { Query } from '../../../routes/mobile-observations/query/query';
 import { client, runWithCache } from '../client';
 import { listAdsForObserver, listAllAds } from '../mobile-observations';
 import { RichDataBuilder } from './ads/enricher';
@@ -9,6 +8,7 @@ import type { ExpandType, IndexGroupType, RichAdData } from './ads/types';
 import { fetchAttributes, fetchTags, fetchRichDataObject, fetchStitchFrames } from './ads/utils';
 import { ObserversApiAdapter } from './observers/index.svelte';
 import { ProjectApiAdapter as ProjectsApi } from './projects/index.svelte';
+import { QueryApiAdapter } from './query/index.svelte';
 import { TagApiAdapter } from './tags/index.svelte';
 import { UsersApi } from './users/index.svelte';
 
@@ -17,22 +17,22 @@ export const INDEX_GROUP_TYPES: {
 	label: string;
 	description: string;
 }[] = [
-	{
-		value: 'ads_passed_restitch',
-		label: 'Cropped',
-		description: "Ads that have been cropped for to only show the ad's content"
-	},
-	{
-		value: 'ads_passed_mass_download',
-		label: 'Matched',
-		description: 'Ads that have been matched to a known ad in the Meta Ads Library'
-	},
-	{
-		value: 'ads_passed_rdo_construction',
-		label: 'RDO',
-		description: 'Ads that have been processed to create a Rich Data Object'
-	}
-];
+		{
+			value: 'ads_passed_restitch',
+			label: 'Cropped',
+			description: "Ads that have been cropped for to only show the ad's content"
+		},
+		{
+			value: 'ads_passed_mass_download',
+			label: 'Matched',
+			description: 'Ads that have been matched to a known ad in the Meta Ads Library'
+		},
+		{
+			value: 'ads_passed_rdo_construction',
+			label: 'RDO',
+			description: 'Ads that have been processed to create a Rich Data Object'
+		}
+	];
 
 export class Session {
 	indexGroupTypes = $state<IndexGroupType[]>([
@@ -81,25 +81,6 @@ export class Session {
 		) => {
 			if (!auth.token) return [];
 			return await listAdsForObserver(auth.token, observer, filters, types ?? this.indexGroupTypes);
-		},
-		query: async (query: Query) => {
-			const { data, error } = await client.POST('/ads/query', {
-				headers: this.authHeader,
-				body: query as Record<string, unknown>
-			});
-			if (error) throw error;
-
-			// Loop through the expanded ads and cache the attributes
-			for (const ad of data.expand ?? []) {
-				const adId = ad.ad_id;
-				if (ad.attributes) {
-					this.enrichedAds[adId] = this.enrichedAds[adId] ?? {
-						...ad
-					};
-					this.enrichedAds[adId].attributes = ad.attributes;
-				}
-			}
-			return data;
 		},
 		getEnrichedData: async (
 			ads: RichAdData[],
@@ -294,6 +275,7 @@ export class Session {
 	projects = new ProjectsApi();
 	users = new UsersApi();
 	tags = new TagApiAdapter();
+	query = new QueryApiAdapter();
 
 	observers = new ObserversApiAdapter();
 

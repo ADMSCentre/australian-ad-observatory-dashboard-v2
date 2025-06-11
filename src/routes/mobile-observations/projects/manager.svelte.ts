@@ -1,4 +1,5 @@
 import { auth } from '$lib/api/auth/auth.svelte';
+import type { QueryState } from '$lib/api/session/query/index.svelte';
 import { session } from '$lib/api/session/session.svelte';
 import type { Cell, Project } from './types';
 
@@ -8,8 +9,9 @@ export class ProjectManager {
 		[cellId: string]: {
 			loading: boolean;
 			error: boolean;
+			aborted?: boolean;
 			message?: string;
-			response?: Awaited<ReturnType<typeof session.ads.query>>;
+			response?: QueryState;
 		};
 	}>({});
 
@@ -45,18 +47,51 @@ export class ProjectManager {
 		if (!this.project) {
 			return;
 		}
-		// const promises = this.project.cells
-		// 	.filter((cell) => cell.type === 'query')
-		// 	.map((cell) => this.runCell(cell.id));
-		// await Promise.all(promises);
-		for (const cell of this.project.cells) {
-			if (cell.type === 'query') {
-				await this.runCell(cell.id);
-			}
+		const queryCells = this.project.cells.filter((cell) => cell.type === 'query');
+
+		// Mark all query results as loading
+		for (const cell of queryCells) {
+			this.queryResults[cell.id] = {
+				...this.queryResults[cell.id],
+				loading: true,
+				error: false
+			};
+		}
+
+		// Asynchronous execution
+		// await Promise.all(queryCells.map(c => this.runCell(c.id)));
+
+		// Sequential execution
+		for (const cell of queryCells) await this.runCell(cell.id);
+	}
+
+	abortAllCells() {
+		if (!this.project) {
+			return;
+		}
+		const queryCells = this.project.cells.filter((cell) => cell.type === 'query');
+		for (const cell of queryCells) {
+			this.abortCell(cell.id);
 		}
 	}
 
+	abortCell(cellId: string) {
+		const cell = this.getCell(cellId);
+		if (cell?.type !== 'query') throw new Error('Cell is not abortable');
+		if (!cell) throw new Error('Cell not found');
+		const response = this.queryResults[cell.id]?.response;
+		if (response && response.running) {
+			response.abort();
+		}
+		this.queryResults[cell.id] = {
+			loading: false,
+			error: false,
+			aborted: true
+		};
+	}
+
 	async runCell(cellId: string) {
+		if (this.queryResults[cellId]?.aborted) return;
 		const cell = this.getCell(cellId);
 		if (cell?.type !== 'query') throw new Error('Cell is not runnable');
 		if (!cell) throw new Error('Cell not found');
@@ -66,12 +101,13 @@ export class ProjectManager {
 			error: false
 		};
 		try {
-			const results = await session.ads.query(cell.content.query);
+			const response = session.query.prepare(cell.content.query, true);
 			this.queryResults[cell.id] = {
-				loading: false,
+				get loading() { return response.running },
 				error: false,
-				response: results
+				response: response
 			};
+			await response.fetch();
 		} catch (e) {
 			this.queryResults[cell.id] = {
 				loading: false,
@@ -104,6 +140,10 @@ export class ProjectManager {
 		}
 		const target = this.project.cells.find((cell) => cell.id === cellId);
 		this.project.cells = this.project.cells.filter((cell) => cell.id !== cellId);
+		// Abort the cell if it is a query
+		if (target?.type === 'query') {
+			this.abortCell(target.id);
+		}
 		return target;
 	}
 
