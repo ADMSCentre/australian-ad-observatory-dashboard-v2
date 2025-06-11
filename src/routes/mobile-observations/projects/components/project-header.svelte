@@ -25,6 +25,7 @@
 				oninput={debounce(() => {
 					projectManager.update();
 				}, 500)}
+				placeholder="Enter project name..."
 				disabled={!projectManager.currentUser.isEditor}
 			/>
 			<Tiptap
@@ -35,7 +36,8 @@
 				}}
 				inputDebounceAmount={5000}
 				disabled={!projectManager.currentUser.isEditor}
-			></Tiptap>
+				placeholder="Enter project description..."
+			/>
 		</div>
 
 		<ProjectMembers class="border-none shadow-none" />
