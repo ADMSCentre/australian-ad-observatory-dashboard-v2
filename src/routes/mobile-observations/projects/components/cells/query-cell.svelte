@@ -54,7 +54,7 @@
 
 	// const queryResponse = $derived(projectManager.queryResults[cell.id]);
 
-	const queryResponse = $derived(projectManager.queryResults[cell.id]);
+	const queryResponse = $derived(projectManager.queryResults[cell?.id]);
 	const disabled = $derived(!projectManager.currentUser.isEditor || queryResponse?.loading);
 	const queryResults = $derived(queryResponse?.response?.paths ?? []);
 	$effect(() => {
