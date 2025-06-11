@@ -207,7 +207,7 @@
 
 <!-- Query results -->
 {#if queryResults}
-	<ul class="relative list-inside list-disc rounded-b-sm bg-zinc-500/5 px-4">
+	<ul class="relative list-inside list-disc rounded-b-sm px-4">
 		<!-- {#each results as result}
 		<li>{result.type} - {result.id}</li>
 	{/each} -->

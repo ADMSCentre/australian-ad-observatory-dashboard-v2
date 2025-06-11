@@ -17,7 +17,7 @@
 <!-- <p>{content}</p> -->
 
 <Tiptap
-	class="h-full rounded border border-transparent leading-loose hover:shadow"
+	class="h-full rounded border border-transparent leading-loose hover:shadow [&_.tiptap]:bg-transparent"
 	menus={{
 		floating: false,
 		bubble: false,
