@@ -2,6 +2,8 @@ import { auth } from '$lib/api/auth/auth.svelte';
 import type { Query } from 'mobile-observations/query/query';
 import { client } from '$lib/api/client';
 
+const PAGE_SIZE = 5000;
+
 export class QueryState {
   paths = $state<string[]>([]);
   success = $state<boolean>(false);
@@ -28,7 +30,7 @@ export class QueryState {
 }
 
 class PaginatedQueryState extends QueryState {
-  pageSize = $state<number>(1000);
+  pageSize = $state<number>(PAGE_SIZE);
   sessionId = $state<string | null>(null);
   continuationKey = $state<string | null>(null);
 

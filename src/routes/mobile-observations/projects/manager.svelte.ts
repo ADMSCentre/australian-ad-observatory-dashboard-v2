@@ -46,15 +46,22 @@ export class ProjectManager {
 		if (!this.project) {
 			return;
 		}
-		// const promises = this.project.cells
-		// 	.filter((cell) => cell.type === 'query')
-		// 	.map((cell) => this.runCell(cell.id));
-		// await Promise.all(promises);
-		for (const cell of this.project.cells) {
-			if (cell.type === 'query') {
-				await this.runCell(cell.id);
-			}
+		const queryCells = this.project.cells.filter((cell) => cell.type === 'query');
+
+		// Mark all query results as loading
+		for (const cell of queryCells) {
+			this.queryResults[cell.id] = {
+				...this.queryResults[cell.id],
+				loading: true,
+				error: false
+			};
 		}
+
+		// Asynchronous execution
+		// await Promise.all(queryCells.map(c => this.runCell(c.id)));
+
+		// Sequential execution
+		for (const cell of queryCells) await this.runCell(cell.id);
 	}
 
 	async runCell(cellId: string) {
