@@ -138,12 +138,13 @@ export class ProjectManager {
 		if (!this.project) {
 			throw new Error('Project not found');
 		}
+		console.log('Popping cell', cellId);
 		const target = this.project.cells.find((cell) => cell.id === cellId);
-		this.project.cells = this.project.cells.filter((cell) => cell.id !== cellId);
 		// Abort the cell if it is a query
 		if (target?.type === 'query') {
 			this.abortCell(target.id);
 		}
+		this.project.cells = this.project.cells.filter((cell) => cell.id !== cellId);
 		return target;
 	}
 
