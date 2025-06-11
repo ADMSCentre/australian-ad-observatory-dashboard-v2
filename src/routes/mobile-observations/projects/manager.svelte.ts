@@ -1,4 +1,5 @@
 import { auth } from '$lib/api/auth/auth.svelte';
+import type { QueryState } from '$lib/api/session/query/index.svelte';
 import { session } from '$lib/api/session/session.svelte';
 import type { Cell, Project } from './types';
 
@@ -9,7 +10,7 @@ export class ProjectManager {
 			loading: boolean;
 			error: boolean;
 			message?: string;
-			response?: Awaited<ReturnType<typeof session.ads.query>>;
+			response?: QueryState;
 		};
 	}>({});
 
@@ -66,12 +67,13 @@ export class ProjectManager {
 			error: false
 		};
 		try {
-			const results = await session.ads.query(cell.content.query);
+			const response = session.query.prepare(cell.content.query, true);
 			this.queryResults[cell.id] = {
-				loading: false,
+				get loading() { return response.running },
 				error: false,
-				response: results
+				response: response
 			};
+			await response.fetch();
 		} catch (e) {
 			this.queryResults[cell.id] = {
 				loading: false,
