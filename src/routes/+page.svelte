@@ -66,47 +66,54 @@
 
 	<section class="flex flex-col gap-2">
 		<h2>Data Sources</h2>
-		<p class="text-sm text-zinc-500">
-			Select a data source below to view the data collected by the Australian Ad Observatory.
-		</p>
-		<a
-			href={withBase('mobile-observations')}
-			class="grid size-56 grid-rows-[80%_20%] overflow-hidden rounded-sm border bg-gradient-to-br from-zinc-200 to-zinc-50 hover:shadow-md dark:from-zinc-900 dark:to-zinc-800 dark:shadow-zinc-700"
+		<p class="text-sm text-zinc-500">Select a data source below to view the data collected.</p>
+		<div
+			class=" grid h-80 w-56 grid-rows-[3fr_1fr] overflow-hidden rounded-sm border bg-gradient-to-br from-zinc-200 to-zinc-50 no-underline hover:shadow-md dark:from-zinc-900 dark:to-zinc-800 dark:shadow-zinc-700"
 		>
-			<div class="relative">
-				<img
-					src="https://play-lh.googleusercontent.com/uKhYzGbCoKMMNm7omMVmWTVsiuN4NMN0qVHUgbR32-dnQsOfjdUqDbLkYqJVcKsrkEI=w240-h480-rw"
-					alt="Mobile Ads Observatory"
-					class="absolute size-full object-cover opacity-50"
-				/>
-				{#await ads then ads}
-					{@const summary = summarise(ads)}
-					{#if summary !== null}
-						<div
-							class="summary absolute bottom-0 flex flex-wrap items-end gap-2 p-2 text-xs font-medium"
-						>
-							<span class="summary-tag">
-								<User size={14} />
-								{summary.observersCount}
-							</span>
-							<span class="summary-tag">
-								<Database size={14} />
-								{summary.count} ads
-							</span>
-							<span class="summary-tag">
-								{summary.recentCount} last 24h
-							</span>
-
-							<span class="summary-tag">
-								<CalendarDaysIcon size={14} />
-								{summary.period.start} - {summary.period.end}
-							</span>
-						</div>
-					{/if}
-				{/await}
+			<a href={withBase('mobile-observations')}>
+				<div class="relative size-full">
+					<img
+						src="https://play-lh.googleusercontent.com/uKhYzGbCoKMMNm7omMVmWTVsiuN4NMN0qVHUgbR32-dnQsOfjdUqDbLkYqJVcKsrkEI=w240-h480-rw"
+						alt="Mobile Ads Observatory"
+						class="absolute size-full object-cover opacity-50"
+					/>
+					{#await ads then ads}
+						{@const summary = summarise(ads)}
+						{#if summary !== null}
+							<div
+								class="summary absolute bottom-0 flex flex-wrap items-end gap-2 p-2 text-xs font-medium"
+							>
+								<span class="summary-tag">
+									<User size={14} />
+									{summary.observersCount}
+								</span>
+								<span class="summary-tag">
+									<Database size={14} />
+									{summary.count} ads
+								</span>
+								<span class="summary-tag">
+									{summary.recentCount} last 24h
+								</span>
+								<span class="summary-tag">
+									<CalendarDaysIcon size={14} />
+									{summary.period.start} - {summary.period.end}
+								</span>
+							</div>
+						{/if}
+					{/await}
+				</div>
+			</a>
+			<div class="p-2 font-bold">
+				<span class="font-bold">Mobile Ads Observation</span>
+				<div class="text-sm font-light text-muted-foreground">
+					The Mobile Observation Ad Toolkit is being developed as part of the <a
+						href="http://internetobservatory.org.au/"
+						target="_blank"
+						rel="noopener noreferrer">Australian Internet Observatory</a
+					>, National Research Infrastructure for Digital Platform Research.
+				</div>
 			</div>
-			<div class="p-2 font-bold">Mobile Ads Observatory</div>
-		</a>
+		</div>
 	</section>
 </div>
 
