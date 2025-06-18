@@ -10,6 +10,7 @@
 	import { withBase } from '$lib/utils';
 	import { page } from '$app/stores';
 	import GuestTimer from '../guest-timer.svelte';
+	import AppLogos from '../app-logos.svelte';
 
 	const onLogout = () => {
 		auth.logout();
@@ -64,7 +65,7 @@
 	)}
 >
 	<div class="flex w-full items-center justify-between">
-		<span>
+		<span class="inline-flex gap-1">
 			{#if !auth.isGuest}
 				<Sidebar.Trigger />
 			{:else}
@@ -74,6 +75,7 @@
 						location.reload();
 					}}
 				/>
+				<AppLogos logoClass="bg-black h-12" />
 			{/if}
 		</span>
 		<div class="flex items-center gap-4">

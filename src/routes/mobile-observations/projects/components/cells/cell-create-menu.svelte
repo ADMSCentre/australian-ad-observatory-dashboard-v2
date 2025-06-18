@@ -29,7 +29,6 @@
 			content: ''
 		};
 		projectManager.insertCell(newCell, index);
-		projectManager.update();
 	};
 
 	const insertQueryCell = () => {
@@ -42,7 +41,6 @@
 			}
 		};
 		projectManager.insertCell(newCell, index);
-		projectManager.update();
 	};
 </script>
 

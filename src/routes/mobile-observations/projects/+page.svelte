@@ -103,7 +103,7 @@
 
 		<div class="flex flex-row flex-wrap gap-4">
 			{#each session.projects.owned as project (project.id)}
-				<div animate:flip transition:scale class="h-52 w-96">
+				<div animate:flip={{ duration: 150 }} transition:scale class="h-52 w-96">
 					<ProjectSummaryCard {project} />
 				</div>
 			{/each}
@@ -114,7 +114,7 @@
 		</div>
 		<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 			{#each session.projects.shared as project (project.id)}
-				<div animate:flip transition:scale>
+				<div animate:flip={{ duration: 150 }} transition:scale>
 					<ProjectSummaryCard {project} />
 				</div>
 			{/each}
@@ -129,7 +129,7 @@
 			</div>
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 				{#each session.projects.other as project (project.id)}
-					<div animate:flip transition:scale>
+					<div animate:flip={{ duration: 150 }} transition:scale>
 						<ProjectSummaryCard {project} />
 					</div>
 				{/each}
