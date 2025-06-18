@@ -41,18 +41,27 @@
 	<title>Australian Ad Observatory</title>
 </svelte:head>
 
+{#snippet link({ display, href }: { display: string; href: string })}
+	<a class="text-blue-500 hover:underline" {href} target="_blank" rel="noopener noreferrer">
+		{display}
+	</a>
+{/snippet}
+
 <div class="flex flex-col gap-4">
 	<h1>Welcome to the Australian Ad Observatory Version 2</h1>
 	<p>
-		This dashboard supports the <a
-			class="text-blue-500 hover:underline"
-			rel="noopener noreferrer"
-			target="_blank"
-			href="https://www.admscentre.org.au/adobservatory/"
-		>
-			Australian Ad Observatory
-		</a> project by the Australian Research Council Centre of Excellence for Automated Decision-Making
-		and Society.
+		This dashboard is developed by the
+		{@render link({
+			display: 'Australian Internet Observatory',
+			href: 'https://internetobservatory.org.au/'
+		})}
+		to support the
+		{@render link({
+			display: 'Australian Ad Observatory',
+			href: 'https://www.admscentre.org.au/adobservatory/'
+		})}
+		project of the Australian Research Council Centre of Excellence for Automated Decision-Making and
+		Society.
 	</p>
 
 	<section class="flex flex-col gap-2">

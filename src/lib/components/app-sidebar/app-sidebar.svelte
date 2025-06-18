@@ -20,6 +20,7 @@
 	import { twMerge } from 'tailwind-merge';
 	import { auth } from '$lib/api/auth/auth.svelte';
 	import { Button } from '../ui/button';
+	import AppLogos from '../app-logos.svelte';
 
 	// Get the current url
 
@@ -100,13 +101,11 @@
 </script>
 
 <Sidebar.Root>
-	<Sidebar.Header>
+	<Sidebar.Header class="flex flex-col items-center gap-1">
+		<div class="inline-flex flex-wrap items-center justify-center gap-1">
+			<AppLogos logoClass="h-16" />
+		</div>
 		<a href={withBase('/')} class="flex flex-col items-center">
-			<img
-				src="https://australian-ad-observatory.s3.us-east-2.amazonaws.com/static/img/brand_logo_1.png"
-				alt="Australian Ad Observatory"
-				class="size-24"
-			/>
 			<h1 class="text-lg font-semibold text-white">Australian Ad Observatory</h1>
 		</a>
 	</Sidebar.Header>
