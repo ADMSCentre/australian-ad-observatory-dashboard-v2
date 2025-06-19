@@ -58,6 +58,12 @@
 			]
 		},
 		{
+			title: 'Data Download Packages',
+			url: withBase('data-download-packages'),
+			icon: Folder,
+			visible: true
+		},
+		{
 			title: 'Web Observations',
 			url: withBase('web-observations'),
 			icon: Globe,
