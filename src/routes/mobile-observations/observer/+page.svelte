@@ -29,6 +29,7 @@
 	import { session } from '$lib/api/session/session.svelte';
 	import { jwtDecode } from 'jwt-decode';
 	import Timer from '$lib/components/timer.svelte';
+	import parseActivationCode from '$lib/utils/parse-activation-code';
 
 	const participantId = $page.url.searchParams.get('observer_id') || '';
 	const pageUrl = $page.url.href;
@@ -118,7 +119,24 @@
 	{/if}
 
 	<!-- Main content -->
-	<h1>{participantId}</h1>
+	<h1 class="font-normal">
+		<span> Activation Code: </span>
+		<span class="rounded border-primary bg-brand/60 px-2 py-1 font-medium text-primary">
+			{parseActivationCode(participantId)?.toLocaleUpperCase()}
+		</span>
+	</h1>
+
+	<p class="text-muted-foreground">
+		The observations collected by this observer are shown below. The activation code corresponds to
+		the code found on the <a
+			href="https://play.google.com/store/apps/details?id=com.adms.australianmobileadtoolkit&hl=en_AU"
+			class="text-primary underline"
+			target="_blank"
+			rel="noopener noreferrer"
+		>
+			Australian Mobile Ad Toolkit
+		</a>
+	</p>
 
 	<!-- <ObserverOverview observerId={participantId} /> -->
 	{#if !ads || ads.length === 0}

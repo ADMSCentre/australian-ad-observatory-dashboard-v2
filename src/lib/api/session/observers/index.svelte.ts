@@ -1,5 +1,6 @@
 import { auth } from '$lib/api/auth/auth.svelte';
 import { client } from '$lib/api/client';
+import parseActivationCode from '$lib/utils/parse-activation-code';
 
 export class ObserversApiAdapter {
 	private data = $state<string[]>([]);
@@ -24,9 +25,6 @@ export class ObserversApiAdapter {
 	}
 
 	get activationCodes() {
-		return this.data.map((id) => {
-			// The activation code is the 6 characters after the last character in the id
-			return id.slice(-7).slice(0, 6);
-		});
+		return this.data.map(parseActivationCode);
 	}
 }

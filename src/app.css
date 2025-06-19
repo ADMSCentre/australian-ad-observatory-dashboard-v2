@@ -4,7 +4,7 @@
 
 @layer base {
 	:root {
-		--brand: 50 100% 50%;
+		--brand: 28 92.7% 56.9%;
 		--info: 210 72.2% 50.6%;
 		--info-foreground: 210 0% 98%;
 		--success: 117.4 72.2% 50.6%;
@@ -43,7 +43,7 @@
 	}
 
 	.dark {
-		--brand: 50 100% 50%;
+		--brand: 28 92.7% 56.9%;
 		--info: 210 72.2% 50.6%;
 		--info-foreground: 0 0% 98%;
 		--success: 117.4 72.2% 50.6%;

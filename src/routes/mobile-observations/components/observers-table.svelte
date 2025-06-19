@@ -4,6 +4,7 @@
 	import { dateToCalendarDate, formatTimestamp } from '../../../lib/api/session/ads/utils';
 	import { withBase } from '$lib/utils';
 	import type { BasicAdData } from '$lib/api/session/ads/types';
+	import parseActivationCode from '$lib/utils/parse-activation-code';
 
 	const {
 		ads,
@@ -68,16 +69,14 @@
 		console.log('Recomputing columnDefs');
 		return [
 			{
-				headerName: 'Observer',
+				headerName: 'Activation Code',
 				field: 'observer',
-				flex: 1,
-				minWidth: 110,
 				cellRenderer: (params: any) => {
 					const path = withBase(`mobile-observations/observer?observer_id=${params.value}`);
 					return `<a href="${path}"
 						class="text-blue-600 underline"
 					>
-						${params.value}
+						${parseActivationCode(params.value)?.toLocaleUpperCase()}
 					</a>`;
 				}
 			},

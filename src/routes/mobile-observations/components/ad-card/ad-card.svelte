@@ -28,6 +28,7 @@
 	import { INDEX_GROUP_TYPES, session } from '$lib/api/session/session.svelte';
 	import { untrack } from 'svelte';
 	import { type Tag } from '$lib/api/session/tags/index.svelte';
+	import parseActivationCode from '$lib/utils/parse-activation-code';
 
 	export type AdElement = 'adId' | 'time' | 'date' | 'observer';
 
@@ -131,13 +132,13 @@
 				<div class="flex items-center gap-2">
 					{#if isIncluded('observer')}
 						<!-- Observer code is the last 6 digits before the last digit, uppercase -->
-						{@const observerCode = adData.observer.slice(-7).slice(0, 6).toLocaleUpperCase()}
+						{@const activationCode = parseActivationCode(adData.observer)}
 						<span class="inline-block text-xs font-extralight">Seen by</span>
 						<a
 							href={withBase(`mobile-observations/observer?observer_id=${adData.observer}`)}
 							class="inline-block w-fit max-w-[12ch] overflow-hidden text-ellipsis text-nowrap rounded-full bg-zinc-300 px-1 text-xs font-light hover:underline dark:bg-zinc-700"
 						>
-							{observerCode}
+							{activationCode}
 						</a>
 					{/if}
 					<div>
