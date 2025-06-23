@@ -47,7 +47,7 @@
 	{/if}
 	<main class="flex h-fit min-h-screen w-full flex-col">
 		<Header />
-		<div class="flex flex-1 flex-col p-1 sm:p-4 sm:pb-0">
+		<div class="flex flex-1 flex-col gap-2 p-1 sm:p-4 sm:pb-0">
 			{@render children()}
 		</div>
 		<div

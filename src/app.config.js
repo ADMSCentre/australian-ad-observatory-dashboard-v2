@@ -1,7 +1,13 @@
 export const development = {
-	apiUrl: 'http://localhost:3000'
+	apiUrls: {
+		mobileObservations: 'https://f06kj1k332.execute-api.ap-southeast-2.amazonaws.com/dev',
+		ddpDonations: 'https://c0z5ki2dea.execute-api.ap-southeast-2.amazonaws.com/prod/'
+	}
 };
 
 export const production = {
-	apiUrl: 'https://f06kj1k332.execute-api.ap-southeast-2.amazonaws.com/dev/'
+	apiUrls: {
+		mobileObservations: 'https://f06kj1k332.execute-api.ap-southeast-2.amazonaws.com/dev',
+		ddpDonations: 'https://c0z5ki2dea.execute-api.ap-southeast-2.amazonaws.com/prod/'
+	}
 };

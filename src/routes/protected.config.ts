@@ -7,7 +7,8 @@ const protectedRoutes = [
 	'/users/self',
 	'/mobile-observations/query',
 	'/mobile-observations/projects',
-	'/mobile-observations/settings'
+	'/mobile-observations/settings',
+	'/data-download-packages'
 ];
 
 export const isRouteProtected = (path: string) => {
