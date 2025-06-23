@@ -1,5 +1,4 @@
 <script lang="ts">
-	// Get the donor, platform and timestamp from the URL parameters
 	import { page } from '$app/stores';
 	import {
 		dataDonationApi,
@@ -9,6 +8,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Loader2Icon } from 'lucide-svelte';
 
+	// Get the donor, platform and timestamp from the URL parameters to identify the appropriate donation
 	const donorId = $derived($page.url.searchParams.get('donor') || '');
 	const platform = $derived($page.url.searchParams.get('platform') || '');
 	const timestamp = $derived(+($page.url.searchParams.get('timestamp') || '0'));
