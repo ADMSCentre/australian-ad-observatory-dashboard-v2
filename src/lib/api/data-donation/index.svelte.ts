@@ -127,7 +127,7 @@ class DataDonationApi {
 					}
 					return {
 						name: fileName,
-						content: data.content || {}
+						content: data || {}
 					};
 				})
 		);
