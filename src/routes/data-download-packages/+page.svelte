@@ -2,7 +2,10 @@
 	import { dataDonationApi } from '$lib/api/data-donation/index.svelte';
 	import AgGrid from '$lib/components/ag-grid/ag-grid.svelte';
 	import PageLoader from '$lib/components/page-loader/page-loader.svelte';
+	import { Button } from '$lib/components/ui/button';
 	import { withBase } from '$lib/utils';
+	import JSZip from 'jszip';
+	import { DownloadIcon, Loader2Icon, LoaderIcon } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 
 	onMount(() => {
@@ -11,7 +14,7 @@
 
 	interface DonationRowData {
 		donor: string;
-		date: string;
+		date: Date;
 		timestamp: number;
 		platform: string;
 		numFiles: number;
@@ -31,13 +34,7 @@
 			.map((d) => {
 				return d.donations.map((donation) => ({
 					donor: d.id,
-					date: new Date(donation.timestamp * 1000).toLocaleDateString('en-GB', {
-						year: 'numeric',
-						month: 'short',
-						day: '2-digit',
-						hour: '2-digit',
-						minute: '2-digit'
-					}),
+					date: new Date(donation.timestamp * 1000),
 					timestamp: donation.timestamp,
 					platform: donation.platform,
 					numFiles: donation.files.length
@@ -48,7 +45,8 @@
 
 	const agGridColumns = $derived([
 		{ field: 'donor', headerName: 'Donor Code' },
-		{ field: 'date', headerName: 'Date' },
+		{ field: 'date', headerName: 'Date', cellDataType: 'dateTimeString' },
+		{ field: 'timestamp', headerName: 'Timestamp', hide: true },
 		{ field: 'platform', headerName: 'Platform' },
 		{ field: 'numFiles', headerName: 'Number of Files' },
 		{
@@ -61,6 +59,56 @@
 			}
 		}
 	]);
+
+	const totalDonors = $derived(dataDonationApi.donors.length);
+
+	const completedDonors = $derived(
+		dataDonationApi.donors.filter((d) => d.status === 'idle').filter((d) => d.donations.length > 0)
+			.length
+	);
+
+	let preparingDownload = $state(false);
+
+	async function downloadAllDonations() {
+		const zip = new JSZip();
+		preparingDownload = true;
+		const promises = dataDonationApi.donors
+			.filter((d) => d.status === 'idle')
+			.map(async (donor) => {
+				try {
+					return {
+						...donor,
+						donations: await Promise.all(
+							donor.donations.map((donation) =>
+								dataDonationApi.asDownloadableDonation(donor.id, donation)
+							)
+						)
+					};
+				} catch (error) {
+					console.error(`Error processing donations for donor ${donor.id}:`, error);
+				}
+			});
+		const donorsWithDownloadableDonations = (await Promise.all(promises)).filter(
+			(d) => d !== undefined
+		);
+		for (const donor of donorsWithDownloadableDonations) {
+			// donors.addToZip(zip);
+			for (const donation of donor.donations) {
+				donation.addToZip(zip, donor.id);
+			}
+		}
+		preparingDownload = false;
+		const content = await zip.generateAsync({ type: 'blob' });
+		const url = URL.createObjectURL(content);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = 'data-download-packages.zip';
+		document.body.appendChild(a);
+		a.click();
+
+		document.body.removeChild(a);
+		URL.revokeObjectURL(url);
+	}
 </script>
 
 <h1>Data Download Packages</h1>
@@ -77,9 +125,23 @@
 </p>
 
 {#if loading}
-	<PageLoader />
+	<p class="text-muted-foreground">
+		<Loader2Icon class="size-42 inline animate-spin" />
+		Loading data download packages...
+	</p>
 {/if}
 
 {#if !loading}
+	<p class="text-muted-foreground">
+		Loaded data from {completedDonors} / {totalDonors} donors...
+	</p>
 	<AgGrid columnDefs={agGridColumns} rowData={agGridRows} class="h-96" />
+	<Button onclick={downloadAllDonations} disabled={agGridRows.length === 0 || preparingDownload}>
+		{#if preparingDownload}
+			<LoaderIcon class="size-4 animate-spin" />
+		{:else}
+			<DownloadIcon class="size-4" />
+		{/if}
+		Download All
+	</Button>
 {/if}

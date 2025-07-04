@@ -46,6 +46,20 @@ export class DownloadableDonation implements Donation {
 		a.download = `${this.platform}-${this.timestamp}.zip`;
 		a.click();
 	}
+
+	async addToZip(zip: JSZip, folder: string = '') {
+		const filesWithContent = this.files.filter((file) => file.content);
+		if (filesWithContent.length === 0) {
+			throw new Error('No files available for download');
+		}
+		filesWithContent.forEach((file) => {
+			let filePath = `${this.platform}_${this.timestamp}_${file.name}`;
+			if (folder) {
+				filePath = `${folder}/${filePath}`;
+			}
+			zip.file(filePath, JSON.stringify(file.content, null, 2));
+		});
+	}
 }
 
 export class Donor {
@@ -97,9 +111,11 @@ class DataDonationApi {
 
 		this.donors = data.users?.map((id) => new Donor(id)) || [];
 		this.status = 'idle';
-		for (const donor of this.donors) {
-			await donor.getDonations();
-		}
+		// for (const donor of this.donors) {
+		// 	donor.getDonations();
+		// }
+		const promises = this.donors.map((donor) => donor.getDonations());
+		await Promise.all(promises);
 	}
 
 	async asDownloadableDonation(donorId: string, donation: Donation): Promise<DownloadableDonation> {
