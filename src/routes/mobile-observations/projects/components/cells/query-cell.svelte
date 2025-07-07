@@ -34,6 +34,7 @@
 	import MultiSelect from '$lib/components/multi-select/multi-select.svelte';
 	import { session } from '$lib/api/session/session.svelte';
 	import { QueryModeSelector } from 'mobile-observations/query/query-modes.svelte';
+	import Progress from '$lib/components/ui/progress/progress.svelte';
 
 	let { cell = $bindable() }: { cell: QueryCell } = $props();
 
@@ -217,11 +218,11 @@
 				{#if queryResponse?.loading}
 					<div class="flex items-center gap-2 text-sm font-light text-zinc-500 dark:text-zinc-400">
 						<LoaderIcon class="size-4 animate-spin" />
-						Running query
+						<span class="text-nowrap">Running query, please wait...</span>
 						{#if queryResponse?.response?.total}
-							({ads.length} / {queryResponse?.response?.total} loaded)
+							<Progress max={queryResponse?.response?.total} value={ads.length} />
+							<span class="text-nowrap">{ads.length} / {queryResponse?.response?.total}</span>
 						{/if}
-						, please wait...
 					</div>
 				{:else if queryResponse?.error}
 					<div class="flex items-center gap-2 text-sm font-light text-red-500 dark:text-red-400">
