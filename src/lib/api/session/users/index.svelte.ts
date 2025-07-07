@@ -13,7 +13,7 @@ function parseRole(role: string | undefined): UserRole {
 export type User = {
 	username: string;
 	fullname: string;
-	password: string; // Hashed
+	password?: string; // Hashed
 	role: UserRole;
 };
 
@@ -38,14 +38,13 @@ export class UsersApi {
 		}
 		this.loading = false;
 		this.users = data
-			.filter((user) => user.username && user.password)
+			.filter((user) => user.username)
 			.map((user) => {
-				if (!user.username || !user.password) throw new Error('Invalid user data');
+				if (!user.username) throw new Error('Invalid user data');
 
 				return {
 					fullname: user.full_name || '',
 					username: user.username,
-					password: user.password,
 					role: parseRole(user.role)
 				};
 			});
