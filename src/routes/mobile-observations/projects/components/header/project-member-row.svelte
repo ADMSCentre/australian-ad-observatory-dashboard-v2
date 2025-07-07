@@ -49,14 +49,16 @@
 
 {#if project}
 	<div class="contents">
-		<span class="flex items-center gap-2">
+		<span class="inline-flex items-center gap-2">
 			{#if isOwner}
 				<CrownIcon size={20} />
 			{:else}
 				<UserIcon size={20} />
 			{/if}
-			{member.username}</span
-		>
+			<span class="flex max-w-32 items-center gap-2 text-ellipsis">
+				{member.username}
+			</span>
+		</span>
 		<Dropdown
 			selected={member.role}
 			triggerClass="w-full p-1 h-fit"
