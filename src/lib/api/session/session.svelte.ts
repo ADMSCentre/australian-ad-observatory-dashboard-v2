@@ -17,22 +17,22 @@ export const INDEX_GROUP_TYPES: {
 	label: string;
 	description: string;
 }[] = [
-		{
-			value: 'ads_passed_restitch',
-			label: 'Cropped',
-			description: "Ads that have been cropped for to only show the ad's content"
-		},
-		{
-			value: 'ads_passed_mass_download',
-			label: 'Matched',
-			description: 'Ads that have been matched to a known ad in the Meta Ads Library'
-		},
-		{
-			value: 'ads_passed_rdo_construction',
-			label: 'RDO',
-			description: 'Ads that have been processed to create a Rich Data Object'
-		}
-	];
+	{
+		value: 'ads_passed_restitch',
+		label: 'Cropped',
+		description: "Ads that have been cropped for to only show the ad's content"
+	},
+	{
+		value: 'ads_passed_mass_download',
+		label: 'Matched',
+		description: 'Ads that have been matched to a known ad in the Meta Ads Library'
+	},
+	{
+		value: 'ads_passed_rdo_construction',
+		label: 'RDO',
+		description: 'Ads that have been processed to create a Rich Data Object'
+	}
+];
 
 export class Session {
 	indexGroupTypes = $state<IndexGroupType[]>([
@@ -69,18 +69,9 @@ export class Session {
 			if (!auth.token) return [];
 			return await listAllAds(auth.token, filters, types ?? this.indexGroupTypes);
 		},
-		getByObserver: async (
-			observer: string,
-			{
-				filters = [],
-				types = null
-			}: Partial<{
-				filters?: ((ad: RichAdData) => boolean)[];
-				types: IndexGroupType[] | null;
-			}> = {}
-		) => {
+		getByObserver: async (observer: string) => {
 			if (!auth.token) return [];
-			return await listAdsForObserver(auth.token, observer, filters, types ?? this.indexGroupTypes);
+			return await listAdsForObserver(auth.token, observer);
 		},
 		getEnrichedData: async (
 			ads: RichAdData[],

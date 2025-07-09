@@ -1,4 +1,4 @@
-import { parseAdsIndex } from './session/ads/utils';
+import { parseAdsIndex, toRichAdData } from './session/ads/utils';
 import { client, runWithCache, generateCacheKey } from '$lib/api/client';
 import type { IndexGroupType, RichAdData, ObservationIndex } from './session/ads/types';
 
@@ -69,10 +69,8 @@ export interface QuickAccessCacheResponse {
 
 export const listAdsForObserver = async (
 	token: string,
-	observer: string,
-	filters: ((ad: RichAdData) => boolean)[] = [],
-	types: IndexGroupType[] = ['ads_passed_restitch']
-) => {
+	observer: string
+): Promise<RichAdData[]> => {
 	const { data, error } = await client.GET('/ads/{observer_id}', {
 		headers: {
 			Authorization: `Bearer ${token}`
@@ -83,20 +81,21 @@ export const listAdsForObserver = async (
 			}
 		}
 	});
-	if (!data?.success || !data.data || error) {
+	if (!data?.success || !data.ads || error) {
 		return [];
 	}
-	const raw: {
-		[key: string]: string[];
-	} = data.data;
-	const observationTypes = Object.keys(raw);
-	const index: ObservationIndex = observationTypes.reduce((acc, category) => {
-		if (!acc) acc = {};
-		acc[category] = raw[category].map((path: string) => parseAdPath(path));
-		return acc;
-	}, {} as ObservationIndex);
-	const ads = parseAdsIndex(index, types) as RichAdData[];
-	return ads.filter((ad) => filters.every((filter) => filter(ad)));
+	return data.ads.map((path: string) => parseAdPath(path)).map((basicAd) => toRichAdData(basicAd));
+	// const raw: {
+	// 	[key: string]: string[];
+	// } = data.data;
+	// const observationTypes = Object.keys(raw);
+	// const index: ObservationIndex = observationTypes.reduce((acc, category) => {
+	// 	if (!acc) acc = {};
+	// 	acc[category] = raw[category].map((path: string) => parseAdPath(path));
+	// 	return acc;
+	// }, {} as ObservationIndex);
+	// const ads = parseAdsIndex(index, types) as RichAdData[];
+	// return ads.filter((ad) => filters.every((filter) => filter(ad)));
 };
 
 export const getAdFrameUrls = async (

@@ -1,6 +1,5 @@
 import { CalendarDate } from '@internationalized/date';
 import { client, generateCacheKey, runWithCache } from '$lib/api/client';
-import rdo from '../../../../routes/mobile-observations/rdo.json';
 import type { RichDataObject } from './rich-data-object-type';
 import type {
 	IndexGroupType,
@@ -28,6 +27,29 @@ export const formatTimestamp = (
 		...options
 	};
 	return new Intl.DateTimeFormat('en-GB', opts).format(date);
+};
+
+export const toRichAdData = (ad: {
+	observer: string;
+	timestamp: number | string;
+	adId: string;
+	path: string;
+}): BasicAdData => {
+	const { observer, timestamp, adId, path } = ad;
+	const types: IndexGroupType[] = ['ads_passed_rdo_construction'];
+	const date = new Date(+timestamp).toLocaleDateString('en-GB', {
+		month: 'long',
+		day: 'numeric',
+		year: 'numeric'
+	});
+	const time = new Date(+timestamp).toLocaleTimeString('en-GB', {
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit',
+		fractionalSecondDigits: 3
+	});
+
+	return { observer, timestamp: +timestamp, adId, path, types, date, time };
 };
 
 export const parseAdsIndex = (
