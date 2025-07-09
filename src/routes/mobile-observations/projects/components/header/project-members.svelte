@@ -46,13 +46,13 @@
 						/> -->
 						<Dropdown
 							bind:selected={newMember.username}
-							triggerClass="w-full p-1 h-fit"
+							triggerClass="w-full max-w-32 p-1 h-fit overflow-hidden"
 							options={session.users.all
 								.filter((user) => {
 									return !project.team.some((member) => member.username === user.username);
 								})
 								.map((user) => ({
-									label: user.username,
+									label: `${user.fullname} (${user.username})`,
 									value: user.username
 								}))}
 							placeholder="New member"

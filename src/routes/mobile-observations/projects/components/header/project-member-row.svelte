@@ -6,6 +6,10 @@
 	import { PROJECT_MANAGER, ProjectManager } from 'mobile-observations/projects/manager.svelte';
 	import { getContext } from 'svelte';
 	import Dropdown from '$lib/components/dropdown/dropdown.svelte';
+	import { session } from '$lib/api/session/session.svelte';
+	import * as Popover from '$lib/components/ui/popover';
+	import * as HoverCard from '$lib/components/ui/hover-card';
+	import { fade } from 'svelte/transition';
 
 	const { member }: { member: TeamMember } = $props();
 
@@ -18,6 +22,8 @@
 
 	const isOwner = $derived(project?.ownerId === member.username);
 	let isDeleting = $state(false);
+
+	const linkedUser = $derived(session.users.all.find((user) => user.username === member.username));
 </script>
 
 {#snippet deleteConfirm()}
@@ -55,9 +61,17 @@
 			{:else}
 				<UserIcon size={20} />
 			{/if}
-			<span class="flex max-w-32 items-center gap-2 text-ellipsis">
-				{member.username}
-			</span>
+			<HoverCard.Root openDelay={200}>
+				<HoverCard.Trigger
+					class="inline-block max-w-32 items-start gap-2 overflow-hidden text-ellipsis whitespace-nowrap no-underline"
+				>
+					{linkedUser?.fullname}
+				</HoverCard.Trigger>
+				<HoverCard.Content class="flex w-fit flex-col gap-2">
+					<p class="text-sm font-semibold">{linkedUser?.fullname}</p>
+					<p class="text-xs text-muted-foreground">{linkedUser?.username}</p>
+				</HoverCard.Content>
+			</HoverCard.Root>
 		</span>
 		<Dropdown
 			selected={member.role}
