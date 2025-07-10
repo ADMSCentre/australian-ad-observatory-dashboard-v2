@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { Button } from '$lib/components/ui/button';
 	import {
+		AlertCircleIcon,
 		ArrowLeft,
 		ChevronLeftSquare,
 		ChevronRightSquare,
@@ -139,11 +140,20 @@
 	</p>
 
 	<!-- <ObserverOverview observerId={participantId} /> -->
-	{#if !ads || ads.length === 0}
+	{#if !ads}
 		<div class="flex size-full items-center justify-center">
 			<Circle size="200" color={theme.colors.foreground} />
 		</div>
 	{:else}
+		{#if ads.length === 0}
+			<Alert.Root class="w-fit">
+				<AlertCircleIcon class="size-5" />
+				<Alert.Title>No data!</Alert.Title>
+				<Alert.Description>
+					This observer is registered, but no observations have been collected yet.
+				</Alert.Description>
+			</Alert.Root>
+		{/if}
 		<ObservationsTimeline {ads} />
 		<AdsBrowser
 			bind:ads
