@@ -5,13 +5,16 @@
 	import { withBase } from '$lib/utils';
 	import type { BasicAdData } from '$lib/api/session/ads/types';
 	import parseActivationCode from '$lib/utils/parse-activation-code';
+	import type { SortDirection } from 'ag-grid-community';
 
 	const {
 		ads,
-		dateRange
+		dateRange,
+		includeObservers = []
 	}: {
 		ads: BasicAdData[];
 		dateRange?: DateRange;
+		includeObservers?: string[];
 	} = $props();
 
 	const timeRange = $derived(
@@ -46,6 +49,15 @@
 				}[];
 			};
 		} = {};
+
+		includeObservers.forEach((observer) => {
+			if (!result[observer]) {
+				result[observer] = {};
+				timeRange.forEach((time) => {
+					result[observer][time] = [];
+				});
+			}
+		});
 
 		ads.forEach((ad) => {
 			if (!result[ad.observer]) {
@@ -83,7 +95,8 @@
 			{
 				headerName: 'Total',
 				field: 'total',
-				width: 100
+				width: 100,
+				sort: 'desc' as SortDirection
 			},
 			...[...timeRange].map((time) => ({
 				headerName: time,
@@ -94,6 +107,8 @@
 			}))
 		];
 	});
+
+	$inspect(includeObservers, 'includeObservers');
 
 	const rowData = $derived.by(() => {
 		return Object.entries(adsByObserverAndTime).map(([observer, ads]) => {

@@ -8,9 +8,11 @@
 
 	// const { adData }: { adData: RichAdData[] } = $props();
 	const {
-		queryResults
+		queryResults,
+		includeObservers = []
 	}: {
 		queryResults: string[];
+		includeObservers?: string[];
 	} = $props();
 
 	let adData: RichAdData[] = $state([]);
@@ -31,6 +33,6 @@
 
 {#if adData.length > 0}
 	<ObservationsTimeline ads={adData} />
-	<ObserversTable ads={adData} />
+	<ObserversTable ads={adData} {includeObservers} />
 	<AdsBrowser bind:ads={adData} syncQueryParams={false} open={false} />
 {/if}

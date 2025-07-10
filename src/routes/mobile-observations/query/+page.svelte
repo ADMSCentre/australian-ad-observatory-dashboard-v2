@@ -2,7 +2,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { ChevronRight, CodeIcon, Play, Workflow } from 'lucide-svelte';
 	import QueryBuilder from './components/query-builder.svelte';
-	import treeToString, { buildTree, queryToString } from './utils/query-builder';
+	import treeToString, { buildTree } from './utils/query-builder';
 	import { Circle } from 'svelte-loading-spinners';
 	import QueryTextEditor from './components/query-text-editor.svelte';
 	import CodeMirror from 'svelte-codemirror-editor';
@@ -10,12 +10,8 @@
 	import { type Query } from './query';
 	import { theme } from '$lib/states/theme.svelte';
 	import { session } from '$lib/api/session/session.svelte';
-	import { parseRawAdPaths } from '$lib/api/session/ads/ads-index';
-	import AdsBrowser from '../components/ads-browser.svelte';
 	import Accordion from '$lib/components/accordion/accordion.svelte';
 	import { twMerge } from 'tailwind-merge';
-	import Timeline from '../components/timeline.svelte';
-	import ObservationsTimeline from '../components/observations-timeline.svelte';
 	import QueryResults from './components/query-results.svelte';
 
 	let queryObj = $state<Query | null>(null);
@@ -59,6 +55,21 @@
 	};
 
 	let editorMode = $state<'visual' | 'text'>('visual');
+
+	const includeObservers: string[] = $derived.by(() => {
+		if (!queryObj) return [] as string[];
+		const { method } = queryObj;
+		if (method !== 'OBSERVER_ID_CONTAINS') return [] as string[];
+		return session.observers.all.filter((observer) => {
+			if (!queryObj || !queryObj.args || queryObj.args.length === 0) return false;
+			return queryObj.args.some((arg) => {
+				if (typeof arg === 'string') {
+					return observer.includes(arg);
+				}
+				return false;
+			});
+		});
+	});
 </script>
 
 <svelte:head>
@@ -139,7 +150,7 @@
 			<div class="flex flex-col gap-4">
 				<strong>Results:</strong>
 				{#if queryResults}
-					<QueryResults {queryResults} />
+					<QueryResults {queryResults} {includeObservers} />
 				{/if}
 				<Accordion>
 					{#snippet summary(open)}

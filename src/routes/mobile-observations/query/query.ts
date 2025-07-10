@@ -14,13 +14,11 @@ export type Method = {
 };
 
 export type Query = {
-	method: string;
+	method: MethodValue;
 	args: (Query | string)[];
 };
 
-export const METHODS: {
-	[key: string]: Method;
-} = {
+export const METHODS = {
 	AND: {
 		label: 'AND',
 		value: 'AND',
@@ -106,7 +104,9 @@ export const METHODS: {
 		associativity: 'right',
 		inputType: 'multi-text'
 	}
-};
+} as const;
+
+export type MethodValue = keyof typeof METHODS;
 
 export const DEFAULT_QUERY: Query = {
 	method: 'ANYTHING_CONTAINS',
@@ -153,7 +153,7 @@ export const DEFAULT_QUERY: Query = {
 // 	associativity: 'right'
 // };
 
-export const getMethodType = (methodValue: string): MethodType => {
+export const getMethodType = (methodValue: MethodValue): MethodType => {
 	// if (methodValue === AND.value || methodValue === OR.value) {
 	// 	return 'binary';
 	// } else if (methodValue === NOT.value) {
@@ -166,7 +166,7 @@ export const getMethodType = (methodValue: string): MethodType => {
 	return 'unknown';
 };
 
-export const getMethodByValue = (value: string): Method => {
+export const getMethodByValue = (value: MethodValue): Method => {
 	if (METHODS[value]) return METHODS[value];
 	throw new Error(`Method with value ${value} not found`);
 };

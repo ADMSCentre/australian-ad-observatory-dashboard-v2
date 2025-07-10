@@ -17,13 +17,15 @@
 		ads,
 		config = $bindable(),
 		allowDelete = true,
-		onDelete = null
+		onDelete = null,
+		includeObservers = []
 	}: {
 		type: (typeof VISUALISATION_TYPES)[number];
 		ads: RichAdData[];
 		config: QueryResultConfig;
 		allowDelete?: boolean;
 		onDelete?: (() => void) | null;
+		includeObservers?: string[];
 	} = $props();
 
 	let isDeleting = $state(false);
@@ -109,7 +111,7 @@
 			{/if}
 
 			{#if type === 'observer-table'}
-				<ObserversTable {ads} />
+				<ObserversTable {ads} {includeObservers} />
 			{/if}
 
 			{#if type === 'ads-browser'}

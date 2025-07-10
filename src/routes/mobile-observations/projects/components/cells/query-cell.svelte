@@ -115,6 +115,22 @@
 
 		newVisualisationType = null;
 	}
+
+	const includeObservers: string[] = $derived.by(() => {
+		const queryObj = cell.content.query;
+		if (!queryObj) return [] as string[];
+		const { method } = queryObj;
+		if (method !== 'OBSERVER_ID_CONTAINS') return [] as string[];
+		return session.observers.all.filter((observer) => {
+			if (!queryObj || !queryObj.args || queryObj.args.length === 0) return false;
+			return queryObj.args.some((arg) => {
+				if (typeof arg === 'string') {
+					return observer.includes(arg);
+				}
+				return false;
+			});
+		});
+	});
 </script>
 
 <div
@@ -251,6 +267,7 @@
 							<Visualisation
 								type={result.type}
 								{ads}
+								{includeObservers}
 								bind:config={result.config as Record<string, any>}
 								allowDelete={projectManager.currentUser.isEditor}
 								onDelete={() => {
