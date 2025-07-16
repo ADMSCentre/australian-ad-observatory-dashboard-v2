@@ -21,6 +21,7 @@
 	import { auth } from '$lib/api/auth/auth.svelte';
 	import { Button } from '../ui/button';
 	import AppLogos from '../app-logos.svelte';
+	import MaintenanceAlert from '../maintenance-alert.svelte';
 
 	// Get the current url
 
@@ -178,6 +179,7 @@
 		</Sidebar.Group>
 	</Sidebar.Content>
 	<Sidebar.Footer>
+		<MaintenanceAlert />
 		{#if auth.currentUser}
 			<div class="flex items-center justify-between gap-2">
 				<div class="flex items-center gap-1">

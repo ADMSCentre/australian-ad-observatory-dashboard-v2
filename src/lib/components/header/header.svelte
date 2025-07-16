@@ -11,6 +11,7 @@
 	import { page } from '$app/stores';
 	import GuestTimer from '../guest-timer.svelte';
 	import AppLogos from '../app-logos.svelte';
+	import MaintenanceAlert from '../maintenance-alert.svelte';
 
 	const onLogout = () => {
 		auth.logout();

@@ -1,5 +1,6 @@
 // This is used to manage interactions with the API, and automatically handle authorisation
 import { auth } from '$lib/api/auth/auth.svelte';
+import { MaintenancesRepository } from '$lib/mocks/maintenances.svelte';
 import { client, runWithCache } from '../client';
 import { listAdsForObserver, listAllAds } from '../mobile-observations';
 import { RichDataBuilder } from './ads/enricher';
@@ -270,10 +271,13 @@ export class Session {
 
 	observers = new ObserversApiAdapter();
 
+	maintenances = new MaintenancesRepository();
+
 	async refresh() {
 		console.log('Refreshing session data');
 		this.users.fetch();
 		this.observers.fetch();
+		this.maintenances.fetch();
 	}
 }
 

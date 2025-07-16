@@ -18,6 +18,7 @@
 	import { version } from '$app/environment';
 	import { untrack } from 'svelte';
 	import { session } from '$lib/api/session/session.svelte';
+	import MaintenanceOverlay from '$lib/components/maintenance-overlay.svelte';
 
 	let { children } = $props();
 	$effect(() => {
@@ -59,3 +60,5 @@
 </Sidebar.Provider>
 
 <!-- <ToastsContainer /> -->
+
+<MaintenanceOverlay />
