@@ -159,7 +159,6 @@
 			type: 'success',
 			timeout: 5000
 		});
-		await auth.refresh();
 		originalFormData = formData;
 	};
 </script>

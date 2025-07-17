@@ -10,6 +10,7 @@
 	import { theme } from '$lib/states/theme.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import * as Alert from '$lib/components/ui/alert/index.js';
+	import CilogonButton from '$lib/components/cilogon-button.svelte';
 
 	let username = $state('');
 	let password = $state('');
@@ -98,5 +99,15 @@
 				{/if}
 			</div>
 		</form>
+
+		<!-- Alternative methods -->
+		<div class="mt-6 text-center">
+			<div class="relative">
+				<span class="relative z-10 bg-background px-4 text-sm text-muted-foreground">OR</span>
+				<hr class="absolute top-1/2 z-0 w-full" />
+			</div>
+			<CilogonButton class="mt-2 w-full">Login with CILogon</CilogonButton>
+			<!-- Add other login methods here -->
+		</div>
 	</div>
 </div>

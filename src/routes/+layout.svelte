@@ -18,6 +18,7 @@
 	import { untrack, onMount } from 'svelte';
 	import { session } from '$lib/api/session/session.svelte';
 	import MaintenanceOverlay from '$lib/components/maintenance-overlay.svelte';
+	import DisabledAccountAlert from '$lib/components/disabled-account-alert.svelte';
 
 	let { children } = $props();
 	onMount(() => {
@@ -59,7 +60,13 @@
 	<main class="flex h-fit min-h-screen w-full flex-col">
 		<Header />
 		<div class="flex flex-1 flex-col gap-2 p-1 sm:p-4 sm:pb-0">
-			{@render children()}
+			{#if auth.currentUser && !auth.currentUser?.enabled}
+				<div class="flex flex-1 items-center justify-center">
+					<DisabledAccountAlert class="max-w-md" />
+				</div>
+			{:else}
+				{@render children()}
+			{/if}
 		</div>
 		<div
 			class="pointer-events-none fixed bottom-1 right-1 z-50 flex items-center justify-end text-3xs text-muted-foreground"

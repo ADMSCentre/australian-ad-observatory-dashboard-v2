@@ -15,15 +15,15 @@ export class ProjectApiAdapter {
 
 	get owned() {
 		if (!auth.currentUser) return [];
-		return this.projects.filter((p) => p.ownerId === auth.currentUser?.username);
+		return this.projects.filter((p) => p.ownerId === auth.currentUser?.sub);
 	}
 
 	get shared() {
 		if (!auth.currentUser) return [];
 		return this.projects.filter(
 			(p) =>
-				p.team.some((u) => u.username === auth.currentUser?.username) &&
-				p.ownerId !== auth.currentUser?.username
+				p.team.some((u) => u.username === auth.currentUser?.sub) &&
+				p.ownerId !== auth.currentUser?.sub
 		);
 	}
 
@@ -31,8 +31,8 @@ export class ProjectApiAdapter {
 		if (!auth.currentUser) return [];
 		return this.projects.filter(
 			(p) =>
-				p.ownerId !== auth.currentUser?.username &&
-				!p.team.some((u) => u.username === auth.currentUser?.username)
+				p.ownerId !== auth.currentUser?.sub &&
+				!p.team.some((u) => u.username === auth.currentUser?.sub)
 		);
 	}
 
