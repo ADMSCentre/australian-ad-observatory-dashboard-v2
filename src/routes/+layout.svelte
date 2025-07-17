@@ -41,18 +41,6 @@
 			}
 		}
 	});
-
-	onMount(() => {
-		if (browser && window.location.hash.startsWith('#token=')) {
-			const hash = window.location.hash.substring(1);
-			const params = new URLSearchParams(hash);
-			const token = params.get('token');
-			if (token) {
-				auth.setTokenFromOAuth(token);
-				window.history.replaceState(null, '', window.location.pathname + window.location.search);
-			}
-		}
-	});
 </script>
 
 <svelte:body use:classList={theme.mode} />
