@@ -13,6 +13,7 @@
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import CilogonButton from '$lib/components/cilogon-button.svelte';
 	import { CircleHelpIcon } from 'lucide-svelte';
+	import FlaggedFeature from '$lib/components/flagged-feature/flagged-feature.svelte';
 
 	let username = $state('');
 	let password = $state('');
@@ -65,20 +66,13 @@
 </script>
 
 <div class="flex size-full flex-1 items-center justify-center bg-muted">
-	<div class="w-full max-w-sm rounded bg-background p-8 shadow-md">
-		<h2 class="mb-4 text-center text-2xl font-bold">Login</h2>
-		<p class="mb-4 text-center text-xs text-muted-foreground">
+	<div class="flex w-full max-w-sm flex-col gap-4 rounded bg-background p-8 shadow-md">
+		<h2 class="text-center text-2xl font-bold">Login</h2>
+		<p class="text-center text-xs text-muted-foreground">
 			Please enter the credentials provided by the Australian Ad Observatory team to access the
 			dashboard.
 		</p>
 		{#if message.text}
-			<!-- <div
-				class={twMerge('relative mb-4 rounded border !bg-opacity-15 px-4 py-3', message.type)}
-				role="alert"
-			>
-				<span class="block sm:inline">{message.value}</span>
-				<Markdown md={message.text} />
-			</div> -->
 			<Alert.Root variant={message.type === 'error' ? 'destructive' : message.type}>
 				<Alert.Title>{message.type.charAt(0).toUpperCase() + message.type.slice(1)}</Alert.Title>
 				<Alert.Description>
@@ -107,27 +101,32 @@
 		</form>
 
 		<!-- Alternative methods -->
-		<div class="mt-6 text-center">
-			<div class="relative">
+		<div class="grid grid-cols-1 gap-2">
+			<div class="relative text-center">
 				<span class="relative z-10 bg-background px-4 text-sm text-muted-foreground">OR</span>
 				<hr class="absolute top-1/2 z-0 w-full" />
 			</div>
-			<CilogonButton class="mt-2 w-full">
-				Login with an external account
-				<Tooltip.Root>
-					<Tooltip.Trigger>
-						<CircleHelpIcon />
-					</Tooltip.Trigger>
-					<Tooltip.Content>
-						<p class="max-w-sm text-wrap text-left text-xs font-normal text-muted-foreground">
-							Login using an external account (e.g., Google, Microsoft or your institution's
-							account). You will be redirected to the CILogon service to authenticate. Your account
-							will require approval by the Australian Ad Observatory team before you can access the
-							dashboard.
-						</p>
-					</Tooltip.Content>
-				</Tooltip.Root>
-			</CilogonButton>
+			<FlaggedFeature feature="cilogon">
+				<CilogonButton class="mt-2 w-full">
+					Login with an external account
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							<CircleHelpIcon />
+						</Tooltip.Trigger>
+						<Tooltip.Content>
+							<p class="max-w-sm text-wrap text-left text-xs font-normal text-muted-foreground">
+								Login using an external account (e.g., Google, Microsoft or your institution's
+								account). You will be redirected to the CILogon service to authenticate. Your
+								account will require approval by the Australian Ad Observatory team before you can
+								access the dashboard.
+							</p>
+						</Tooltip.Content>
+					</Tooltip.Root>
+				</CilogonButton>
+				{#snippet alternative()}
+					<Button variant="outline" class="w-full" disabled>Login with an external account</Button>
+				{/snippet}
+			</FlaggedFeature>
 		</div>
 	</div>
 </div>
