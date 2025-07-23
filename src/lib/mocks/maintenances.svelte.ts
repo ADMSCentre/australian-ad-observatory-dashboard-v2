@@ -14,8 +14,8 @@ const MAINTENANCES: Maintenance[] = [
 		description:
 			'Scheduled update to enable CILogon integration as an alternative login method. This will allow users to log in using their university credentials.',
 		startDate: new Date('2025-07-23T14:00:00+10:00'),
-		endDate: new Date('2025-07-23T17:00:00+10:00'),
-		status: 'scheduled'
+		endDate: new Date('2025-07-23T16:00:00+10:00'),
+		status: 'completed'
 	}
 ];
 
