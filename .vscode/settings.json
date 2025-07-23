@@ -1,9 +1,6 @@
 {
 	"github.copilot.chat.codeGeneration.instructions": [
 		{
-			"file": "docs/.copilot/svelte-llms-small.md" // svelte documentation
-		},
-		{
 			"file": "docs/.copilot/svelte-style-guide.md"
 		}
 	],

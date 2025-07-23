@@ -32,7 +32,8 @@
 		</Alert.Title>
 		<div class="flex flex-col gap-1 text-xs">
 			<p>
-				A scheduled maintenance is coming up. Please avoid using the dashboard during this time.
+				A scheduled maintenance is coming up. Please avoid using the dashboard during the period
+				stated below.
 			</p>
 			<p>
 				<strong>Start:</strong>
