@@ -66,6 +66,7 @@ export class Authentication {
 	logout = () => {
 		this.token = null;
 		localStorage.removeItem('jwt');
+		window.location.reload();
 	};
 
 	validate = async () => {
