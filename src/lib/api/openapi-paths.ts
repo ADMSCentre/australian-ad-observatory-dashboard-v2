@@ -127,47 +127,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/auth/logout": {
+    "/auth/cilogon/login": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
         /**
-         * Log the user out.
-         * @description Log the user out and disable the JSON web token to prevent further authentication using the same token.
+         * Initiates CILogon OIDC login flow.
+         * @description Redirects the user to the CILogon authorization endpoint to start the OpenID Connect authentication flow. Sets a temporary state cookie for CSRF protection.
          */
-        post: {
+        get: {
             parameters: {
                 query?: never;
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        token?: string;
-                    };
-                };
-            };
+            requestBody?: never;
             responses: {
-                /** @description A successful logout */
-                200: {
+                /** @description Successful initiation of the login flow. Redirects the user's browser to CILogon. */
+                302: {
                     headers: {
+                        /** @description The URL of the CILogon authorization endpoint where the user should be redirected. */
+                        Location?: string;
+                        /** @description Sets the `cilogon_oauth_state` cookie containing the signed state value for CSRF protection and storing the intended redirect URL after authentication. The cookie is HttpOnly, Secure, SameSite=Lax, and has a short expiry. */
+                        "Set-Cookie"?: string;
                         [name: string]: unknown;
                     };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                        };
-                    };
+                    content?: never;
                 };
-                /** @description A failed logout */
-                400: {
+                /** @description Server configuration error or internal failure during login initiation. */
+                500: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -175,60 +167,58 @@ export interface paths {
                         "application/json": {
                             /** @example false */
                             success?: boolean;
-                            /** @example LOGOUT_FAILED */
+                            /** @example Server configuration error - CILogon metadata not loaded. */
                             comment?: string;
                         };
                     };
                 };
             };
         };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/auth/refresh": {
+    "/auth/cilogon/authorize": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
         /**
-         * Refresh the JSON web token.
-         * @description Refresh the JSON web token to extend the session.
+         * Handles the callback from CILogon after authentication.
+         * @description Processes the authorization code and state returned by CILogon. Verifies the state against the cookie, fetches user information, creates an application-specific JWT, and redirects the user back to the frontend application with the token.
          */
-        post: {
+        get: {
             parameters: {
-                query?: never;
+                query: {
+                    /** @description The authorization code issued by CILogon upon successful user authentication. */
+                    code: string;
+                    /** @description The opaque state value returned by CILogon. Used for CSRF protection verification against the value stored in the `cilogon_oauth_state` cookie. */
+                    state: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        token?: string;
-                    };
-                };
-            };
+            requestBody?: never;
             responses: {
-                /** @description A successful refresh */
-                200: {
+                /** @description Successful authentication and authorization. Redirects the user's browser back to the frontend application, embedding the application JWT in the URL fragment (#token=...). Clears the state cookie. */
+                302: {
                     headers: {
+                        /** @description The URL of the frontend application where the user should be redirected, including the application JWT in the fragment. */
+                        Location?: string;
+                        /** @description Clears the `cilogon_oauth_state` cookie as it is no longer needed. */
+                        "Set-Cookie"?: string;
                         [name: string]: unknown;
                     };
-                    content: {
-                        "application/json": {
-                            success?: boolean;
-                            token?: string;
-                        };
-                    };
+                    content?: never;
                 };
-                /** @description A failed refresh */
+                /** @description Bad request due to missing parameters, state mismatch (CSRF suspected), or invalid/expired state cookie. */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -237,13 +227,29 @@ export interface paths {
                         "application/json": {
                             /** @example false */
                             success?: boolean;
-                            /** @example REFRESH_FAILED */
+                            /** @example Missing state, code, or cookie */
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description Internal server error during callback processing (e.g., failure to exchange code, fetch user info, or create JWT). */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example Authentication failed during callback */
                             comment?: string;
                         };
                     };
                 };
             };
         };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -279,11 +285,12 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
+                            id?: string;
                             username?: string;
                             enabled?: boolean;
-                            password?: string;
                             full_name?: string;
                             role?: string;
+                            provider?: string;
                         }[];
                     };
                 };
@@ -390,6 +397,87 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/{user_id}/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change a user's role (admin only) [allows - admin]
+         * @description Change the role of a user in the database.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The ID of the user to change role for */
+                    user_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        role?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Role changed successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description Role change failed */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example User not found */
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description Unauthorized access */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example UNAUTHORISED */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/users/{username}": {
         parameters: {
             query?: never;
@@ -422,9 +510,9 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
+                            id?: string;
                             username?: string;
                             enabled?: boolean;
-                            password?: string;
                             full_name?: string;
                             role?: string;
                         };
@@ -464,7 +552,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a user (admin only) [allows - admin]
-         * @description Delete a user by moving their data to the recycle bin.
+         * @description Delete a user by removing their data from the database.
          *
          *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
          */
@@ -624,9 +712,9 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
+                            id?: string;
                             username?: string;
                             enabled?: boolean;
-                            password?: string;
                             full_name?: string;
                             role?: string;
                         };
@@ -2732,6 +2820,363 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/external": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Returns a list of external users from the database (admin only) [allows - admin]
+         * @description Returns a list of external users (users whose only identity is from CILogon) stored in the database.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id?: string;
+                            /** @example cilogon */
+                            provider?: string;
+                            provider_user_id?: string;
+                            enabled?: boolean;
+                            full_name?: string;
+                            role?: string;
+                            email?: string;
+                            /** @description Unix timestamp */
+                            created_at?: number;
+                        }[];
+                    };
+                };
+                /** @description Unauthorized access */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example UNAUTHORISED */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/external/{user_id}/enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Enable an external user (admin only) [allows - admin]
+         * @description Enable an external user to allow them access to the API.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The ID of the external user to enable */
+                    user_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description User enabled successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description User not found or operation failed */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example User not found or not an external user */
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description Unauthorized access */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example UNAUTHORISED */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/external/{user_id}/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Disable an external user (admin only) [allows - admin]
+         * @description Disable an external user to revoke their access to the API.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The ID of the external user to disable */
+                    user_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description User disabled successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description User not found or operation failed */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example User not found or not an external user */
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description Unauthorized access */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example UNAUTHORISED */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/external/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get an external user from the database (admin only) [allows - admin]
+         * @description Get an external user's information stored in the database.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The ID of the external user to get */
+                    user_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id?: string;
+                            /** @example cilogon */
+                            provider?: string;
+                            provider_user_id?: string;
+                            enabled?: boolean;
+                            full_name?: string;
+                            role?: string;
+                            /** @description Unix timestamp */
+                            created_at?: number;
+                        };
+                    };
+                };
+                /** @description User not found or operation failed */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example User not found or not an external user */
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description Unauthorized access */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example UNAUTHORISED */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Delete an external user (admin only) [allows - admin]
+         * @description Delete an external user from both users and user_identities tables.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The ID of the external user to delete */
+                    user_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description User deleted successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description User not found or operation failed */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example User not found or not an external user */
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description Unauthorized access */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example UNAUTHORISED */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reflect": {
         parameters: {
             query?: never;
@@ -2884,12 +3329,29 @@ export interface components {
             /** Attributes */
             attributes: Record<string, never> | null;
         };
+        /** AdAttribute */
+        AdAttribute: {
+            /** Observation Id */
+            observation_id: string;
+            /** Key */
+            key: string;
+            /** Value */
+            value: string;
+            /** Created At */
+            created_at: number;
+            /** Created By */
+            created_by: string;
+            /** Modified At */
+            modified_at: number;
+            /** Modified By */
+            modified_by: string;
+        };
         /** AdTag */
         AdTag: {
-            /** Id */
-            id: string;
-            /** Tags */
-            tags: string[];
+            /** Observation Id */
+            observation_id: string;
+            /** Tag Id */
+            tag_id: string;
         };
         /** BaseCell */
         BaseCell: {
@@ -2898,6 +3360,33 @@ export interface components {
              * @default null
              */
             config: Record<string, never> | null;
+        };
+        /** LegacyAdTag */
+        LegacyAdTag: {
+            /** Id */
+            id: string;
+            /** Tags */
+            tags: string[];
+        };
+        /** Observation */
+        Observation: {
+            /** Observer Id */
+            observer_id: string;
+            /** Observation Id */
+            observation_id: string;
+            /** Timestamp */
+            timestamp: number;
+        };
+        /** OpenSearchIndex */
+        OpenSearchIndex: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Created At */
+            created_at: number;
+            /** Status */
+            status: string;
         };
         /** Project */
         Project: {
@@ -2983,6 +3472,47 @@ export interface components {
             type: string;
             /** Content */
             content: string;
+        };
+        /** User */
+        User: {
+            /** Id */
+            id: string;
+            /**
+             * Full Name
+             * @default null
+             */
+            full_name: string | null;
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
+            /**
+             * Role
+             * @default user
+             */
+            role: string;
+            /**
+             * Primary Email
+             * @default null
+             */
+            primary_email: string | null;
+        };
+        /** UserIdentity */
+        UserIdentity: {
+            /** User Id */
+            user_id: string;
+            /** Provider */
+            provider: string;
+            /** Provider User Id */
+            provider_user_id: string;
+            /**
+             * Password
+             * @default null
+             */
+            password: string | null;
+            /** Created At */
+            created_at: number;
         };
     };
     responses: never;

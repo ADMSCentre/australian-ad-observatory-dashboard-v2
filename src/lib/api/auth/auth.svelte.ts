@@ -4,10 +4,13 @@ import { pushToast } from '$lib/components/toasts/toasts.svelte';
 export type User = {
 	token: string;
 	payload: {
-		username: string;
-		full_name: string;
-		role: string;
+		enabled: boolean;
 		exp: number;
+		full_name: string;
+		iat: number;
+		provider: 'cilogon' | 'local' | null;
+		role: string;
+		sub: string;
 	};
 };
 
@@ -26,11 +29,6 @@ async function validateToken(token: string) {
 	return data;
 }
 
-async function invalidateToken(token: string) {
-	const { data } = await client.POST('/auth/logout', { body: { token } });
-	return data;
-}
-
 export class Authentication {
 	token = $state<string | null>(null);
 	loading = $state(false);
@@ -40,6 +38,7 @@ export class Authentication {
 			return null;
 		}
 		const payload = JSON.parse(atob(this.token.split('.')[1]));
+		console.log('Current user payload:', payload);
 		return payload;
 	});
 
@@ -54,19 +53,6 @@ export class Authentication {
 		};
 	});
 
-	refresh = async () => {
-		const { data, error } = await client.POST('/auth/refresh', {
-			body: {
-				token: this.token || ''
-			}
-		});
-		if (error || !data.token) {
-			throw new Error('Failed to refresh token');
-		}
-		this.token = data.token;
-		localStorage.setItem('jwt', data.token);
-	};
-
 	login = async ({ username, password }: { username: string; password: string }) => {
 		const result = await fetchLoginToken({ username, password });
 		if (!result || !result.token) {
@@ -78,7 +64,6 @@ export class Authentication {
 	};
 
 	logout = () => {
-		invalidateToken(this.token!);
 		this.token = null;
 		localStorage.removeItem('jwt');
 	};
@@ -110,6 +95,11 @@ export class Authentication {
 		} finally {
 			this.loading = false;
 		}
+	};
+
+	setTokenFromOAuth = (receivedToken: string) => {
+		this.token = receivedToken;
+		localStorage.setItem('jwt', receivedToken);
 	};
 
 	constructor() {

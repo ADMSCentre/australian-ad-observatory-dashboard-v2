@@ -16,7 +16,8 @@ export class ProjectManager {
 	}>({});
 
 	get currentUser() {
-		const user = this.project?.team.find((m) => m.username === auth.currentUser?.username) ?? null;
+		const authenticatedUser = session.users.all.find((u) => u.id === auth.currentUser?.sub);
+		const user = this.project?.team.find((m) => m.username === authenticatedUser?.username) ?? null;
 		const isOwner = user?.username === this.project?.ownerId;
 		return {
 			isOwner,
@@ -103,7 +104,9 @@ export class ProjectManager {
 		try {
 			const response = session.query.prepare(cell.content.query, true);
 			this.queryResults[cell.id] = {
-				get loading() { return response.running },
+				get loading() {
+					return response.running;
+				},
 				error: false,
 				response: response
 			};

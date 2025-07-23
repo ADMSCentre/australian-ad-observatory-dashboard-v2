@@ -13,23 +13,34 @@
 	import { twMerge } from 'tailwind-merge';
 	import { theme } from '$lib/states/theme.svelte';
 	import { classList } from 'svelte-body';
-	import { Bug } from 'lucide-svelte';
 	import DebugToolbar from './debug-toolbar.svelte';
-	import { version } from '$app/environment';
-	import { untrack } from 'svelte';
+	import { version, browser } from '$app/environment';
+	import { untrack, onMount } from 'svelte';
 	import { session } from '$lib/api/session/session.svelte';
 	import MaintenanceOverlay from '$lib/components/maintenance-overlay.svelte';
+	import DisabledAccountAlert from '$lib/components/disabled-account-alert.svelte';
 
 	let { children } = $props();
-	$effect(() => {
+	onMount(() => {
 		if (!isRouteProtected($page.url.pathname)) return;
 		if (!auth.loading && !auth.currentUser) {
 			goto(withBase(`/login?redirect=${$page.url.pathname}${$page.url.search}`));
 		}
-		// If authentication changes, refresh the session
 		untrack(() => {
 			session.refresh();
 		});
+	});
+
+	onMount(() => {
+		if (browser && window.location.hash.startsWith('#token=')) {
+			const hash = window.location.hash.substring(1);
+			const params = new URLSearchParams(hash);
+			const token = params.get('token');
+			if (token) {
+				auth.setTokenFromOAuth(token);
+				window.history.replaceState(null, '', window.location.pathname + window.location.search);
+			}
+		}
 	});
 </script>
 
@@ -49,7 +60,13 @@
 	<main class="flex h-fit min-h-screen w-full flex-col">
 		<Header />
 		<div class="flex flex-1 flex-col gap-2 p-1 sm:p-4 sm:pb-0">
-			{@render children()}
+			{#if auth.currentUser && !auth.currentUser?.enabled}
+				<div class="flex flex-1 items-center justify-center">
+					<DisabledAccountAlert class="max-w-md" />
+				</div>
+			{:else}
+				{@render children()}
+			{/if}
 		</div>
 		<div
 			class="pointer-events-none fixed bottom-1 right-1 z-50 flex items-center justify-end text-3xs text-muted-foreground"

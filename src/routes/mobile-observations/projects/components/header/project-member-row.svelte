@@ -97,7 +97,7 @@
 			}}
 		/>
 		<div class="flex">
-			{#if auth.currentUser?.username !== member.username && member.username !== project.ownerId && projectManager.currentUser.isAdmin}
+			{#if member.username !== project.ownerId && projectManager.currentUser.isAdmin}
 				{#if !isDeleting}
 					<Button
 						variant="destructive"

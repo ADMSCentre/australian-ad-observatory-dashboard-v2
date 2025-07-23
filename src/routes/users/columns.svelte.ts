@@ -103,6 +103,7 @@ export const appendUser = async (user: User) => {
 		body: { ...body, enabled: true } as Omit<User, 'fullname'> & {
 			full_name: string;
 			enabled: boolean;
+			password: string;
 		}
 	});
 	if (!res && error) throw new Error(error.comment);
@@ -138,12 +139,29 @@ export const columns: ColumnDef<User>[] = [
 		},
 		cell: ({ row }) => {
 			const usernameCellSnippet = createRawSnippet<[string]>((getName) => {
+				if (row.original.provider !== 'local') {
+					return {
+						render: () =>
+							`<div style="direction: rtl" class="max-w-28 overflow-hidden text-muted-foreground text-ellipsis">${getName()}</div>`
+					};
+				}
+
 				const username = getName();
 				return {
 					render: () => `<div class="w-28">${username}</div>`
 				};
 			});
 			return renderSnippet(usernameCellSnippet, row.original.username);
+		}
+	},
+	{
+		accessorKey: 'provider',
+		header: ({ column }) => {
+			return renderComponent(DataTableHeaderCell, {
+				label: 'Provider',
+				sortDir: column.getIsSorted(),
+				onclick: () => column.toggleSorting()
+			});
 		}
 	},
 	{
@@ -198,6 +216,15 @@ export const columns: ColumnDef<User>[] = [
 		accessorKey: 'password',
 		header: 'Password',
 		cell: ({ row }) => {
+			if (row.original.provider !== 'local') {
+				return renderSnippet(
+					createRawSnippet(() => ({
+						render: () => `<div class="text-muted-foreground select-none">Not applicable</div>`
+					})),
+					`${row.original.provider} user`
+				);
+			}
+
 			return renderComponent(Input, {
 				type: 'password',
 				value: row.original.password,

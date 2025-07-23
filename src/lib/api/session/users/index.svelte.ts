@@ -11,10 +11,19 @@ function parseRole(role: string | undefined): UserRole {
 }
 
 export type User = {
+	id: string;
 	username: string;
 	fullname: string;
 	password?: string; // Hashed
 	role: UserRole;
+	provider?: 'cilogon' | 'local';
+};
+
+export type UserUpdate = {
+	username: string;
+	fullname?: string;
+	role?: UserRole;
+	enabled?: boolean;
 };
 
 export class UsersApi {
@@ -40,12 +49,14 @@ export class UsersApi {
 		this.users = data
 			.filter((user) => user.username)
 			.map((user) => {
-				if (!user.username) throw new Error('Invalid user data');
+				if (!user.username || !user.id) throw new Error('Invalid user data');
 
 				return {
+					id: user.id,
 					fullname: user.full_name || '',
 					username: user.username,
-					role: parseRole(user.role)
+					role: parseRole(user.role),
+					provider: user.provider as 'cilogon' | 'local'
 				};
 			});
 	}
