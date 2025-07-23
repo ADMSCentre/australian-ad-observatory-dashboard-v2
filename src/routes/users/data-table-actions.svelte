@@ -58,6 +58,8 @@
 				loading = { loading: false, target: target };
 			}
 		};
+
+	const isLocalUser = $derived(user.provider === 'local');
 </script>
 
 <!-- <Edit /> -->
@@ -88,13 +90,13 @@
 			{/if}
 		</Button>
 	{:else}
-		<Button variant="ghost" onclick={onEditStart} class="aspect-square p-1">
+		<Button variant="ghost" disabled={!isLocalUser} onclick={onEditStart} class="aspect-square p-1">
 			<Edit class="size-4" />
 		</Button>
 	{/if}
 	<Dialog.Root>
-		<Dialog.Trigger>
-			<Button variant="ghost" class="aspect-square p-1">
+		<Dialog.Trigger disabled={!isLocalUser}>
+			<Button variant="ghost" disabled={!isLocalUser} class="aspect-square p-1">
 				<Trash class="size-4" />
 			</Button>
 		</Dialog.Trigger>
