@@ -5,6 +5,7 @@
 	import { Circle } from 'svelte-loading-spinners';
 	import { theme } from '$lib/states/theme.svelte';
 	import { session } from '$lib/api/session/session.svelte';
+	import ExternalUserList from './components/external-user-list.svelte';
 
 	$effect(() => {
 		const users = session.users.all;
@@ -14,6 +15,8 @@
 </script>
 
 <h1>Users</h1>
+
+<ExternalUserList />
 
 <div class="flex w-full flex-col items-center">
 	{#if session.users.loading}
