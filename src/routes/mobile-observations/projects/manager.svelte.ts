@@ -16,7 +16,8 @@ export class ProjectManager {
 	}>({});
 
 	get currentUser() {
-		const user = this.project?.team.find((m) => m.username === auth.currentUser?.sub) ?? null;
+		const authenticatedUser = session.users.all.find((u) => u.id === auth.currentUser?.sub);
+		const user = this.project?.team.find((m) => m.username === authenticatedUser?.username) ?? null;
 		const isOwner = user?.username === this.project?.ownerId;
 		return {
 			isOwner,

@@ -290,6 +290,7 @@ export interface paths {
                             enabled?: boolean;
                             full_name?: string;
                             role?: string;
+                            provider?: string;
                         }[];
                     };
                 };
@@ -394,6 +395,87 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/users/{user_id}/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change a user's role (admin only) [allows - admin]
+         * @description Change the role of a user in the database.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The ID of the user to change role for */
+                    user_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        role?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Role changed successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description Role change failed */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example User not found */
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description Unauthorized access */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example UNAUTHORISED */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/users/{username}": {

@@ -2,6 +2,7 @@ import { auth } from '$lib/api/auth/auth.svelte';
 import { type Project } from 'mobile-observations/projects/types';
 // import { PROJECTS } from './mock';
 import { client } from '$lib/api/client';
+import { session } from '$lib/api/session/session.svelte';
 
 export class ProjectApiAdapter {
 	private authHeader = $derived.by(() => {
@@ -9,20 +10,24 @@ export class ProjectApiAdapter {
 	});
 	private projects = $state<Project[]>([]);
 
+	private get authenticatedUser() {
+		return session.users.all.find((u) => u.id === auth.currentUser?.sub);
+	}
+
 	get all() {
 		return this.projects;
 	}
 
 	get owned() {
 		if (!auth.currentUser) return [];
-		return this.projects.filter((p) => p.ownerId === auth.currentUser?.sub);
+		return this.projects.filter((p) => p.ownerId === this.authenticatedUser?.username);
 	}
 
 	get shared() {
 		if (!auth.currentUser) return [];
 		return this.projects.filter(
 			(p) =>
-				p.team.some((u) => u.username === auth.currentUser?.sub) &&
+				p.team.some((u) => u.username === this.authenticatedUser?.username) &&
 				p.ownerId !== auth.currentUser?.sub
 		);
 	}
@@ -32,7 +37,7 @@ export class ProjectApiAdapter {
 		return this.projects.filter(
 			(p) =>
 				p.ownerId !== auth.currentUser?.sub &&
-				!p.team.some((u) => u.username === auth.currentUser?.sub)
+				!p.team.some((u) => u.username === this.authenticatedUser?.username)
 		);
 	}
 
@@ -47,15 +52,6 @@ export class ProjectApiAdapter {
 
 	async create({ name, description = '' }: { name: string; description?: string }) {
 		if (!auth.token || !auth.currentUser) throw new Error('Not authenticated');
-		// TODO: Replace with actual API call
-		// const newProjectData: Project = {
-		// 	id: 'project-' + Math.random().toString(36).substring(7),
-		// 	name,
-		// 	ownerId: auth.currentUser.username,
-		// 	description,
-		// 	team: [],
-		// 	cells: []
-		// };
 		const { error } = await client.POST('/projects', {
 			headers: this.authHeader,
 			body: {

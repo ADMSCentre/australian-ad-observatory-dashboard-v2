@@ -65,7 +65,7 @@
 				<HoverCard.Trigger
 					class="inline-block max-w-32 items-start gap-2 overflow-hidden text-ellipsis whitespace-nowrap no-underline"
 				>
-					subnkedUser?.fullname}
+					{linkedUser?.fullname}
 				</HoverCard.Trigger>
 				<HoverCard.Content class="flex w-fit flex-col gap-2">
 					<p class="text-sm font-semibold">{linkedUser?.fullname}</p>
@@ -97,7 +97,7 @@
 			}}
 		/>
 		<div class="flex">
-			{#if auth.currentUser?.username !== member.username && member.username !== project.ownerId && projectManager.currentUser.isAdmin}
+			{#if member.username !== project.ownerId && projectManager.currentUser.isAdmin}
 				{#if !isDeleting}
 					<Button
 						variant="destructive"
