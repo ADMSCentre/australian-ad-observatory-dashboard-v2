@@ -18,7 +18,7 @@
 	import { client } from '$lib/api/client';
 	import { auth } from '$lib/api/auth/auth.svelte';
 	import { json } from '@codemirror/lang-json';
-	import ImagesGif from '../../observer/images-gif.svelte';
+	import ImagesGif from '../../observer/components/images-gif.svelte';
 	import type { RichAdData } from '$lib/api/session/ads/types';
 	import { session } from '$lib/api/session/session.svelte';
 	import { untrack } from 'svelte';

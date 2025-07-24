@@ -6,9 +6,7 @@
 		ArrowLeft,
 		ChevronLeftSquare,
 		ChevronRightSquare,
-		CircleAlert,
 		Presentation,
-		Share2,
 		Square
 	} from 'lucide-svelte/icons';
 	import { auth } from '$lib/api/auth/auth.svelte';
@@ -19,22 +17,20 @@
 	import { withBase } from '$lib/utils';
 	import { twMerge } from 'tailwind-merge';
 	import { theme } from '$lib/states/theme.svelte';
-	import { client } from '$lib/api/client';
 	import { goto } from '$app/navigation';
-	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import * as Alert from '$lib/components/ui/alert/index.js';
-	import CopyButton from '$lib/components/copy-button.svelte';
-	import Input from '$lib/components/ui/input/input.svelte';
 	import { guestSessions } from '$lib/api/auth/guest-sessions.svelte';
-	import ShareSessionForm from './share-session-form.svelte';
+	import ShareSessionForm from './components/share-session-form.svelte';
 	import { session } from '$lib/api/session/session.svelte';
-	import { jwtDecode } from 'jwt-decode';
-	import Timer from '$lib/components/timer.svelte';
 	import parseActivationCode from '$lib/utils/parse-activation-code';
+	import { setObserverPageContext } from './context.svelte';
+	import CsrReportLink from './components/csr-report-link.svelte';
 
 	const participantId = $page.url.searchParams.get('observer_id') || '';
 	const pageUrl = $page.url.href;
 	const guestKey = $derived(`mobile-observer-${participantId}`);
+
+	setObserverPageContext(participantId);
 
 	let ads = $state<RichAdData[]>([]);
 	let isPresenting = $state(true);
@@ -120,12 +116,15 @@
 	{/if}
 
 	<!-- Main content -->
-	<h1 class="font-normal">
-		<span> Activation Code: </span>
-		<span class="rounded border-primary bg-brand/60 px-2 py-1 font-medium text-primary">
-			{parseActivationCode(participantId)?.toLocaleUpperCase()}
-		</span>
-	</h1>
+	<div class="flex items-center justify-between">
+		<h1 class="font-normal">
+			<span> Activation Code: </span>
+			<span class="rounded border-primary bg-brand/60 px-2 py-1 font-medium text-primary">
+				{parseActivationCode(participantId)?.toLocaleUpperCase()}
+			</span>
+		</h1>
+		<CsrReportLink />
+	</div>
 
 	<p class="text-muted-foreground">
 		The observations collected by this observer are shown below. The activation code corresponds to

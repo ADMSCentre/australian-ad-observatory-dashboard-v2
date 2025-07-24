@@ -421,7 +421,6 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description The ID of the user to change role for */
                     user_id: string;
                 };
                 cookie?: never;
@@ -496,7 +495,6 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description The username of the user to get */
                     username: string;
                 };
                 cookie?: never;
@@ -561,7 +559,6 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description The username of the user to delete */
                     username: string;
                 };
                 cookie?: never;
@@ -623,7 +620,6 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description The username of the user to edit */
                     username: string;
                 };
                 cookie?: never;
@@ -1374,7 +1370,6 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description The full ID of the observer. */
                     observer_id: string;
                 };
                 cookie?: never;
@@ -2351,6 +2346,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/observers/{observer_id}/csr": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the CSR for an observer. [allows - user, admin]
+         * @description Retrieve the presigned URL for the latest CSR of an observer.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    observer_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A successful response with the presigned URL */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example true */
+                            success?: boolean;
+                            presign_url?: string;
+                        };
+                    };
+                };
+                /** @description No CSR found for the observer */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example No CSR found for this observer. */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/medias": {
         parameters: {
             query?: never;
@@ -2516,7 +2572,6 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description The key of the session. */
                     key: string;
                 };
                 cookie?: never;
@@ -2560,7 +2615,6 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description The key of the session. */
                     key: string;
                 };
                 cookie?: never;
@@ -2604,7 +2658,6 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description The key of the session. */
                     key: string;
                 };
                 cookie?: never;
@@ -2906,7 +2959,6 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description The ID of the external user to enable */
                     user_id: string;
                 };
                 cookie?: never;
@@ -2981,7 +3033,6 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description The ID of the external user to disable */
                     user_id: string;
                 };
                 cookie?: never;
@@ -3054,7 +3105,6 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description The ID of the external user to get */
                     user_id: string;
                 };
                 cookie?: never;
@@ -3123,7 +3173,6 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description The ID of the external user to delete */
                     user_id: string;
                 };
                 cookie?: never;
