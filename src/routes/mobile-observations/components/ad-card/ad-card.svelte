@@ -16,7 +16,7 @@
 		TagIcon,
 		TagsIcon
 	} from 'lucide-svelte/icons';
-	import ImagesGif from '../../observer/images-gif.svelte';
+	import ImagesGif from '../../observer/components/images-gif.svelte';
 	import type { BasicAdData, IndexGroupType, RichAdData } from '$lib/api/session/ads/types';
 	import { auth } from '$lib/api/auth/auth.svelte';
 	import IntersectionObserverSvelte from 'svelte-intersection-observer/IntersectionObserver.svelte';
