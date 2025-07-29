@@ -15,6 +15,8 @@
 		style,
 		searchable = true,
 		downloadable = true,
+		beforeExport,
+		afterExport,
 		...options
 	} = $props<
 		{
@@ -22,6 +24,8 @@
 			style?: Record<string, string>;
 			searchable?: boolean;
 			downloadable?: boolean;
+			beforeExport?: (api: GridApi) => void;
+			afterExport?: (api: GridApi) => void;
 		} & GridOptions
 	>();
 
@@ -65,9 +69,11 @@
 				})
 				.replace(/\/|:/g, '')
 				.replace(', ', '_');
+			beforeExport?.(api);
 			api.exportDataAsCsv({
 				fileName: `export_${timeString}.csv`
 			});
+			afterExport?.(api);
 		}
 	}
 </script>

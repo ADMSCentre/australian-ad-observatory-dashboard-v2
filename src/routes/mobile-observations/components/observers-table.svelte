@@ -82,13 +82,13 @@
 		return [
 			{
 				headerName: 'Activation Code',
-				field: 'observer',
+				field: 'activationCode',
 				cellRenderer: (params: any) => {
 					const path = withBase(`mobile-observations/observer?observer_id=${params.value}`);
 					return `<a href="${path}"
 						class="text-blue-600 underline"
 					>
-						${parseActivationCode(params.value)?.toLocaleUpperCase()}
+						${params.value?.toLocaleUpperCase()}
 					</a>`;
 				}
 			},
@@ -112,7 +112,10 @@
 
 	const rowData = $derived.by(() => {
 		return Object.entries(adsByObserverAndTime).map(([observer, ads]) => {
-			const row: { observer: string; [key: string]: any } = { observer };
+			const row: { observer: string; activationCode: string; [key: string]: any } = {
+				observer,
+				activationCode: parseActivationCode(observer) || 'unknown'
+			};
 			let total = 0;
 			timeRange.forEach((time) => {
 				row[time] = ads[time].length;
@@ -125,5 +128,19 @@
 </script>
 
 <div class="h-96">
-	<AgGrid {columnDefs} {rowData} pagination paginationAutoPageSize class="h-full w-full" />
+	<AgGrid
+		{columnDefs}
+		{rowData}
+		beforeExport={(api) => {
+			// Reverse the order of the columns
+			api.moveColumns(['activationCode', 'total', ...timeRange.toReversed()], 0);
+		}}
+		afterExport={(api) => {
+			// Reset the column order to the original
+			api.moveColumns(['activationCode', 'total', ...timeRange], 0);
+		}}
+		pagination
+		paginationAutoPageSize
+		class="h-full w-full"
+	/>
 </div>
