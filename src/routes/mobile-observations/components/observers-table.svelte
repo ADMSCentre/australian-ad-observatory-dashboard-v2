@@ -84,7 +84,8 @@
 				headerName: 'Activation Code',
 				field: 'activationCode',
 				cellRenderer: (params: any) => {
-					const path = withBase(`mobile-observations/observer?observer_id=${params.value}`);
+					const observerId = params.data.observer;
+					const path = withBase(`mobile-observations/observer?observer_id=${observerId}`);
 					return `<a href="${path}"
 						class="text-blue-600 underline"
 					>
