@@ -13,12 +13,24 @@ export const dateToCalendarDate = (date: Date) => {
 	return new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
 };
 
+const DEFAULT_DATE_FORMATTER = new Intl.DateTimeFormat('en-GB', {
+	year: '2-digit',
+	month: 'numeric',
+	day: 'numeric',
+	weekday: 'long'
+});
+
 export const formatTimestamp = (
 	timestamp: string | number,
 	options?: Intl.DateTimeFormatOptions
 ) => {
-	// const date = new Date(parseInt(timestamp));
 	const date = new Date(+timestamp);
+
+	// If options are not provided, use the default formatter for performance
+	if (!options) {
+		return DEFAULT_DATE_FORMATTER.format(date);
+	}
+
 	const opts = {
 		year: '2-digit' as const,
 		month: 'numeric' as const,
@@ -29,34 +41,27 @@ export const formatTimestamp = (
 	return new Intl.DateTimeFormat('en-GB', opts).format(date);
 };
 
-export const toRichAdData = (ad: {
-	observer: string;
-	timestamp: number | string;
-	adId: string;
-	path: string;
-}): BasicAdData => {
-	const { observer, timestamp, adId, path } = ad;
-	const types: IndexGroupType[] = ['ads_passed_rdo_construction'];
-	const date = new Date(+timestamp).toLocaleDateString('en-GB', {
-		month: 'long',
-		day: 'numeric',
-		year: 'numeric'
-	});
-	const time = new Date(+timestamp).toLocaleTimeString('en-GB', {
-		hour: '2-digit',
-		minute: '2-digit',
-		second: '2-digit',
-		fractionalSecondDigits: 3
-	});
-
-	return { observer, timestamp: +timestamp, adId, path, types, date, time };
-};
-
 export const parseAdsIndex = (
 	index: ObservationIndex,
 	types: IndexGroupType[] = ['ads_passed_restitch']
 ) => {
 	const adsDict = {} as Record<string, BasicAdData>;
+
+	// Instead of calling the date.toLocaleDateString and time.toLocaleTimeString multiple times,
+	// we can create formatters to reuse them for a massive performance improvement.
+	//
+	// src: https://nedwize.hashnode.dev/tolocalestring-is-too-slow-heres-how-to-improve-it
+	const dateFormatter = new Intl.DateTimeFormat('en-GB', {
+		month: 'long',
+		day: 'numeric',
+		year: 'numeric'
+	});
+	const timeFormatter = new Intl.DateTimeFormat('en-GB', {
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit',
+		fractionalSecondDigits: 3
+	});
 
 	types.forEach((type) => {
 		const ads = index[type];
@@ -64,17 +69,9 @@ export const parseAdsIndex = (
 		ads.forEach((ad) => {
 			const { observer, timestamp, adId, path } = ad;
 			const types = [type];
-			const date = new Date(+timestamp).toLocaleDateString('en-GB', {
-				month: 'long',
-				day: 'numeric',
-				year: 'numeric'
-			});
-			const time = new Date(+timestamp).toLocaleTimeString('en-GB', {
-				hour: '2-digit',
-				minute: '2-digit',
-				second: '2-digit',
-				fractionalSecondDigits: 3
-			});
+			const timestampDate = new Date(+timestamp);
+			const date = dateFormatter.format(timestampDate);
+			const time = timeFormatter.format(timestampDate);
 			if (adsDict[adId]) {
 				adsDict[adId].types.push(type);
 				return;
@@ -84,30 +81,6 @@ export const parseAdsIndex = (
 	});
 
 	const adsIndex = Object.values(adsDict).toSorted((a, b) => b.timestamp - a.timestamp);
-
-	// const adsIndex = index[types[0]]
-	// 	.map((ad) => {
-	// 		// Convert timestamp to date (DD/MM/YYYY) and time (HH:MM:SS.SSS)
-	// 		const date = new Date(+ad.timestamp).toLocaleDateString('en-GB', {
-	// 			month: 'long',
-	// 			day: 'numeric',
-	// 			year: 'numeric'
-	// 		});
-	// 		const time = new Date(+ad.timestamp).toLocaleTimeString('en-GB', {
-	// 			hour: '2-digit',
-	// 			minute: '2-digit',
-	// 			second: '2-digit',
-	// 			fractionalSecondDigits: 3
-	// 		});
-	// 		return {
-	// 			...ad,
-	// 			timestamp: +ad.timestamp,
-	// 			date,
-	// 			time,
-	// 			types
-	// 		};
-	// 	})
-	// 	.toSorted((a, b) => b.timestamp - a.timestamp);
 	return adsIndex;
 };
 

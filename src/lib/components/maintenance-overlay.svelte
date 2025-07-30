@@ -9,9 +9,6 @@
 		session.maintenances.find((m) => {
 			if (!m.startDate || !m.endDate) return false;
 			const now = new Date();
-			console.log('Current time:', now);
-			console.log('After maintenance start:', m.startDate, now >= m.startDate);
-			console.log('Before maintenance end:', m.endDate, now <= m.endDate);
 			return now >= m.startDate && now <= m.endDate;
 		})
 	);

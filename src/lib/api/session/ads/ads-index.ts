@@ -11,23 +11,29 @@ const parseAdPath = (path: string) => {
 };
 
 export const parseRawAdPaths = (rawAds: string[]) => {
-	return rawAds
+	const dateFormatter = new Intl.DateTimeFormat('en-GB', {
+		month: 'long',
+		day: 'numeric',
+		year: 'numeric'
+	});
+	const timeFormatter = new Intl.DateTimeFormat('en-GB', {
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit',
+		fractionalSecondDigits: 3
+	});
+
+	const results = rawAds
 		.map((path) => parseAdPath(path))
 		.map((ad) => {
 			const { observer, timestamp, adId, path } = ad;
-			const date = new Date(+timestamp).toLocaleDateString('en-GB', {
-				month: 'long',
-				day: 'numeric',
-				year: 'numeric'
-			});
-			const time = new Date(+timestamp).toLocaleTimeString('en-GB', {
-				hour: '2-digit',
-				minute: '2-digit',
-				second: '2-digit',
-				fractionalSecondDigits: 3
-			});
+			const timestampDate = new Date(+timestamp);
+			const date = dateFormatter.format(timestampDate);
+			const time = timeFormatter.format(timestampDate);
 			return { observer, timestamp: +timestamp, adId, path, date, time, types: [] };
 		}) as unknown as RichAdData[];
+
+	return results;
 };
 
 export const listAllAds = async (

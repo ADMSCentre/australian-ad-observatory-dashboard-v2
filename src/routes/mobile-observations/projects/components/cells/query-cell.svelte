@@ -258,11 +258,6 @@
 					</div>
 
 					{#each cell.content.results as result, index (index)}
-						<!-- <pre
-							class="rounded-md bg-zinc-100 p-2 text-sm text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200"
-							transition:slide={{ axis: 'y' }}>
-							{JSON.stringify(result, null, 2)}
-						</pre> -->
 						<div transition:slide={{ axis: 'y', duration: 300 }} animate:flip={{ duration: 300 }}>
 							<Visualisation
 								type={result.type}

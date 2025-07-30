@@ -1,4 +1,4 @@
-import { parseAdsIndex, toRichAdData } from './session/ads/utils';
+import { parseAdsIndex } from './session/ads/utils';
 import { client, runWithCache, generateCacheKey } from '$lib/api/client';
 import type { IndexGroupType, RichAdData, ObservationIndex } from './session/ads/types';
 
@@ -84,18 +84,30 @@ export const listAdsForObserver = async (
 	if (!data?.success || !data.ads || error) {
 		return [];
 	}
-	return data.ads.map((path: string) => parseAdPath(path)).map((basicAd) => toRichAdData(basicAd));
-	// const raw: {
-	// 	[key: string]: string[];
-	// } = data.data;
-	// const observationTypes = Object.keys(raw);
-	// const index: ObservationIndex = observationTypes.reduce((acc, category) => {
-	// 	if (!acc) acc = {};
-	// 	acc[category] = raw[category].map((path: string) => parseAdPath(path));
-	// 	return acc;
-	// }, {} as ObservationIndex);
-	// const ads = parseAdsIndex(index, types) as RichAdData[];
-	// return ads.filter((ad) => filters.every((filter) => filter(ad)));
+
+	const dateFormatter = new Intl.DateTimeFormat('en-GB', {
+		month: 'long',
+		day: 'numeric',
+		year: 'numeric'
+	});
+	const timeFormatter = new Intl.DateTimeFormat('en-GB', {
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit',
+		fractionalSecondDigits: 3
+	});
+
+	return data.ads
+		.map((path: string) => parseAdPath(path))
+		.map((ad) => {
+			const { observer, timestamp, adId, path } = ad;
+			const types: IndexGroupType[] = ['ads_passed_rdo_construction'];
+			const timestampDate = new Date(+timestamp);
+			const date = dateFormatter.format(timestampDate);
+			const time = timeFormatter.format(timestampDate);
+
+			return { observer, timestamp: +timestamp, adId, path, types, date, time };
+		});
 };
 
 export const getAdFrameUrls = async (
