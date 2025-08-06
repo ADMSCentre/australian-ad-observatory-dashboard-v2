@@ -28,7 +28,7 @@ export class ProjectApiAdapter {
 		return this.projects.filter(
 			(p) =>
 				p.team.some((u) => u.username === this.authenticatedUser?.username) &&
-				p.ownerId !== auth.currentUser?.sub
+				p.ownerId !== this.authenticatedUser?.username
 		);
 	}
 
