@@ -1,5 +1,6 @@
 import { client } from '../client';
 import { pushToast } from '$lib/components/toasts/toasts.svelte';
+import { session } from '../session/session.svelte';
 
 export type User = {
 	token: string;
@@ -59,8 +60,7 @@ export class Authentication {
 			throw new Error('Invalid credentials');
 		}
 		const { token } = result;
-		this.token = token;
-		localStorage.setItem('jwt', token);
+		this.setTokenFromOAuth(token);
 	};
 
 	logout = () => {
@@ -77,7 +77,7 @@ export class Authentication {
 			this.loading = false;
 			return;
 		}
-		this.token = savedToken;
+		this.setTokenFromOAuth(savedToken);
 		// Check if the token is still valid
 		try {
 			const result = await validateToken(savedToken);
@@ -101,6 +101,7 @@ export class Authentication {
 	setTokenFromOAuth = (receivedToken: string) => {
 		this.token = receivedToken;
 		localStorage.setItem('jwt', receivedToken);
+		session.refresh();
 	};
 
 	constructor() {
