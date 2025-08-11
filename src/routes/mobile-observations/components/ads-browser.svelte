@@ -161,22 +161,26 @@
 			mode: 'single',
 			options: [
 				{
-					value: 'all',
+					value: 'All',
 					label: 'All',
 					filter: () => true
 				},
 				{
-					value: 'true',
+					value: 'True',
 					label: 'True',
 					filter: (value) => {
-						return value === true;
+						if (value === undefined) return false;
+						if (typeof value === 'boolean') return value;
+						return value.toLowerCase() === 'true';
 					}
 				},
 				{
 					value: 'false',
 					label: 'False',
 					filter: (value) => {
-						return value === false || !value;
+						if (value === undefined) return true;
+						if (typeof value === 'boolean') return !value;
+						return value.toLowerCase() === 'false';
 					}
 				}
 			]
@@ -193,17 +197,21 @@
 					filter: () => true
 				},
 				{
-					value: 'true',
+					value: 'True',
 					label: 'True',
 					filter: (value) => {
-						return value === true;
+						if (value === undefined) return false;
+						if (typeof value === 'boolean') return value;
+						return value.toLowerCase() === 'true';
 					}
 				},
 				{
-					value: 'false',
+					value: 'False',
 					label: 'False',
 					filter: (value) => {
-						return value === false || !value;
+						if (value === undefined) return true;
+						if (typeof value === 'boolean') return !value;
+						return value.toLowerCase() === 'false';
 					}
 				}
 			]

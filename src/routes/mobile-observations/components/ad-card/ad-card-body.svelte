@@ -54,7 +54,7 @@
 
 	$inspect({ attributes: adData.attributes, isUpdatingAttributes, tags: adData.tags });
 
-	const setAttribute = async (key: string, value: any) => {
+	async function setAttribute(key: string, value: any) {
 		// Optimistically update the attributes state
 		adData.attributes = { ...adData.attributes, [key]: { value } };
 		isUpdatingAttributes = true;
@@ -85,7 +85,7 @@
 		session.ads.enrich(adData, ['attributes'], {
 			preferCache: false
 		});
-	};
+	}
 
 	let completed = $state(false);
 	const replay = () => {
@@ -111,6 +111,20 @@
 		const data: any = JSON.parse(JSON.stringify(adData));
 		return JSON.stringify(data, null, 2);
 	});
+
+	function boolToString(value: boolean | undefined): string {
+		if (value === undefined) {
+			return 'False';
+		}
+		return value ? 'True' : 'False';
+	}
+
+	function stringToBool(value: string | undefined): boolean {
+		if (value === undefined) {
+			return false;
+		}
+		return value.toLowerCase() === 'true';
+	}
 </script>
 
 <!-- Body -->
@@ -205,11 +219,14 @@
 							class="size-full p-2"
 							disabled={!adData['attributes'] || isUpdatingAttributes}
 							onclick={() => {
-								setAttribute('starred', !adData.attributes?.starred?.value);
+								setAttribute(
+									'starred',
+									boolToString(!stringToBool(adData.attributes?.starred?.value))
+								);
 							}}
 						>
 							<!-- <Star class="!size-5 drop-shadow-strong" /> -->
-							{#if adData.attributes?.starred?.value}
+							{#if stringToBool(adData.attributes?.starred?.value)}
 								<Star class="!size-5 drop-shadow-strong" fill="gold" stroke="gold" />
 							{:else}
 								<Star class="!size-5 drop-shadow-strong" />
@@ -220,11 +237,14 @@
 							size="sm"
 							class="size-full p-2"
 							onclick={() => {
-								setAttribute('hidden', !adData.attributes?.hidden?.value);
+								setAttribute(
+									'hidden',
+									boolToString(!stringToBool(adData.attributes?.hidden?.value))
+								);
 							}}
 							disabled={!adData['attributes'] || isUpdatingAttributes}
 						>
-							{#if adData.attributes?.hidden?.value}
+							{#if stringToBool(adData.attributes?.hidden?.value)}
 								<EyeOff class="!size-5 drop-shadow-strong" />
 							{:else}
 								<Eye class="!size-5 drop-shadow-strong" />
