@@ -136,7 +136,7 @@
 
 	Expand each date to see the ads that were observed on that day by all observers.
 
-	<AdsBrowser bind:ads {dateRange} enableAttributeFilter={true} />
+	<AdsBrowser bind:ads {dateRange} enableAttributeFilter={false} />
 </div>
 
 <Filters {ads} bind:dateRange />
