@@ -1,6 +1,5 @@
 import { client } from '../client';
 import { pushToast } from '$lib/components/toasts/toasts.svelte';
-import { session } from '../session/session.svelte';
 
 export type User = {
 	token: string;
@@ -101,7 +100,6 @@ export class Authentication {
 	setTokenFromOAuth = (receivedToken: string) => {
 		this.token = receivedToken;
 		localStorage.setItem('jwt', receivedToken);
-		session.refresh();
 	};
 
 	constructor() {

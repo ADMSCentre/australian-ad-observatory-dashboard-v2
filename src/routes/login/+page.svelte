@@ -14,6 +14,7 @@
 	import CilogonButton from '$lib/components/cilogon-button.svelte';
 	import { CircleHelpIcon } from 'lucide-svelte';
 	import FlaggedFeature from '$lib/components/flagged-feature/flagged-feature.svelte';
+	import { session } from '$lib/api/session/session.svelte';
 
 	let username = $state('');
 	let password = $state('');
@@ -49,6 +50,7 @@
 		}
 		try {
 			await auth.login({ username, password });
+			await session.refresh();
 			message = {
 				text: `Successfully logged in as ${username}`,
 				type: 'success'

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	const {
 		exp,
@@ -11,18 +11,23 @@
 		class?: string;
 	} = $props();
 
-	let timeLeft = $state(exp - Date.now());
-	const interval = setInterval(() => {
-		if (timeLeft <= 0) {
-			clearInterval(interval);
-			onExpire();
-			return;
-		}
+	let timeLeft = $state<number>();
+	let interval: ReturnType<typeof setInterval>;
+
+	$effect(() => {
 		timeLeft = exp - Date.now();
-	}, 1000);
+		interval = setInterval(() => {
+			if (timeLeft !== undefined && timeLeft <= 0) {
+				clearInterval(interval);
+				onExpire();
+				return;
+			}
+			timeLeft = exp - Date.now();
+		}, 1000);
+	});
 
 	onDestroy(() => {
-		clearInterval(interval);
+		if (interval) clearInterval(interval);
 	});
 
 	function formatTime(ms: number) {
@@ -41,6 +46,8 @@
 	}
 </script>
 
-<span class={className}>
-	{formatTime(timeLeft)}
-</span>
+{#if timeLeft !== undefined}
+	<span class={className}>
+		{formatTime(timeLeft)}
+	</span>
+{/if}

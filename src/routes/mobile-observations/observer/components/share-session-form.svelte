@@ -37,6 +37,7 @@
 				expirationTime: 60 * 60 // 1 hour
 			};
 		}
+		console.log('sessionData', sessionData);
 		if (sessionData?.data) {
 			sessionDataForm = {
 				description: sessionData.data.description,
@@ -44,6 +45,8 @@
 			};
 		}
 	});
+
+	$inspect({ sessionDataForm });
 </script>
 
 {#snippet formInput()}
@@ -78,9 +81,9 @@
 	<Dialog.Trigger>
 		<Button variant={guestSessionToken ? 'destructive' : 'outline'}>
 			<Share2 />
-			{#if guestSessionToken}
+			{#if sessionDataForm && guestSessionToken}
 				<Timer
-					exp={(sessionDataForm?.expirationTime || 0) * 1000}
+					exp={sessionDataForm.expirationTime * 1000}
 					onExpire={() => {
 						guestSessions.delete(guestKey).then(syncGuestToken);
 					}}
