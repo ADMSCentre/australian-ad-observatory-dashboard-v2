@@ -154,14 +154,13 @@
 			</Alert.Root>
 		{/if}
 		<ObservationsTimeline {ads} />
-		<!-- <AdsBrowser
+		<AdsBrowser
 			bind:ads
 			{filters}
 			open
 			cardOptions={{
 				exclude: ['observer']
 			}}
-			enableAttributeFilter={false}
-		/> -->
+		/>
 	{/if}
 </div>
