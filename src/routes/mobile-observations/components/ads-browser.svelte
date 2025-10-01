@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { DateRange } from 'bits-ui';
-	import type { BasicAdData, RichAdData } from '$lib/api/session/ads/types';
+	import type { BasicAdData, ExpandType, RichAdData } from '$lib/api/session/ads/types';
 	import AdCard, { type Props as AdCardProps, type AdElement } from './ad-card/ad-card.svelte';
 	import { dateToCalendarDate } from '../../../lib/api/session/ads/utils';
 	import Accordion from '$lib/components/accordion/accordion.svelte';
@@ -59,13 +59,11 @@
 	const allowAttributesFilter = $derived(ads.length > 0 && attributeFilter);
 	$effect(() => {
 		ads.length;
+		console.log('ads length changed, checking attributes...');
 		untrack(() => {
 			session.tags.fetch();
 
-			if (!allowAttributesFilter) return;
-			console.log('Enriching ads with attributes...');
-			// session.ads.getEnrichedData(ads.slice(0, 100), ['attributes'], { updateCache: true });
-			(async () => {
+			const enrichBatch = async (types: ExpandType[]) => {
 				loading = true;
 				const BATCH_SIZE = 30000;
 				const batches = [];
@@ -74,18 +72,21 @@
 				}
 				await Promise.all(
 					batches.map((batch) => {
-						return session.ads.getEnrichedData(batch, ['attributes', 'tags'], {
+						return session.ads.getEnrichedData(batch, types, {
 							updateMemoryCache: true
 						});
 					})
 				);
 				await Promise.all(
 					ads.map((ad) => {
-						return session.ads.enrich(ad, ['attributes', 'tags']);
+						return session.ads.enrich(ad, types);
 					})
 				);
 				loading = false;
-			})();
+			};
+
+			enrichBatch(['tags']); // Always enrich tags
+			if (allowAttributesFilter) enrichBatch(['attributes']);
 		});
 	});
 
