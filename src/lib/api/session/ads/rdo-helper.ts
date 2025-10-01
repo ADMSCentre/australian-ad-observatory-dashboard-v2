@@ -1,6 +1,7 @@
 import { DEMOGRAPHIC_FIELDS } from './demographic-fields';
 import type { Candidate, Ranking, RichDataObject } from './rich-data-object-type';
 import type { RichAdData } from './types';
+import { session } from '../session.svelte';
 
 function parseTimestamp(value: string | number | boolean | null) {
 	// First attempt to convert the value to a number
@@ -128,6 +129,12 @@ export const FIELD_GROUPS: {
 			// 	description: 'The frames per second of the video',
 			// 	format: (value) => round(value, 2)
 			// },
+			{
+				title: 'Tags',
+				key: 'tags',
+				description: 'Tags associated with the observation',
+				format: (value) => (Array.isArray(value) ? value.join(', ') : value)
+			},
 			{
 				title: 'Starred',
 				key: 'attributes.starred.value',
@@ -447,9 +454,17 @@ export function getField(key: string) {
 export function attachRichDataObject(ad: RichAdData) {
 	const rdo = ad.richDataObject;
 	if (!rdo) throw new Error('Ad does not have a rich data object');
+
+	const getTagName = (tagId: string) => {
+		const tag = session.tags.all.find((t) => t.id === tagId);
+		return tag ? tag.name : tagId;
+	};
+
+	// session.tags.all;
 	return {
 		...rdo,
-		attributes: ad.attributes || {}
+		attributes: ad.attributes || {},
+		tags: ad.tags ? ad.tags.map(getTagName) : []
 	};
 }
 

@@ -33,11 +33,13 @@
 			return acc;
 		}, [] as string[])
 	);
+
 	let selectedKeys = $state<string[]>([
 		'observer.uuid',
 		'observation.uuid',
 		'observation.observed_on_device_at',
 		'observation.platform',
+		'tags',
 		'enrichment.meta_adlibrary_scrape.candidates.data.ad_archive_id',
 		'enrichment.meta_adlibrary_scrape.candidates.data.page_name',
 		'enrichment.meta_adlibrary_scrape.candidates.data.start_date',
@@ -51,7 +53,7 @@
 	$effect(() => {
 		if (adData.length === 0) return;
 		untrack(() => {
-			session.ads.enrich(adData[0], ['richDataObject', 'attributes']).then(() => {
+			session.ads.enrich(adData[0], ['richDataObject', 'attributes', 'tags']).then(() => {
 				const richDataObject = attachRichDataObject(adData[0]);
 				if (!richDataObject) return;
 				allKeys = getFields(richDataObject).leafKeys.map((k) => k.unindexed);
@@ -74,19 +76,6 @@
 		};
 		return joinedTable;
 	});
-
-	const tabulateAd = async (ad: RichAdData) => {
-		await session.ads.enrich(ad, ['richDataObject', 'attributes']);
-		const richDataObject = attachRichDataObject(ad);
-		if (!richDataObject) return;
-		return tabulateObject(
-			richDataObject,
-			selectedKeys.map((k) => {
-				const format = getField(k)?.format;
-				return { key: k, format };
-			})
-		);
-	};
 
 	let eta = $state(0);
 	const formattedEta = $derived.by(() => {
@@ -125,7 +114,7 @@
 			const startTime = Date.now();
 			const enrichedAds = await session.ads.getEnrichedData(
 				batch,
-				['richDataObject', 'attributes'],
+				['richDataObject', 'attributes', 'tags'],
 				{
 					updateMemoryCache: false
 				}
