@@ -25,6 +25,7 @@
 	import parseActivationCode from '$lib/utils/parse-activation-code';
 	import { setObserverPageContext } from './context.svelte';
 	import CsrReportLink from './components/csr-report-link.svelte';
+	import { onMount } from 'svelte';
 
 	const participantId = $page.url.searchParams.get('observer_id') || '';
 	const pageUrl = $page.url.href;
@@ -32,7 +33,7 @@
 
 	setObserverPageContext(participantId);
 
-	let ads = $state<RichAdData[]>([]);
+	let ads = $state<RichAdData[] | null>(null);
 	let isPresenting = $state(true);
 	let isToolboxOpen = $state(true);
 	const filters = $derived.by(() => {
@@ -40,10 +41,8 @@
 		return [(ad: RichAdData) => !ad.attributes?.hidden?.value];
 	});
 
-	$effect(() => {
-		(async () => {
-			ads = await session.ads.getByObserver(participantId);
-		})();
+	onMount(async () => {
+		ads = await session.ads.getByObserver(participantId);
 	});
 
 	let guestSessionToken = $state<string | null>(null);
@@ -139,25 +138,24 @@
 	</p>
 
 	<!-- <ObserverOverview observerId={participantId} /> -->
-	{#if !ads}
+	{#if ads === null}
 		<div class="flex size-full items-center justify-center">
 			<Circle size="200" color={theme.colors.foreground} />
 		</div>
+	{:else if ads.length === 0}
+		<Alert.Root class="w-fit">
+			<AlertCircleIcon class="size-5" />
+			<Alert.Title>No data!</Alert.Title>
+			<Alert.Description>
+				This observer is registered, but no observations have been collected yet.
+			</Alert.Description>
+		</Alert.Root>
 	{:else}
-		{#if ads.length === 0}
-			<Alert.Root class="w-fit">
-				<AlertCircleIcon class="size-5" />
-				<Alert.Title>No data!</Alert.Title>
-				<Alert.Description>
-					This observer is registered, but no observations have been collected yet.
-				</Alert.Description>
-			</Alert.Root>
-		{/if}
 		<ObservationsTimeline {ads} />
 		<AdsBrowser
 			bind:ads
+			open="first"
 			{filters}
-			open
 			cardOptions={{
 				exclude: ['observer']
 			}}

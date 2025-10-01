@@ -23,7 +23,7 @@
 	type Props = {
 		ads: RichAdData[];
 		dateRange?: DateRange;
-		open?: boolean;
+		open?: boolean | 'first' | 'last';
 		cardOptions?: Omit<AdCardProps, 'adData'>;
 		filters?: ((ad: RichAdData) => boolean)[];
 		richViewExpanded?: boolean;
@@ -462,56 +462,62 @@
 		</div>
 	{/if}
 
-	{#each groupedAds as [groupKey, adData]}
+	{#each groupedAds as [groupKey, adData], index (groupKey)}
 		{@const rowData = createGroup(adData)}
 		{@const adCountBarWidth = (adData.length / maxAdsCount) * 100 + '%'}
-		<Accordion {open} class="w-full">
-			{#snippet summary(open)}
-				<div
-					class="sticky top-0 z-10 flex w-full cursor-pointer items-center gap-2 border-b bg-background bg-opacity-50 px-2 py-1.5 text-left font-medium backdrop-blur-sm"
-				>
-					<ChevronRight class={twMerge('size-4 transition', open ? 'rotate-90 transform' : '')} />
-					{groupKey} ({adData.length} ad{adData.length > 1 ? 's' : ''})
-					<!-- Ad count bar background -->
+		<div animate:flip={{ duration: 300 }}>
+			<Accordion
+				open={open === true ||
+					(open === 'first' && index === 0) ||
+					(open === 'last' && index === groupedAds.length - 1)}
+				class="w-full"
+			>
+				{#snippet summary(open)}
 					<div
-						class="absolute left-0 top-0 h-full bg-gradient-to-r from-foreground/25 to-transparent"
-						style={`width: ${adCountBarWidth}`}
-					></div>
-				</div>
-			{/snippet}
-			<div transition:slide class={twMerge(adData.length > 0 ? 'p-4' : '')}>
-				<!-- {#each adData as adData, i}
-					<AdCard
-						adData={ads[getIndex(adData)]}
-						{...cardOptions}
-						onExpand={() => onSingleAdExpand(ads[getIndex(adData)])}
-						class="grid grid-rows-[64px_384px_64px]"
-					/>
-				{/each} -->
-
-				<WindowVirtualizer data={rowData} overscan={3} itemSize={450}>
-					{#snippet children(item, index)}
-						<div class="flex w-full flex-col items-center">
-							<div
-								class="grid w-full gap-10"
-								style={`grid-template-columns: repeat(${groupSize}, 1fr)`}
-							>
-								{#each item as adData (adData.adId)}
-									<div class="will-change-transform">
-										<AdCard
-											adData={ads[getIndex(adData)]}
-											{exclude}
-											onExpand={() => onSingleAdExpand(ads[getIndex(adData)])}
-											class="grid w-full grid-rows-[auto_384px_auto]"
-										/>
-									</div>
-								{/each}
+						class="sticky top-0 z-10 flex w-full cursor-pointer items-center gap-2 border-b bg-background bg-opacity-50 px-2 py-1.5 text-left font-medium backdrop-blur-sm"
+					>
+						<ChevronRight class={twMerge('size-4 transition', open ? 'rotate-90 transform' : '')} />
+						{groupKey} ({adData.length} ad{adData.length > 1 ? 's' : ''})
+						<!-- Ad count bar background -->
+						<div
+							class="absolute left-0 top-0 h-full bg-gradient-to-r from-foreground/25 to-transparent"
+							style={`width: ${adCountBarWidth}`}
+						></div>
+					</div>
+				{/snippet}
+				<div transition:slide class={twMerge(adData.length > 0 ? 'p-4' : '')}>
+					<!-- {#each adData as adData, i}
+						<AdCard
+							adData={ads[getIndex(adData)]}
+							{...cardOptions}
+							onExpand={() => onSingleAdExpand(ads[getIndex(adData)])}
+							class="grid grid-rows-[64px_384px_64px]"
+						/>
+					{/each} -->
+					<WindowVirtualizer data={rowData} overscan={3} itemSize={450}>
+						{#snippet children(item, index)}
+							<div class="flex w-full flex-col items-center">
+								<div
+									class="grid w-full gap-10"
+									style={`grid-template-columns: repeat(${groupSize}, 1fr)`}
+								>
+									{#each item as adData (adData.adId)}
+										<div class="will-change-transform">
+											<AdCard
+												adData={ads[getIndex(adData)]}
+												{exclude}
+												onExpand={() => onSingleAdExpand(ads[getIndex(adData)])}
+												class="grid w-full grid-rows-[auto_384px_auto]"
+											/>
+										</div>
+									{/each}
+								</div>
 							</div>
-						</div>
-					{/snippet}
-				</WindowVirtualizer>
-			</div>
-		</Accordion>
+						{/snippet}
+					</WindowVirtualizer>
+				</div>
+			</Accordion>
+		</div>
 	{/each}
 </div>
 
