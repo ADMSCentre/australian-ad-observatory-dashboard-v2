@@ -154,7 +154,7 @@
 			</div>
 		</div>
 
-		<AdCardBody bind:adData={reactiveAdData} visible={intersecting} />
+		<AdCardBody adData={reactiveAdData} visible={intersecting} />
 
 		<!-- Footer -->
 		<div class="flex flex-col gap-2">

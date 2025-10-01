@@ -52,8 +52,6 @@
 		return adData.stitchedFrames;
 	});
 
-	$inspect({ attributes: adData.attributes, isUpdatingAttributes, tags: adData.tags });
-
 	async function setAttribute(key: string, value: any) {
 		// Optimistically update the attributes state
 		adData.attributes = { ...adData.attributes, [key]: { value } };

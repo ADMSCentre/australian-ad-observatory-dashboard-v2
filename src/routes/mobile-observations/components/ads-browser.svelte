@@ -4,12 +4,9 @@
 	import AdCard, { type Props as AdCardProps, type AdElement } from './ad-card/ad-card.svelte';
 	import { dateToCalendarDate } from '../../../lib/api/session/ads/utils';
 	import Accordion from '$lib/components/accordion/accordion.svelte';
-	import { ChevronDown, ChevronRight, LoaderCircleIcon, SearchIcon } from 'lucide-svelte';
+	import { ChevronRight, LoaderCircleIcon, SearchIcon } from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
-	import { scale, slide } from 'svelte/transition';
-	import * as Sheet from '$lib/components/ui/sheet/index.js';
-	import { getExpandedRowModel } from '@tanstack/table-core';
-	import AdCardBody from './ad-card/ad-card-body.svelte';
+	import { slide } from 'svelte/transition';
 	import AdRichView from './rich-view/ad-rich-view.svelte';
 	import { WindowVirtualizer } from 'virtua/svelte';
 	import { untrack } from 'svelte';
@@ -17,7 +14,7 @@
 	import Dropdown from '$lib/components/dropdown/dropdown.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import { page } from '$app/stores';
-	import { goto, replaceState } from '$app/navigation';
+	import { replaceState } from '$app/navigation';
 	import { session } from '$lib/api/session/session.svelte';
 
 	type Props = {
@@ -149,25 +146,25 @@
 		label: string;
 		value: string | boolean | undefined;
 		mode: 'single' | 'multiple';
-		options: {
-			value: string;
-			label: string;
-			filter: (value: string | boolean | undefined) => boolean;
-		}[];
+		options: Record<
+			string,
+			{
+				label: string;
+				filter: (value: string | boolean | undefined) => boolean;
+			}
+		>;
 	}[] = [
 		{
 			attribute: 'hidden',
 			label: 'Hidden',
 			value: 'false',
 			mode: 'single',
-			options: [
-				{
-					value: 'All',
+			options: {
+				all: {
 					label: 'All',
 					filter: () => true
 				},
-				{
-					value: 'True',
+				true: {
 					label: 'True',
 					filter: (value) => {
 						if (value === undefined) return false;
@@ -175,8 +172,7 @@
 						return value.toLowerCase() === 'true';
 					}
 				},
-				{
-					value: 'false',
+				false: {
 					label: 'False',
 					filter: (value) => {
 						if (value === undefined) return true;
@@ -184,21 +180,19 @@
 						return value.toLowerCase() === 'false';
 					}
 				}
-			]
+			}
 		},
 		{
 			attribute: 'starred',
 			label: 'Starred',
 			value: 'all',
 			mode: 'single',
-			options: [
-				{
-					value: 'all',
+			options: {
+				all: {
 					label: 'All',
 					filter: () => true
 				},
-				{
-					value: 'True',
+				true: {
 					label: 'True',
 					filter: (value) => {
 						if (value === undefined) return false;
@@ -206,8 +200,7 @@
 						return value.toLowerCase() === 'true';
 					}
 				},
-				{
-					value: 'False',
+				false: {
 					label: 'False',
 					filter: (value) => {
 						if (value === undefined) return true;
@@ -215,7 +208,7 @@
 						return value.toLowerCase() === 'false';
 					}
 				}
-			]
+			}
 		}
 	];
 
@@ -224,6 +217,8 @@
 	let attributeFilters = $state(attributeFilterOptions);
 	let searchKey = $state(defaultSearchKey);
 	let selectedTagIds = $state<(string | null)[]>([...session.tags.all.map((t) => t.id), null]);
+
+	const selectedTagIdSet = $derived(new Set(selectedTagIds));
 
 	const debounce = (fn: Function, delay: number) => {
 		let timeout: NodeJS.Timeout;
@@ -258,8 +253,6 @@
 				const calendarDate = dateToCalendarDate(date);
 				return calendarDate >= dateRange.start && calendarDate <= dateRange.end;
 			})
-			// Filter by other filters
-			.filter((ad) => filters.every((filter) => filter(ad)))
 			// Filter by attribute filters
 			.filter((ad) => {
 				const attrs: {
@@ -269,7 +262,7 @@
 				} = ad.attributes || {};
 				return attributeFilters.every((filter) => {
 					const attr = attrs[filter.attribute]?.value;
-					const selectedOption = filter.options.find((o) => o.value === filter.value);
+					const selectedOption = filter.options[filter.value as string];
 					return selectedOption?.filter(attr) || false;
 				});
 			})
@@ -279,12 +272,14 @@
 				const validAppliedTags =
 					ad.tags?.filter((tagId) => session.tags.getById(tagId) !== undefined) || [];
 				// Ad has no tags and "No tag" is selected
-				if (validAppliedTags.length === 0 && selectedTagIds.includes(null)) return true;
-				return validAppliedTags.some((tagId) => selectedTagIds.includes(tagId)) || false;
+				if (validAppliedTags.length === 0 && selectedTagIdSet.has(null)) return true;
+				return validAppliedTags.some((tagId) => selectedTagIdSet.has(tagId)) || false;
 			})
-			.toSorted(sortBy.sort);
+			// Filter by other filters
+			.filter((ad) => filters.every((filter) => filter(ad)));
 
-		const groupedAds = filteredAds.reduce(
+		const sortedAds = filteredAds.toSorted(sortBy.sort);
+		const groupedAds = sortedAds.reduce(
 			(
 				acc: {
 					[key: string]: BasicAdData[];
@@ -302,7 +297,6 @@
 		);
 		// Convert to entries, sort by date
 		const adsEntries = Object.entries(groupedAds);
-		// console.log('Completed filtering ads');
 		console.log(
 			`Filtered ${ads.length} ads to ${adsEntries.length} groups with ${filteredAds.length} ads`
 		);
@@ -375,8 +369,12 @@
 							<LoaderCircleIcon class="animate-spin" size={16} />
 						{:else}
 							<Dropdown
-								options={attributeFilters.find((filter) => filter.attribute === attribute)
-									?.options || []}
+								options={Object.entries(
+									attributeFilterOptions.find((f) => f.attribute === attribute)?.options || {}
+								).map(([key, option]) => ({
+									value: key,
+									label: option.label
+								}))}
 								triggerClass="w-fit"
 								contentClass="w-fit"
 								disabled={loading}
