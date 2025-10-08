@@ -14,7 +14,7 @@
 				ghost: 'hover:bg-accent hover:text-accent-foreground',
 				link: 'text-primary underline-offset-4 hover:underline',
 				'destructive-outline':
-					'border-destructive bg-background text-destructive border hover:bg-destructive/10 hover:text-destructive'
+					'border-destructive/20 bg-background text-destructive border hover:bg-destructive/10 hover:text-destructive'
 			},
 			size: {
 				default: 'h-10 px-4 py-2',

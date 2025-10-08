@@ -18,22 +18,22 @@ export const INDEX_GROUP_TYPES: {
 	label: string;
 	description: string;
 }[] = [
-	{
-		value: 'ads_passed_restitch',
-		label: 'Cropped',
-		description: "Ads that have been cropped for to only show the ad's content"
-	},
-	{
-		value: 'ads_passed_mass_download',
-		label: 'Matched',
-		description: 'Ads that have been matched to a known ad in the Meta Ads Library'
-	},
-	{
-		value: 'ads_passed_rdo_construction',
-		label: 'RDO',
-		description: 'Ads that have been processed to create a Rich Data Object'
-	}
-];
+		{
+			value: 'ads_passed_restitch',
+			label: 'Cropped',
+			description: "Ads that have been cropped for to only show the ad's content"
+		},
+		{
+			value: 'ads_passed_mass_download',
+			label: 'Matched',
+			description: 'Ads that have been matched to a known ad in the Meta Ads Library'
+		},
+		{
+			value: 'ads_passed_rdo_construction',
+			label: 'RDO',
+			description: 'Ads that have been processed to create a Rich Data Object'
+		}
+	];
 
 export class Session {
 	indexGroupTypes = $state<IndexGroupType[]>([
@@ -73,6 +73,21 @@ export class Session {
 		getByObserver: async (observer: string) => {
 			if (!auth.token) return [];
 			return await listAdsForObserver(auth.token, observer);
+		},
+		requestUnindex: async (ad: RichAdData) => {
+			if (!auth.token) return;
+			const { data, error } = await client.GET('/ads/{observer_id}/{timestamp}.{ad_id}/request_unindex', {
+				headers: this.authHeader,
+				params: {
+					path: {
+						observer_id: ad.observer,
+						timestamp: ad.timestamp.toString(),
+						ad_id: ad.adId
+					},
+				}
+			})
+			if (error) throw error;
+			return data;
 		},
 		getEnrichedData: async (
 			ads: RichAdData[],

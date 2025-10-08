@@ -474,13 +474,13 @@
 			>
 				{#snippet summary(open)}
 					<div
-						class="sticky top-0 z-10 flex w-full cursor-pointer items-center gap-2 border-b bg-background bg-opacity-50 px-2 py-1.5 text-left font-medium backdrop-blur-sm"
+						class="bg-background sticky top-0 z-10 flex w-full cursor-pointer items-center gap-2 border-b bg-opacity-50 px-2 py-1.5 text-left font-medium backdrop-blur-sm"
 					>
 						<ChevronRight class={twMerge('size-4 transition', open ? 'rotate-90 transform' : '')} />
 						{groupKey} ({adData.length} ad{adData.length > 1 ? 's' : ''})
 						<!-- Ad count bar background -->
 						<div
-							class="absolute left-0 top-0 h-full bg-gradient-to-r from-foreground/25 to-transparent"
+							class="from-foreground/25 absolute left-0 top-0 h-full bg-gradient-to-r to-transparent"
 							style={`width: ${adCountBarWidth}`}
 						></div>
 					</div>

@@ -128,7 +128,7 @@
 </script>
 
 <!-- Body -->
-<div class="flex max-h-full flex-col gap-2">
+<div class="flex h-full max-h-full flex-col gap-2">
 	<!-- Main image -->
 	<div
 		class={twMerge(
@@ -140,11 +140,11 @@
 		{#if frames && frames.length && frames.length > 0}
 			<ImagesGif images={frames} bind:completed bind:currentIndex bind:autoPlay />
 		{:else if loading}
-			<div class="flex h-full w-full items-center justify-center bg-foreground text-white">
+			<div class="bg-foreground flex h-full w-full items-center justify-center text-white">
 				Loading...
 			</div>
 		{:else}
-			<div class="flex size-full items-center justify-center bg-foreground text-white">
+			<div class="bg-foreground flex size-full items-center justify-center text-white">
 				<span class="text-center"> No frames available. </span>
 			</div>
 		{/if}
@@ -152,7 +152,7 @@
 		<!-- Replay button (center, overlay) -->
 		{#if frames && frames.length > 1 && completed}
 			<div
-				class="absolute top-0 flex h-full w-full flex-col items-center justify-center bg-foreground bg-opacity-25 text-white opacity-0 transition group-hover/image:opacity-100"
+				class="bg-foreground absolute top-0 flex h-full w-full flex-col items-center justify-center bg-opacity-25 text-white opacity-0 transition group-hover/image:opacity-100"
 			>
 				<Button variant="ghost" onclick={replay} class="z-50">
 					<RotateCcw />
@@ -169,7 +169,7 @@
 					<Dialog.Root>
 						<Dialog.Trigger>
 							<Button variant="ghost" size="sm" class="size-full p-2">
-								<Braces class="!size-5 drop-shadow-strong" />
+								<Braces class="drop-shadow-strong !size-5" />
 							</Button>
 						</Dialog.Trigger>
 						<Dialog.Content class="max-w-2xl">
@@ -202,9 +202,9 @@
 							<Popover.Trigger>
 								<Button variant="ghost" size="sm" class="size-full p-2" onclick={() => {}}>
 									{#if adData.tags && adData.tags.length > 0}
-										<TagsIcon class="!size-5 fill-emerald-500 drop-shadow-strong" />
+										<TagsIcon class="drop-shadow-strong !size-5 fill-emerald-500" />
 									{:else}
-										<TagsIcon class="!size-5 drop-shadow-strong" />
+										<TagsIcon class="drop-shadow-strong !size-5" />
 									{/if}
 								</Button>
 							</Popover.Trigger>
@@ -227,9 +227,9 @@
 						>
 							<!-- <Star class="!size-5 drop-shadow-strong" /> -->
 							{#if stringToBool(adData.attributes?.starred?.value)}
-								<Star class="!size-5 drop-shadow-strong" fill="gold" stroke="gold" />
+								<Star class="drop-shadow-strong !size-5" fill="gold" stroke="gold" />
 							{:else}
-								<Star class="!size-5 drop-shadow-strong" />
+								<Star class="drop-shadow-strong !size-5" />
 							{/if}
 						</Button>
 						<Button
@@ -245,9 +245,9 @@
 							disabled={!adData['attributes'] || isUpdatingAttributes}
 						>
 							{#if stringToBool(adData.attributes?.hidden?.value)}
-								<EyeOff class="!size-5 drop-shadow-strong" />
+								<EyeOff class="drop-shadow-strong !size-5" />
 							{:else}
-								<Eye class="!size-5 drop-shadow-strong" />
+								<Eye class="drop-shadow-strong !size-5" />
 							{/if}
 						</Button>
 					</div>

@@ -1407,7 +1407,7 @@ export interface paths {
                         };
                     };
                 };
-                /** @description No cache found for observer */
+                /** @description No observations found for observer */
                 404: {
                     headers: {
                         [name: string]: unknown;
@@ -1416,7 +1416,7 @@ export interface paths {
                         "application/json": {
                             /** @example false */
                             success?: boolean;
-                            /** @example NO_CACHE_FOUND_FOR_OBSERVER */
+                            /** @example NO_OBSERVATIONS_FOUND_FOR_OBSERVER */
                             comment?: string;
                         };
                     };
@@ -2095,6 +2095,67 @@ export interface paths {
         /**
          * Request that a specific ad be indexed for querying. This should be triggered automatically when an ad has been RDO-processed.
          * @description This endpoint should not be called manually, but is triggered when the RDO construction is complete for the specified ad.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    observer_id: string;
+                    timestamp: string;
+                    ad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example MISSING_PARAMETERS: observer_id, timestamp, ad_id */
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ads/{observer_id}/{timestamp}.{ad_id}/request_unindex": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Request that a specific ad be indexed for querying. This should be triggered automatically when an ad has been RDO-processed. [allows - user, admin]
+         * @description This endpoint should not be called manually, but is triggered when the RDO construction is complete for the specified ad.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
          */
         get: {
             parameters: {
