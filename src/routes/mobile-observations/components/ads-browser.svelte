@@ -92,7 +92,15 @@
 		{
 			value: 'date',
 			label: 'Date',
-			getKey: (ad: RichAdData) => ad.date
+			getKey: (ad: RichAdData) => {
+				const date = new Date(ad.timestamp);
+				return date.toLocaleDateString('en-GB', {
+					weekday: 'long',
+					year: 'numeric',
+					month: 'long',
+					day: 'numeric'
+				});
+			}
 		},
 		{
 			value: 'week',

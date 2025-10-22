@@ -99,12 +99,12 @@
 	}
 
 	let newVisualisationType = $state<(typeof VISUALISATION_TYPES)[number] | null>(null);
-	function addVisualisation() {
-		if (!newVisualisationType) return;
+	function addVisualisation(type: (typeof VISUALISATION_TYPES)[number] | null) {
+		if (!type) return;
 		if (!projectManager) throw new Error('Project manager is not defined');
 		if (!cell.content.results) cell.content.results = [];
 		cell.content.results.push({
-			type: newVisualisationType,
+			type: type,
 			id: `visualisation-${cell.content.results.length}`,
 			config: {
 				open: true
@@ -112,8 +112,6 @@
 		} as QueryResult);
 
 		updateCell();
-
-		newVisualisationType = null;
 	}
 
 	const includeObservers: string[] = $derived.by(() => {
@@ -257,6 +255,30 @@
 						{/if}
 					</div>
 
+					{#if cell.content.results?.length === 0}
+						<!-- Buttons to suggest some types -->
+						<div class="flex items-center gap-2">
+							<span class="text-sm font-light text-zinc-500 dark:text-zinc-400">
+								The query ran successfully, but no visualisations are configured for this query.
+								Try:
+							</span>
+							<div class="flex flex-wrap gap-2">
+								{#each ['ads-browser', 'timeline', 'observer-table'] satisfies (typeof VISUALISATION_TYPES)[number][] as suggestedType}
+									<Button
+										variant="outline"
+										size="sm"
+										onclick={() => {
+											addVisualisation(suggestedType as (typeof VISUALISATION_TYPES)[number]);
+										}}
+									>
+										<PlusIcon class="size-4" />
+										Add {suggestedType.replace('-', ' ')}
+									</Button>
+								{/each}
+							</div>
+						</div>
+					{/if}
+
 					{#each cell.content.results as result, index (index)}
 						<div transition:slide={{ axis: 'y', duration: 300 }} animate:flip={{ duration: 300 }}>
 							<Visualisation
@@ -283,7 +305,10 @@
 						<div class="flex w-full items-center justify-center gap-2">
 							<VisualisationSelector
 								bind:selected={newVisualisationType}
-								onSelected={addVisualisation}
+								onSelected={() => {
+									addVisualisation(newVisualisationType);
+									newVisualisationType = null;
+								}}
 							/>
 						</div>
 					{/if}
