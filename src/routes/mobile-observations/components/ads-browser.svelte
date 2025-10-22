@@ -224,9 +224,16 @@
 	let sortBy = $state(sortOptions.find((s) => s.value === sortParam) || sortOptions[0]);
 	let attributeFilters = $state(attributeFilterOptions);
 	let searchKey = $state(defaultSearchKey);
-	let selectedTagIds = $state<(string | null)[]>([...session.tags.all.map((t) => t.id), null]);
-
+	let selectedTagIds = $state<(string | null)[]>([]);
 	const selectedTagIdSet = $derived(new Set(selectedTagIds));
+
+	$effect(() => {
+		// Once the tags are loaded, select all tags
+		if (session.tags.loading) return;
+		if (selectedTagIds.length === 0) {
+			selectedTagIds = [...session.tags.all.map((t) => t.id), null];
+		}
+	});
 
 	const debounce = (fn: Function, delay: number) => {
 		let timeout: NodeJS.Timeout;
