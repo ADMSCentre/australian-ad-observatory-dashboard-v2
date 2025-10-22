@@ -154,7 +154,6 @@
 		<ObservationsTimeline {ads} />
 		<AdsBrowser
 			bind:ads
-			open="first"
 			{filters}
 			cardOptions={{
 				exclude: ['observer']
