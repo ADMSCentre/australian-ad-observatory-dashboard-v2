@@ -19,7 +19,7 @@
 	import { auth } from '$lib/api/auth/auth.svelte';
 	import { json } from '@codemirror/lang-json';
 	import ImagesGif from '../../observer/components/images-gif.svelte';
-	import type { RichAdData } from '$lib/api/session/ads/types';
+	import type { ExpandType, RichAdData } from '$lib/api/session/ads/types';
 	import { session } from '$lib/api/session/session.svelte';
 	import { untrack } from 'svelte';
 	import * as Popover from '$lib/components/ui/popover/index.js';
@@ -31,9 +31,21 @@
 		adData: RichAdData;
 		visible?: boolean;
 		class?: string;
+		include?: {
+			attributes?: boolean;
+			tags?: boolean;
+		};
 	};
 
-	let { adData = $bindable(), visible = true, class: className = '' }: Props = $props();
+	let {
+		adData = $bindable(),
+		visible = true,
+		class: className = '',
+		include = {
+			attributes: true,
+			tags: true
+		}
+	}: Props = $props();
 
 	let isUpdatingAttributes = $state(false);
 	let autoPlay = $state(true);
@@ -42,7 +54,14 @@
 
 	$effect(() => {
 		untrack(() => {
-			session.ads.enrich(adData, ['stitchedFrames', 'attributes', 'tags']).then(() => {
+			const types: ExpandType[] = ['stitchedFrames'];
+			if (include.attributes) {
+				types.push('attributes');
+			}
+			if (include.tags) {
+				types.push('tags');
+			}
+			session.ads.enrich(adData, types).then(() => {
 				loading = false;
 			});
 		});
@@ -196,58 +215,62 @@
 
 				{#if !auth.isGuest}
 					<div class="mr-1 flex flex-col">
-						<Popover.Root>
-							<Popover.Trigger>
-								<Button variant="ghost" size="sm" class="size-full p-2" onclick={() => {}}>
-									{#if adData.tags && adData.tags.length > 0}
-										<TagsIcon class="!size-5 fill-emerald-500 drop-shadow-strong" />
-									{:else}
-										<TagsIcon class="!size-5 drop-shadow-strong" />
-									{/if}
-								</Button>
-							</Popover.Trigger>
-							<Popover.Content align="start" class="flex flex-col gap-4">
-								<TagsSelector bind:adData />
-							</Popover.Content>
-						</Popover.Root>
+						{#if include.tags}
+							<Popover.Root>
+								<Popover.Trigger>
+									<Button variant="ghost" size="sm" class="size-full p-2" onclick={() => {}}>
+										{#if adData.tags && adData.tags.length > 0}
+											<TagsIcon class="!size-5 fill-emerald-500 drop-shadow-strong" />
+										{:else}
+											<TagsIcon class="!size-5 drop-shadow-strong" />
+										{/if}
+									</Button>
+								</Popover.Trigger>
+								<Popover.Content align="start" class="flex flex-col gap-4">
+									<TagsSelector bind:adData />
+								</Popover.Content>
+							</Popover.Root>
+						{/if}
 
-						<Button
-							variant="ghost"
-							size="sm"
-							class="size-full p-2"
-							disabled={!adData['attributes'] || isUpdatingAttributes}
-							onclick={() => {
-								setAttribute(
-									'starred',
-									boolToString(!stringToBool(adData.attributes?.starred?.value))
-								);
-							}}
-						>
-							<!-- <Star class="!size-5 drop-shadow-strong" /> -->
-							{#if stringToBool(adData.attributes?.starred?.value)}
-								<Star class="!size-5 drop-shadow-strong" fill="gold" stroke="gold" />
-							{:else}
-								<Star class="!size-5 drop-shadow-strong" />
-							{/if}
-						</Button>
-						<Button
-							variant="ghost"
-							size="sm"
-							class="size-full p-2"
-							onclick={() => {
-								setAttribute(
-									'hidden',
-									boolToString(!stringToBool(adData.attributes?.hidden?.value))
-								);
-							}}
-							disabled={!adData['attributes'] || isUpdatingAttributes}
-						>
-							{#if stringToBool(adData.attributes?.hidden?.value)}
-								<EyeOff class="!size-5 drop-shadow-strong" />
-							{:else}
-								<Eye class="!size-5 drop-shadow-strong" />
-							{/if}
-						</Button>
+						{#if include.attributes}
+							<Button
+								variant="ghost"
+								size="sm"
+								class="size-full p-2"
+								disabled={!adData['attributes'] || isUpdatingAttributes}
+								onclick={() => {
+									setAttribute(
+										'starred',
+										boolToString(!stringToBool(adData.attributes?.starred?.value))
+									);
+								}}
+							>
+								<!-- <Star class="!size-5 drop-shadow-strong" /> -->
+								{#if stringToBool(adData.attributes?.starred?.value)}
+									<Star class="!size-5 drop-shadow-strong" fill="gold" stroke="gold" />
+								{:else}
+									<Star class="!size-5 drop-shadow-strong" />
+								{/if}
+							</Button>
+							<Button
+								variant="ghost"
+								size="sm"
+								class="size-full p-2"
+								onclick={() => {
+									setAttribute(
+										'hidden',
+										boolToString(!stringToBool(adData.attributes?.hidden?.value))
+									);
+								}}
+								disabled={!adData['attributes'] || isUpdatingAttributes}
+							>
+								{#if stringToBool(adData.attributes?.hidden?.value)}
+									<EyeOff class="!size-5 drop-shadow-strong" />
+								{:else}
+									<Eye class="!size-5 drop-shadow-strong" />
+								{/if}
+							</Button>
+						{/if}
 					</div>
 				{/if}
 			</div>

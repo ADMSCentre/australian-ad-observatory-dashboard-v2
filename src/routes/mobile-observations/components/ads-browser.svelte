@@ -26,6 +26,14 @@
 		richViewExpanded?: boolean;
 		syncQueryParams?: boolean;
 		enableAttributeFilter?: boolean;
+		params?: {
+			search?: string;
+			sort?: string;
+			group?: string;
+			attributes?: {
+				[attribute: string]: string;
+			};
+		};
 	};
 
 	let {
@@ -38,15 +46,16 @@
 		cardOptions = {
 			exclude: []
 		},
+		params = {},
 		filters = [],
 		richViewExpanded = $bindable(false),
 		syncQueryParams = true,
 		enableAttributeFilter: attributeFilter = true
 	}: Props = $props();
 
-	const defaultSearchKey = $page.url.searchParams.get('search') || '';
-	const sortParam = $page.url.searchParams.get('sort');
-	const groupParam = $page.url.searchParams.get('group');
+	const defaultSearchKey = params.search || $page.url.searchParams.get('search') || '';
+	const sortParam = params.sort || $page.url.searchParams.get('sort') || '';
+	const groupParam = params.group || $page.url.searchParams.get('group') || 'date';
 
 	// For expanded (rich) view
 	let currentAd = $state<RichAdData | null>(null);
@@ -147,6 +156,11 @@
 			value: 'oldest',
 			label: 'Oldest',
 			sort: (a: BasicAdData, b: BasicAdData) => a.timestamp - b.timestamp
+		},
+		{
+			value: 'default',
+			label: 'Default',
+			sort: (a: BasicAdData, b: BasicAdData) => 0
 		}
 	];
 	const attributeFilterOptions: {
@@ -165,7 +179,7 @@
 		{
 			attribute: 'hidden',
 			label: 'Hidden',
-			value: 'false',
+			value: params.attributes?.hidden || 'false',
 			mode: 'single',
 			options: {
 				all: {
@@ -193,7 +207,7 @@
 		{
 			attribute: 'starred',
 			label: 'Starred',
-			value: 'all',
+			value: params.attributes?.starred || 'all',
 			mode: 'single',
 			options: {
 				all: {

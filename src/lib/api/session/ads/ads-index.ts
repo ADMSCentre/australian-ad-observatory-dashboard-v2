@@ -10,7 +10,11 @@ const parseAdPath = (path: string) => {
 	return { observer, timestamp, adId, path };
 };
 
-export const parseRawAdPaths = (rawAds: string[]) => {
+export const asRichAds = (basicAds: {
+	observer: string;
+	timestamp: number;
+	adId: string;
+}[]): RichAdData[] => {
 	const dateFormatter = new Intl.DateTimeFormat('en-GB', {
 		month: 'long',
 		day: 'numeric',
@@ -22,18 +26,23 @@ export const parseRawAdPaths = (rawAds: string[]) => {
 		second: '2-digit',
 		fractionalSecondDigits: 3
 	});
+	return basicAds.map((ad) => {
+		const timestampDate = new Date(ad.timestamp);
+		const date = dateFormatter.format(timestampDate);
+		const time = timeFormatter.format(timestampDate);
+		const path = `${ad.observer}/temp/${ad.timestamp}.${ad.adId}/`;
+		return { ...ad, date, time, types: [], path };
+	});
+}
 
+export const parseRawAdPaths = (rawAds: string[]) => {
 	const results = rawAds
 		.map((path) => parseAdPath(path))
-		.map((ad) => {
-			const { observer, timestamp, adId, path } = ad;
-			const timestampDate = new Date(+timestamp);
-			const date = dateFormatter.format(timestampDate);
-			const time = timeFormatter.format(timestampDate);
-			return { observer, timestamp: +timestamp, adId, path, date, time, types: [] };
-		}) as unknown as RichAdData[];
-
-	return results;
+		.map(ad => ({
+			...ad,
+			timestamp: +ad.timestamp
+		}))
+	return asRichAds(results);
 };
 
 export const listAllAds = async (

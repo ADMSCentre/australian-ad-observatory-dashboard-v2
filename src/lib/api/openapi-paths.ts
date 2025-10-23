@@ -1407,7 +1407,7 @@ export interface paths {
                         };
                     };
                 };
-                /** @description No cache found for observer */
+                /** @description No observations found for observer */
                 404: {
                     headers: {
                         [name: string]: unknown;
@@ -1416,7 +1416,7 @@ export interface paths {
                         "application/json": {
                             /** @example false */
                             success?: boolean;
-                            /** @example NO_CACHE_FOUND_FOR_OBSERVER */
+                            /** @example NO_OBSERVATIONS_FOUND_FOR_OBSERVER */
                             comment?: string;
                         };
                     };
@@ -1679,6 +1679,88 @@ export interface paths {
                             success?: boolean;
                             /** @example PATH_NOT_PROVIDED */
                             comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ads/hidden": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve the list of hidden ads. [allows - admin]
+         * @description Retrieve the list of ads that are marked as hidden by users.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The page number to retrieve (default is 1) */
+                    page?: number;
+                    /** @description The number of items per page (default is 1000) */
+                    page_size?: number;
+                    /** @description Filter hidden ads by ignored status (default is 'all') */
+                    include?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            hidden_ads?: {
+                                observer_id?: string;
+                                timestamp?: number;
+                                observation_id?: string;
+                                hidden_at?: number;
+                                hidden_by?: {
+                                    user_id?: string;
+                                    fullname?: string;
+                                };
+                                ignored?: boolean;
+                            }[];
+                            pagination?: {
+                                total_records?: number;
+                                current_page?: number;
+                                total_pages?: number;
+                                limit?: number;
+                            };
+                        };
+                    };
+                };
+                /** @description A failed response */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example FAILED_TO_QUERY_HIDDEN_ADS */
+                            comment?: string;
+                            error?: string;
                         };
                     };
                 };
@@ -2287,6 +2369,85 @@ export interface paths {
             };
         };
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ads/{observer_id}/{timestamp}.{ad_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a specific ad. [allows - admin]
+         * @description Delete the specified ad and all associated metadata.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **admin**.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    observer_id: string;
+                    timestamp: string;
+                    ad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example true */
+                            success?: boolean;
+                            /** @example Ad deleted successfully */
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example MISSING_PARAMETERS: observer_id, timestamp, ad_id */
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description Internal server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            /** @example FAILED_TO_DELETE_AD */
+                            comment?: string;
+                            error?: string;
+                        };
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;

@@ -15,7 +15,8 @@
 		Edit,
 		Users,
 		SettingsIcon,
-		Folder // Import Folder icon
+		Folder, // Import Folder icon
+		ScanEyeIcon
 	} from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
 	import { auth } from '$lib/api/auth/auth.svelte';
@@ -49,6 +50,12 @@
 					url: withBase('mobile-observations/projects'),
 					icon: Folder,
 					visible: true
+				},
+				{
+					title: 'Review Hidden Ads',
+					url: withBase('mobile-observations/hidden-ads'),
+					icon: ScanEyeIcon,
+					visible: auth.currentUser?.role === 'admin'
 				},
 				{
 					title: 'Settings',
