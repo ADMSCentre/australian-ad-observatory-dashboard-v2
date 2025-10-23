@@ -34,11 +34,11 @@ const protectedRoutes: Record<
 	}
 }
 
-export const isRouteProtected = (path: string, currentUserRole: 'user' | 'admin' | 'guest' = 'guest') => {
+export const canUserAccessRoute = (path: string, currentUserRole: 'user' | 'admin' | 'guest' = 'guest') => {
 	const relativePath = withBase(path).replace(/\/+$/, ''); // Remove trailing slashes
 	const routeConfig = protectedRoutes[relativePath];
 	if (!routeConfig) {
 		return false; // Route is not protected
 	}
-	return routeConfig.allowedRoles.includes(currentUserRole);
+	return !routeConfig.allowedRoles.includes(currentUserRole);
 };

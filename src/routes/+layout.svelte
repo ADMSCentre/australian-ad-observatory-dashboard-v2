@@ -4,7 +4,7 @@
 	import { auth } from '$lib/api/auth/auth.svelte';
 	import '../app.css';
 	import Header from '../lib/components/header/header.svelte';
-	import { isRouteProtected } from './protected.config';
+	import { canUserAccessRoute } from './protected.config';
 	import { goto } from '$app/navigation';
 	import { withBase } from '$lib/utils';
 	import { page } from '$app/stores';
@@ -22,7 +22,7 @@
 
 	let { children } = $props();
 	onMount(() => {
-		if (!isRouteProtected($page.url.pathname)) return;
+		if (!canUserAccessRoute($page.url.pathname)) return;
 		if (!auth.loading && !auth.currentUser) {
 			goto(withBase(`/login?redirect=${$page.url.pathname}${$page.url.search}`));
 		}
