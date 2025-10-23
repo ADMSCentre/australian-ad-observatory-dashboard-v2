@@ -361,10 +361,23 @@
 			{/if}
 		</div>
 		<Dialog.Footer>
-			<Button variant="outline" onclick={() => (deleteDialogOpen = false)}>Cancel</Button>
-			<Button variant="destructive" onclick={confirmDelete}>
-				<Trash2 class="h-4 w-4" />
-				Delete Permanently
+			<Button
+				variant="outline"
+				onclick={() => (deleteDialogOpen = false)}
+				disabled={itemToDelete?.ad.loading.delete}>Cancel</Button
+			>
+			<Button
+				variant="destructive"
+				onclick={confirmDelete}
+				disabled={itemToDelete?.ad.loading.delete}
+			>
+				{#if itemToDelete?.ad.loading.delete}
+					<LoaderCircle class="h-4 w-4 animate-spin" />
+					Deleting...
+				{:else}
+					<Trash2 class="h-4 w-4" />
+					Delete Permanently
+				{/if}
 			</Button>
 		</Dialog.Footer>
 	</Dialog.Content>
