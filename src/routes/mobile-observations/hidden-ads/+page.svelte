@@ -357,6 +357,13 @@
 						<span class="text-sm font-medium text-muted-foreground">Observation ID:</span>
 						<span class="font-mono text-sm">{itemToDelete.ad.observationId}</span>
 					</div>
+
+					<!-- Warning about delay until full deletion -->
+					<div class="text-sm text-yellow-600">
+						<Clock class="mr-1 inline h-4 w-4" />
+						<strong>Note:</strong> It may take up to 24 hours for the ad to be fully removed from all
+						systems.
+					</div>
 				</div>
 			{/if}
 		</div>
