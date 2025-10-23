@@ -9,10 +9,12 @@
 
 	let {
 		ads,
-		dateRange = $bindable()
+		dateRange = $bindable(),
+		quickSelectValue = $bindable('7')
 	}: {
 		ads: BasicAdData[];
 		dateRange: DateRange;
+		quickSelectValue: string;
 	} = $props();
 
 	const quickSelectDateRange = (days: number) => {
@@ -49,6 +51,10 @@
 		<Dropdown
 			options={[
 				{
+					value: '1',
+					label: 'Last 24 hours'
+				},
+				{
 					value: '7',
 					label: 'Last 7 days'
 				},
@@ -59,13 +65,9 @@
 				{
 					value: '30',
 					label: 'Last 30 days'
-				},
-				{
-					value: '-1',
-					label: 'All time'
 				}
 			]}
-			selected={'-1'}
+			bind:selected={quickSelectValue}
 			onSelected={(value) => {
 				quickSelectDateRange(+value);
 				console.log('Selected completed', value);

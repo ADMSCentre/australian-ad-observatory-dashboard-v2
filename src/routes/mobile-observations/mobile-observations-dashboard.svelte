@@ -13,15 +13,14 @@
 	import { withBase } from '$lib/utils';
 	import Timer from '$lib/components/timer.svelte';
 	import { getLocalTimeZone } from '@internationalized/date';
-	import { Hourglass, Square } from 'lucide-svelte';
+	import { Hourglass, LoaderCircle, Square } from 'lucide-svelte';
 	import { scale } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
+	import { session } from '$lib/api/session/session.svelte';
+	import { parseRawAdPaths } from '$lib/api/session/ads/ads-index';
+	import { onMount } from 'svelte';
 
-	let {
-		ads = $bindable()
-	}: {
-		ads: BasicAdData[];
-	} = $props();
+	let ads = $state<BasicAdData[]>([]);
 
 	const computeDateRange = (days: number = -1) => {
 		// If days = -1, show all time
@@ -47,7 +46,43 @@
 		};
 	};
 
-	let dateRange = $state<DateRange>(computeDateRange());
+	function calendarDateToDate(cd: DateRange['start'] | DateRange['end']): Date {
+		if (!cd) throw new Error('Invalid calendar date');
+		return new Date(cd.year, cd.month - 1, cd.day);
+	}
+
+	let quickSelectValue = $state('7');
+	let dateRange = $state<DateRange>(computeDateRange(+quickSelectValue));
+	let loading = $state(false);
+
+	$effect(() => {
+		(async () => {
+			loading = true;
+			if (!session.query) return;
+			if (!dateRange.start || !dateRange.end) return;
+			const querier = session.query.prepare({
+				method: 'AND',
+				args: [
+					{
+						method: 'DATETIME_BEFORE',
+						// Add one day to end to make it inclusive
+						args: [`${new Date(calendarDateToDate(dateRange.end)).getTime() + 1000 * 60 * 60 * 24}`]
+					},
+					{
+						method: 'DATETIME_AFTER',
+						args: [`${new Date(calendarDateToDate(dateRange.start)).getTime()}`]
+					}
+				]
+			});
+			ads = parseRawAdPaths((await querier.fetch()).paths);
+			loading = false;
+		})();
+	});
+
+	let totalAdsCount = $state(0);
+	onMount(async () => {
+		totalAdsCount = (await session.ads.getAll()).length;
+	});
 </script>
 
 {#if guestSessions.sessions.length > 0}
@@ -113,30 +148,36 @@
 	</div>
 {/if}
 
-<div class="flex flex-col gap-4">
-	<h1>Observations Timeline</h1>
+{#if loading}
+	<div class="flex size-full items-center justify-center">
+		<LoaderCircle size="200" class="animate-spin" />
+	</div>
+{:else}
+	<div class="flex flex-col gap-4">
+		<h1>Observations Timeline</h1>
 
-	The timeline below shows the number of observations identified as ads over time. A total of
-	{ads.length} ads were observed in the selected date range.
+		The timeline below shows the number of observations identified as ads over time. A total of
+		{ads.length} ads were observed in the selected date range, out of {totalAdsCount} ads overall.
 
-	<ObservationsTimeline {ads} {dateRange} />
-</div>
+		<ObservationsTimeline {ads} {dateRange} />
+	</div>
 
-<div class="flex flex-col gap-4">
-	<h1>Observers</h1>
+	<div class="flex flex-col gap-4">
+		<h1>Observers</h1>
 
-	The table below shows the number of ads each observer has seen on each day. Click on the
-	observer's ID to view all the ads collected by that observer.
+		The table below shows the number of ads each observer has seen on each day. Click on the
+		observer's ID to view all the ads collected by that observer.
 
-	<ObserversTable {ads} {dateRange} />
-</div>
+		<ObserversTable {ads} {dateRange} />
+	</div>
 
-<div class="flex flex-col gap-4">
-	<h1>Ads Browser</h1>
+	<div class="flex flex-col gap-4">
+		<h1>Ads Browser</h1>
 
-	Expand each date to see the ads that were observed on that day by all observers.
+		Expand each date to see the ads that were observed on that day by all observers.
 
-	<AdsBrowser bind:ads {dateRange} enableAttributeFilter={false} />
-</div>
+		<AdsBrowser bind:ads {dateRange} enableAttributeFilter={true} />
+	</div>
 
-<Filters {ads} bind:dateRange />
+	<Filters {ads} bind:dateRange bind:quickSelectValue />
+{/if}
