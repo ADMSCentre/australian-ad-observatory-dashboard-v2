@@ -83,6 +83,17 @@
 	onMount(async () => {
 		totalAdsCount = (await session.ads.getAll()).length;
 	});
+
+	const dateRangeLabel = $derived.by(() => {
+		if (!dateRange.start || !dateRange.end) return 'historically';
+		if (quickSelectValue !== '-1') {
+			if (quickSelectValue === '1') return 'in the last 24 hours';
+			return `in the last ${quickSelectValue} days`;
+		}
+		const startDate = new Date(calendarDateToDate(dateRange.start));
+		const endDate = new Date(calendarDateToDate(dateRange.end));
+		return `between ${startDate.toLocaleDateString()} and ${endDate.toLocaleDateString()}`;
+	});
 </script>
 
 {#if guestSessions.sessions.length > 0}
@@ -157,7 +168,7 @@
 		<h1>Observations Timeline</h1>
 
 		The timeline below shows the number of observations identified as ads over time. A total of
-		{ads.length} ads were observed in the selected date range, out of {totalAdsCount} ads overall.
+		{ads.length} ads were observed {dateRangeLabel}, out of {totalAdsCount} ads overall.
 
 		<ObservationsTimeline {ads} {dateRange} />
 	</div>
