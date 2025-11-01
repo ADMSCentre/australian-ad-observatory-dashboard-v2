@@ -244,9 +244,11 @@
 	$effect(() => {
 		// Once the tags are loaded, select all tags
 		if (session.tags.loading) return;
-		if (selectedTagIds.length === 0) {
-			selectedTagIds = [...session.tags.all.map((t) => t.id), null];
-		}
+		untrack(() => {
+			if (selectedTagIds.length === 0) {
+				selectedTagIds = [...session.tags.all.map((t) => t.id), null];
+			}
+		});
 	});
 
 	const debounce = (fn: Function, delay: number) => {
