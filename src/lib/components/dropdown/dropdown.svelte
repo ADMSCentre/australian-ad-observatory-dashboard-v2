@@ -64,11 +64,15 @@
 			if (selected.length === options.length) {
 				return 'All';
 			}
-			// Otherwise, shows the selected options as a comma-separated list
-			return options
+			// Otherwise, shows the selected options
+			const selectedLabels = options
 				.filter((f) => selected.includes(f.value))
-				.map((f) => f.label)
-				.join(', ');
+				.map((f) => f.label);
+			if (selectedLabels.length <= 2) {
+				return selectedLabels.join(', ');
+			} else {
+				return `${selectedLabels.length} selected`;
+			}
 		}
 	});
 
