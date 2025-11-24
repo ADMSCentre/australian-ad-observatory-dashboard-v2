@@ -4,6 +4,7 @@
 	import {
 		AlertCircleIcon,
 		ArrowLeft,
+		ArrowUpRightFromSquareIcon,
 		ChevronLeftSquare,
 		ChevronRightSquare,
 		Presentation,
@@ -122,7 +123,18 @@
 				{parseActivationCode(participantId)?.toLocaleUpperCase()}
 			</span>
 		</h1>
-		<CsrReportLink />
+		<div class="flex items-center gap-6 rounded border px-4 py-2 shadow">
+			<a
+				href={`http://ad-observatory-workshop-2025.s3-website-ap-southeast-2.amazonaws.com/observers/${participantId}`}
+				class="text-primary hover:underline"
+				target="_blank"
+				rel="noopener noreferrer"
+			>
+				Sequence Visualiser
+				<ArrowUpRightFromSquareIcon class="inline size-4" />
+			</a>
+			<CsrReportLink />
+		</div>
 	</div>
 
 	<p class="text-muted-foreground">

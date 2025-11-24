@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { auth } from '$lib/api/auth/auth.svelte';
 	import { client } from '$lib/api/client';
-	import Button from '$lib/components/ui/button/button.svelte';
-	import { ArrowUpRightFromSquareIcon, CircleHelpIcon, DownloadIcon } from 'lucide-svelte';
+	import { ArrowUpRightFromSquareIcon, CircleHelpIcon } from 'lucide-svelte';
 	import { getObserverPageContext } from '../context.svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 
@@ -38,34 +37,32 @@
 	}
 </script>
 
-<div class="flex h-full w-fit items-center gap-2 rounded border px-4 py-2 shadow">
+<div class="flex items-center gap-2">
 	{#await getCsrReportLink()}
-		<p>Loading CSR report link...</p>
+		<span class="text-sm text-muted-foreground">Loading CSR...</span>
 	{:then result}
 		{#if result.status === 'success'}
-			<p>CSR available:</p>
-			<Button
+			<a
 				href={result.url}
 				target="_blank"
-				class="h-fit p-2"
-				variant="link"
 				rel="noopener noreferrer"
+				class="text-primary hover:underline"
 			>
-				<ArrowUpRightFromSquareIcon />
-				View
-			</Button>
+				CSR Report
+				<ArrowUpRightFromSquareIcon class="inline size-4" />
+			</a>
 		{:else}
-			<p class="text-red-500">{result.message}</p>
+			<span class="text-sm text-muted-foreground">{result.message}</span>
 		{/if}
 	{:catch error}
-		<p class="text-red-500">Error fetching CSR report link: {error.message}</p>
+		<span class="text-sm text-muted-foreground">CSR unavailable</span>
 	{/await}
 	<Tooltip.Root>
-		<Tooltip.Trigger>
-			<CircleHelpIcon class="size-4" />
+		<Tooltip.Trigger class="inline-flex h-fit rounded hover:bg-muted/50 p-1">
+			<CircleHelpIcon class="size-4 text-muted-foreground" />
 		</Tooltip.Trigger>
 		<Tooltip.Content class="max-w-sm">
-			{'The CSR (Comprehensive Statistical Report) report summarises the mobile device activity of the participant in the context of their involvement within the data donation study.'}
+			{'The CSR (Comprehensive Statistical Report) summarises the mobile device activity of the participant in the data donation study.'}
 		</Tooltip.Content>
 	</Tooltip.Root>
 </div>
