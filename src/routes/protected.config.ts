@@ -17,6 +17,9 @@ const protectedRoutes: Record<
 	'/users/self': {
 		allowedRoles: ['user', 'admin']
 	},
+	'/users/self/jwt': {
+		allowedRoles: ['user', 'admin']
+	},
 	'/mobile-observations/query': {
 		allowedRoles: ['user', 'admin']
 	},
