@@ -11,6 +11,7 @@
 	import { buttonVariants } from '$lib/components/ui/button/index.js';
 	import { RangeCalendar } from '$lib/components/ui/range-calendar/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
+	import { SignpostIcon } from 'lucide-svelte';
 
 	const df = new DateFormatter('en-US', {
 		dateStyle: 'medium'
@@ -49,6 +50,13 @@
 				}}
 				numberOfMonths={2}
 			/>
+			<div
+				class="flex w-full items-center justify-end gap-1 p-2 text-right text-xs text-muted-foreground"
+			>
+				<SignpostIcon class=" inline size-4" />
+				Tip: <strong>click on two dates</strong> to select a range, or <strong>double click</strong>
+				to select a single date.
+			</div>
 		</Popover.Content>
 	</Popover.Root>
 </div>

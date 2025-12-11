@@ -7,7 +7,7 @@
 	<meta name="description" content="Mobile Observations" />
 </svelte:head>
 
-<div class="flex flex-col gap-8 p-1 pb-0 sm:p-4">
+<div class="flex h-full flex-col gap-4">
 	<h1>Mobile Observations</h1>
 
 	<div>

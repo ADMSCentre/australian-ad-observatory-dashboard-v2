@@ -19,12 +19,14 @@
 	import { session } from '$lib/api/session/session.svelte';
 	import { parseRawAdPaths } from '$lib/api/session/ads/ads-index';
 	import { onMount } from 'svelte';
+	import PageLoader from '$lib/components/page-loader/page-loader.svelte';
 
 	let ads = $state<BasicAdData[]>([]);
 
+	const today = new Date();
+
 	const computeDateRange = (days: number = -1) => {
 		// If days = -1, show all time
-		const today = new Date();
 		if (days === -1) {
 			const firstAd = ads.at(-1);
 			const lastAd = ads.at(0);
@@ -57,9 +59,9 @@
 
 	$effect(() => {
 		(async () => {
-			loading = true;
 			if (!session.query) return;
 			if (!dateRange.start || !dateRange.end) return;
+			loading = true;
 			const querier = session.query.prepare({
 				method: 'AND',
 				args: [
@@ -84,14 +86,33 @@
 		totalAdsCount = (await session.ads.getAll()).length;
 	});
 
+	const quickSelectGuess = $derived.by(() => {
+		if (!dateRange.start || !dateRange.end) return null;
+		const startDate = new Date(calendarDateToDate(dateRange.start));
+		const endDate = new Date(calendarDateToDate(dateRange.end));
+		if (endDate.getDate() !== today.getDate()) return null;
+		if (endDate.getMonth() !== today.getMonth()) return null;
+		if (endDate.getFullYear() !== today.getFullYear()) return null;
+		const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+		return diffDays.toString();
+	});
+
 	const dateRangeLabel = $derived.by(() => {
 		if (!dateRange.start || !dateRange.end) return 'historically';
-		if (quickSelectValue !== '-1') {
-			if (quickSelectValue === '1') return 'in the last 24 hours';
-			return `in the last ${quickSelectValue} days`;
+		if (quickSelectGuess) {
+			if (quickSelectGuess === '1') return 'in the last 24 hours';
+			return `in the last ${quickSelectGuess} days`;
 		}
 		const startDate = new Date(calendarDateToDate(dateRange.start));
 		const endDate = new Date(calendarDateToDate(dateRange.end));
+		if (
+			startDate.getDate() === endDate.getDate() &&
+			startDate.getMonth() === endDate.getMonth() &&
+			startDate.getFullYear() === endDate.getFullYear()
+		) {
+			return `on ${startDate.toLocaleDateString()}`;
+		}
 		return `between ${startDate.toLocaleDateString()} and ${endDate.toLocaleDateString()}`;
 	});
 </script>
@@ -161,7 +182,7 @@
 
 {#if loading}
 	<div class="flex size-full items-center justify-center">
-		<LoaderCircle size="200" class="animate-spin" />
+		<PageLoader />
 	</div>
 {:else}
 	<div class="flex flex-col gap-4">
@@ -189,6 +210,6 @@
 
 		<AdsBrowser bind:ads {dateRange} enableAttributeFilter={true} />
 	</div>
-
-	<Filters {ads} bind:dateRange bind:quickSelectValue />
 {/if}
+
+<Filters {ads} bind:dateRange bind:quickSelectValue />

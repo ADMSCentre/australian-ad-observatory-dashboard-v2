@@ -57,7 +57,7 @@
 	{#if !auth.isGuest}
 		<AppSidebar />
 	{/if}
-	<main class="flex h-fit min-h-screen w-full flex-col">
+	<main class="flex size-full h-auto min-h-screen flex-1 flex-col">
 		<Header />
 		<div class="flex flex-1 flex-col gap-2 p-1 sm:p-4 sm:pb-0">
 			{#if auth.currentUser && !auth.currentUser?.enabled}
