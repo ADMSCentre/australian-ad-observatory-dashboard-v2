@@ -1459,7 +1459,7 @@ export interface paths {
                             timestamp?: string;
                             ad_id?: string;
                         }[];
-                        metadata_types?: ("attributes" | "tags" | "rdo")[];
+                        metadata_types?: ("attributes" | "tags" | "rdo" | "classifications")[];
                     };
                 };
             };
@@ -1531,7 +1531,7 @@ export interface paths {
                             timestamp?: string;
                             ad_id?: string;
                         }[];
-                        metadata_types?: ("attributes" | "tags" | "rdo")[];
+                        metadata_types?: ("attributes" | "tags" | "rdo" | "classifications")[];
                     };
                 };
             };
@@ -2448,6 +2448,75 @@ export interface paths {
                 };
             };
         };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ads/{observer_id}/{timestamp}.{ad_id}/enrichment/classifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve both automatic and manual classifications for an ad.
+         * @description Returns automatic classifications from CLIP model and manual classifications
+         *     from user-applied tags.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    observer_id: string;
+                    timestamp: string;
+                    ad_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A successful response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example true */
+                            success?: boolean;
+                            classifications?: {
+                                automatic?: {
+                                    label?: string;
+                                    score?: number;
+                                }[];
+                                manual?: {
+                                    label?: string;
+                                }[];
+                            };
+                        };
+                    };
+                };
+                /** @description A failed response */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            comment?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -3570,6 +3639,36 @@ export interface components {
              * @default null
              */
             config: Record<string, never> | null;
+        };
+        /**
+         * ClipClassification
+         * @description Pydantic model for ad clip classification data.
+         */
+        ClipClassification: {
+            /** Id */
+            id: string;
+            /** Observation Id */
+            observation_id: string;
+            /** Label */
+            label: string;
+            /** Score */
+            score: number;
+            /** Created At */
+            created_at: number;
+            /** Updated At */
+            updated_at: number;
+        };
+        /**
+         * CompositeClassification
+         * @description Pydantic model for parsing S3 JSON composite classification data.
+         */
+        CompositeClassification: {
+            /** Ranking */
+            ranking: number;
+            /** Label */
+            label: string;
+            /** Score Normalized */
+            score_normalized: number;
         };
         /** LegacyAdTag */
         LegacyAdTag: {

@@ -3,6 +3,7 @@ export const theme = $state<{
 	colors: {
 		foreground: string;
 		background: string;
+		backgroundSecondary: string;
 	};
 }>({
 	mode: 'light',
@@ -12,6 +13,9 @@ export const theme = $state<{
 		},
 		get background(): string {
 			return theme.mode === 'light' ? 'white' : 'black';
+		},
+		get backgroundSecondary(): string {
+			return theme.mode === 'light' ? '#f0f0f0' : '#1a1a1a';
 		}
 	}
 });

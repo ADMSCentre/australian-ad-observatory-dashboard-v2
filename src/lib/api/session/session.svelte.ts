@@ -18,22 +18,22 @@ export const INDEX_GROUP_TYPES: {
 	label: string;
 	description: string;
 }[] = [
-	{
-		value: 'ads_passed_restitch',
-		label: 'Cropped',
-		description: "Ads that have been cropped for to only show the ad's content"
-	},
-	{
-		value: 'ads_passed_mass_download',
-		label: 'Matched',
-		description: 'Ads that have been matched to a known ad in the Meta Ads Library'
-	},
-	{
-		value: 'ads_passed_rdo_construction',
-		label: 'RDO',
-		description: 'Ads that have been processed to create a Rich Data Object'
-	}
-];
+		{
+			value: 'ads_passed_restitch',
+			label: 'Cropped',
+			description: "Ads that have been cropped for to only show the ad's content"
+		},
+		{
+			value: 'ads_passed_mass_download',
+			label: 'Matched',
+			description: 'Ads that have been matched to a known ad in the Meta Ads Library'
+		},
+		{
+			value: 'ads_passed_rdo_construction',
+			label: 'RDO',
+			description: 'Ads that have been processed to create a Rich Data Object'
+		}
+	];
 
 export class Session {
 	indexGroupTypes = $state<IndexGroupType[]>([
@@ -46,8 +46,8 @@ export class Session {
 	allAds = $state<Record<string, RichAdData>>({});
 	enrichedAds = $state<Record<string, RichAdData>>({});
 
-	getCache = (ad: RichAdData, type: ExpandType, preferCache: boolean = false) => {
-		if (!preferCache) return null;
+	getCache = <T extends ExpandType>(ad: RichAdData, type: T, preferCache: boolean = false): RichAdData[T] | undefined => {
+		if (!preferCache) return;
 		return this.enrichedAds?.[ad.adId]?.[type];
 	};
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -102,6 +102,8 @@ export class Session {
 										return 'tags';
 									case 'richDataObject':
 										return 'rdo';
+									case 'classifications':
+										return 'classifications';
 									default:
 										return null;
 								}
@@ -198,6 +200,7 @@ export class Session {
 							// Throw error if incompatible types
 							if (!Array.isArray(res)) throw new Error('Incompatible types for stitchedFrames');
 							this.updateCache(ad, expand, res);
+
 							if (!inPlace) {
 								enrichedData.stitchedFrames = res;
 								break;
@@ -254,6 +257,17 @@ export class Session {
 							ad.metaLibraryScrape = res;
 						}
 						break;
+					case 'classifications':
+						{
+							const res =
+								this.getCache(ad, expand, preferCache)
+							this.updateCache(ad, expand, res);
+							if (!inPlace) {
+								enrichedData.classifications = res;
+								break;
+							}
+							ad.classifications = res;
+						}
 				}
 			});
 			// for (const promise of promises) {

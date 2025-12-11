@@ -149,14 +149,13 @@ export const fetchTags = async (adData: BasicAdData, token: string): Promise<str
 		console.error(error);
 		return [];
 	}
-	console.log('Found tags for ad:', adData.adId, data);
 	return data.tag_ids || [];
 };
 
 export const fetchRichDataObject = async (
 	adData: BasicAdData,
 	token: string
-): Promise<RichDataObject | null> => {
+): Promise<RichDataObject | undefined> => {
 	const options = {
 		headers: {
 			Authorization: `Bearer ${token}`
@@ -175,7 +174,7 @@ export const fetchRichDataObject = async (
 	});
 	if (error) {
 		console.error(error);
-		return null;
+		return;
 	}
 	return data.data as unknown as RichDataObject;
 };

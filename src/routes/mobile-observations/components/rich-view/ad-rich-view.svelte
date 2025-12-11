@@ -167,6 +167,7 @@
 					{/if}
 					<Tabs.Trigger value="ocr-data">OCR</Tabs.Trigger>
 					<Tabs.Trigger value="candidate-ads">Candidates</Tabs.Trigger>
+					<Tabs.Trigger value="classifications">Classifications</Tabs.Trigger>
 					<Tabs.Trigger value="rich-data-table">Table</Tabs.Trigger>
 					{#if !auth.isGuest}
 						<Tabs.Trigger value="rich-data">JSON</Tabs.Trigger>
@@ -190,6 +191,44 @@
 				<Tabs.Content value="candidate-ads">
 					{#if candidates && rankings && mediaMapping}
 						<CandidatesView {candidates} {rankings} {mediaMapping} />
+					{/if}
+				</Tabs.Content>
+				<Tabs.Content value="classifications">
+					{#if currentAd.classifications && currentAd.classifications.length > 0}
+						<div class="flex flex-col gap-4 p-4">
+							<h3 class="text-lg font-semibold">Classification Results</h3>
+							<p class="text-sm text-muted-foreground">
+								The following classifications were detected for this ad, sorted by confidence score.
+							</p>
+							<div class="grid gap-3">
+								{#each currentAd.classifications.toSorted((a, b) => b.score - a.score) as classification}
+									<div class="flex items-center justify-between rounded-lg border p-3">
+										<span class="font-medium">{classification.label}</span>
+										<div class="flex items-center gap-3">
+											<div
+												class="h-2 w-32 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700"
+											>
+												<div
+													class="h-full rounded-full transition-all"
+													class:bg-green-500={classification.score >= 0.7}
+													class:bg-yellow-500={classification.score >= 0.5 &&
+														classification.score < 0.7}
+													class:bg-red-500={classification.score < 0.5}
+													style="width: {classification.score * 100}%"
+												></div>
+											</div>
+											<span class="w-16 text-right text-sm text-muted-foreground">
+												{(classification.score * 100).toFixed(1)}%
+											</span>
+										</div>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{:else}
+						<div class="flex items-center justify-center p-8 text-muted-foreground">
+							<p>No classification data available for this ad.</p>
+						</div>
 					{/if}
 				</Tabs.Content>
 				<Tabs.Content value="rich-data-table">

@@ -7,6 +7,7 @@ export type ExpandType =
 	// | 'rawFrames'
 	| 'stitchedFrames'
 	// | 'dimensions'
+	| 'classifications'
 	| 'metaLibraryScrape';
 // | 'ocrData';
 
@@ -50,6 +51,10 @@ export type RichAdData = BasicAdData & {
 		};
 	};
 	tags?: string[];
+	classifications?: {
+		label: string;
+		score: number;
+	}[];
 	richDataObject?: RichDataObject;
 	stitchedFrames?: string[];
 	metaLibraryScrape?: {
