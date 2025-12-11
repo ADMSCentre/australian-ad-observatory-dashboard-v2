@@ -65,9 +65,7 @@
 				return 'All';
 			}
 			// Otherwise, shows the selected options
-			const selectedLabels = options
-				.filter((f) => selected.includes(f.value))
-				.map((f) => f.label);
+			const selectedLabels = options.filter((f) => selected.includes(f.value)).map((f) => f.label);
 			if (selectedLabels.length <= 2) {
 				return selectedLabels.join(', ');
 			} else {
@@ -121,6 +119,32 @@
 			<Command.List>
 				<Command.Empty>No results found.</Command.Empty>
 				<Command.Group>
+					{#if allowSelectAll && mode === 'multiple'}
+						<Command.Item
+							onSelect={() => {
+								selected = options.map((f) => f.value);
+								closeAndFocusTrigger();
+								onSelected?.(selected);
+							}}
+							class="pl-10"
+						>
+							Select all
+						</Command.Item>
+					{/if}
+					{#if clearable && mode === 'multiple' && selected.length > 0}
+						<Command.Item
+							onSelect={() => {
+								selected = [];
+								closeAndFocusTrigger();
+								onSelected?.(null);
+							}}
+							class="pl-10 text-destructive"
+						>
+							Clear selection
+						</Command.Item>
+					{/if}
+				</Command.Group>
+				<Command.Group>
 					{#each options as option}
 						<Command.Item
 							value={option.value}
@@ -144,31 +168,6 @@
 							{option.label}
 						</Command.Item>
 					{/each}
-					<Command.Separator />
-					{#if clearable && mode === 'multiple' && selected.length > 0}
-						<Command.Item
-							onSelect={() => {
-								selected = [];
-								closeAndFocusTrigger();
-								onSelected?.(null);
-							}}
-							class="pl-10 text-destructive"
-						>
-							Clear selection
-						</Command.Item>
-					{/if}
-					{#if allowSelectAll && mode === 'multiple'}
-						<Command.Item
-							onSelect={() => {
-								selected = options.map((f) => f.value);
-								closeAndFocusTrigger();
-								onSelected?.(selected);
-							}}
-							class="pl-10"
-						>
-							Select all
-						</Command.Item>
-					{/if}
 				</Command.Group>
 			</Command.List>
 		</Command.Root>

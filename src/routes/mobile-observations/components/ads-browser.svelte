@@ -287,7 +287,7 @@
 		untrack(() => {
 			const classifications = Array.from(uniqueClassificationLabels);
 			if (selectedClassifications.length === 0 && classifications.length > 0) {
-				selectedClassifications = [...classifications];
+				selectedClassifications = [...classifications, 'Unclassified'];
 			}
 		});
 	});
@@ -362,8 +362,10 @@
 					})
 					// Filter by classifications
 					.filter((ad) => {
+						// Membership check using cached sets
 						const adClassifications = adClassificationsCache.get(ad.adId);
-						if (!adClassifications) return false;
+						if (!adClassifications || adClassifications.size === 0)
+							return selectedClassificationsSet.has('Unclassified');
 						for (const label of selectedClassificationsSet) {
 							if (adClassifications.has(label)) return true;
 						}
@@ -558,10 +560,15 @@
 							{:else}
 								<Dropdown
 									mode="multiple"
-									options={Array.from(uniqueClassificationLabels).map((label) => ({
-										value: label,
-										label
-									}))}
+									options={Array.from(uniqueClassificationLabels)
+										.map((label) => ({
+											value: label,
+											label
+										}))
+										.concat({
+											value: 'Unclassified',
+											label: 'Unclassified'
+										})}
 									disabled={loading}
 									triggerClass="w-full"
 									bind:selected={selectedClassifications}
