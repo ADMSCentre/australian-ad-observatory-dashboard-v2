@@ -9,7 +9,7 @@
 	import { cn } from '$lib/utils.js';
 	import { twMerge } from 'tailwind-merge';
 	import MultiSelectItem from './multi-select-item.svelte';
-	import { ChevronDownIcon, ClipboardPasteIcon, PlusIcon } from 'lucide-svelte';
+	import { ChevronDownIcon, ClipboardCopyIcon, ClipboardPasteIcon, PlusIcon } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 
 	let {
@@ -20,6 +20,9 @@
 		allowPasting = false,
 		placeholder = 'Select options...',
 		contentClass = '',
+		// Controls whether searches, comparisons and pasted values are treated as case-sensitive.
+		// true = case-sensitive; false = case-insensitive (normalizes to lower-case for matching)
+		caseSensitive = true,
 		onSelected
 	}: {
 		options: { value: any; label: string }[];
@@ -30,6 +33,7 @@
 		clearable?: boolean;
 		allowPasting?: boolean;
 		contentClass?: string;
+		caseSensitive?: boolean;
 		onSelected?: (value: any[]) => void;
 	} = $props();
 
@@ -37,8 +41,7 @@
 	let inputRef = $state<HTMLInputElement>(null!);
 	let searchTerm = $state('');
 
-	// Find the unselected options
-	const unselectedOptions = $derived(options.filter((option) => !selected.includes(option.value)));
+	// Note: compute unselected options after isSelected/normalizeForCompare are defined
 
 	// Allow pasting options from clipboard
 	async function parseClipboard(): Promise<string[]> {
@@ -57,7 +60,7 @@
 					.filter((item) => item.trim() !== '')
 					// Remove quotes
 					.map((i) => i.replaceAll('"', '').replaceAll("'", ''))
-					.map((i) => i.toLocaleLowerCase())
+					.map((i) => (caseSensitive ? i : i.toLocaleLowerCase()))
 					.map((i) => i.trim())
 			);
 		} catch (error) {
@@ -66,13 +69,18 @@
 		}
 	}
 
+	function normalise(value: any) {
+		if (typeof value === 'string') return caseSensitive ? value : value.toLocaleLowerCase();
+		return value;
+	}
+
 	function isSelected(value: any) {
-		return selected.includes(value);
+		return selected.some((s) => normalise(s) === normalise(value));
 	}
 
 	function toggleSelection(value: any) {
 		if (isSelected(value)) {
-			selected = selected.filter((v) => v !== value);
+			selected = selected.filter((v) => normalise(v) !== normalise(value));
 		} else {
 			selected = [...selected, value];
 			tick().then(() => {
@@ -84,9 +92,42 @@
 	}
 
 	function removeSelection(value: any) {
-		selected = selected.filter((v) => v !== value);
+		selected = selected.filter((v) => normalise(v) !== normalise(value));
 		onSelected?.(selected);
 	}
+
+	// Find the unselected options using normalized comparison
+	const unselectedOptions = $derived(
+		options.filter((option) => !selected.some((s) => normalise(s) === normalise(option.value)))
+	);
+
+	// Filter options shown in the list based on search term and case-sensitive toggle
+	const filteredOptions = $derived.by(() => {
+		searchTerm;
+		return options
+			.filter((option) => {
+				if (!searchTerm || searchTerm.trim() === '') return true;
+				const term =
+					typeof searchTerm === 'string'
+						? caseSensitive
+							? searchTerm
+							: searchTerm.toLocaleLowerCase()
+						: searchTerm;
+				const label =
+					typeof option.label === 'string'
+						? caseSensitive
+							? option.label
+							: option.label.toLocaleLowerCase()
+						: option.label;
+				return typeof label === 'string' && label.includes(term as string);
+			})
+			.slice(0, 100); // Limit to first 100 results
+	});
+
+	$inspect({
+		searchTerm,
+		filteredOptions
+	});
 </script>
 
 <Popover.Root bind:open>
@@ -103,7 +144,9 @@
 				{#if selected.length > 0}
 					<div class="flex flex-wrap gap-2">
 						{#each selected as value}
-							{@const option = options.find((option) => option.value === value)}
+							{@const option = options.find(
+								(option) => normalise(option.value) === normalise(value)
+							)}
 							<MultiSelectItem
 								option={option || { value, label: value }}
 								onRemove={removeSelection}
@@ -130,17 +173,53 @@
 								}}
 							>
 								<X size={16} />
-								Clear
+								Clear ({selected.length} item{selected.length > 1 ? 's' : ''})
 							</Button>
 						</div>
 					{/if}
+					<!-- Copy button -->
+					<Button
+						variant="ghost"
+						class="size-fit px-1 py-0.5 text-xs font-medium"
+						onclick={async (e) => {
+							e.stopPropagation();
+							const items = selected.map((value) => {
+								const match = options.find(
+									(o) =>
+										normalise(o.value) === normalise(value) ||
+										normalise(o.label) === normalise(value)
+								);
+								return match ? match.label : value;
+							});
+							try {
+								await navigator.clipboard.writeText(items.join(', '));
+							} catch (error) {
+								console.warn('Failed to write to clipboard:', error);
+								toast.error('Failed to copy to clipboard.');
+								return;
+							}
+							toast.success(
+								`Copy ${items.length} item${items.length > 1 ? 's' : ''} to clipboard.`
+							);
+						}}
+					>
+						<ClipboardCopyIcon class="size-4" />
+						Copy
+					</Button>
 					{#if allowPasting}
 						<Button
 							variant="ghost"
 							class="size-fit px-1 py-0.5 text-xs font-medium"
 							onclick={async (e) => {
 								e.stopPropagation();
-								const items = (await parseClipboard()).filter((i) => i.trim() !== '');
+								const rawItems = (await parseClipboard()).filter((i) => i.trim() !== '');
+								const items = rawItems.map((i) => {
+									const match = options.find(
+										(o) =>
+											normalise(o.value) === normalise(i) || normalise(o.label) === normalise(i)
+									);
+									return match ? match.value : i;
+								});
 								const newItems = items.filter((item) => !isSelected(item));
 								if (newItems.length > 0) {
 									selected = [...selected, ...newItems];
@@ -163,7 +242,7 @@
 			onOpenAutoFocus={(e) => e.preventDefault()}
 			class={twMerge('p-0', contentClass)}
 		>
-			<Command.Root>
+			<Command.Root shouldFilter={false}>
 				{#if searchable}
 					<Command.Input
 						class="w-full"
@@ -175,34 +254,49 @@
 				{/if}
 				<Command.List>
 					<!-- Enable user to add terms not included in the list -->
-					{#if searchTerm.trimEnd() !== ''}
-						<Command.Item
-							value={searchTerm}
-							keywords={[searchTerm]}
-							onSelect={() => {
-								if (searchTerm.trim() !== '') {
-									toggleSelection(searchTerm);
-								}
-							}}
-							onclick={(e) => {
-								e.stopPropagation();
-								e.preventDefault();
-								if (searchTerm.trim() !== '') {
-									toggleSelection(searchTerm);
-								}
-							}}
-						>
-							<PlusIcon class="mr-2 size-4" />
-							{searchTerm}
-						</Command.Item>
+					{#if searchTerm.trimEnd() !== '' && !filteredOptions.some((o) => normalise(o.value) === normalise(searchTerm) || normalise(o.label) === normalise(searchTerm))}
+						<Command.Group>
+							<Command.Item
+								value={searchTerm}
+								keywords={caseSensitive
+									? [searchTerm]
+									: [searchTerm, searchTerm.toLocaleLowerCase()]}
+								onSelect={() => {
+									if (searchTerm.trim() !== '') {
+										const match = options.find(
+											(o) =>
+												normalise(o.value) === normalise(searchTerm) ||
+												normalise(o.label) === normalise(searchTerm)
+										);
+										toggleSelection(match ? match.value : searchTerm);
+									}
+								}}
+								onclick={(e) => {
+									e.stopPropagation();
+									e.preventDefault();
+									if (searchTerm.trim() !== '') {
+										const match = options.find(
+											(o) =>
+												normalise(o.value) === normalise(searchTerm) ||
+												normalise(o.label) === normalise(searchTerm)
+										);
+										toggleSelection(match ? match.value : searchTerm);
+									}
+								}}
+							>
+								<PlusIcon class="mr-2 size-4" />
+								{normalise(searchTerm)}
+							</Command.Item>
+						</Command.Group>
 					{/if}
 					<!-- <Command.Empty>No results found.</Command.Empty> -->
 					<Command.Group>
-						<!-- Allow entering items not in list -->
-						{#each unselectedOptions as option}
+						{#each filteredOptions as option}
 							<Command.Item
 								value={option.value}
-								keywords={[option.label]}
+								keywords={caseSensitive
+									? [option.label]
+									: [option.label, option.label.toLocaleLowerCase()]}
 								onSelect={() => {
 									toggleSelection(option.value);
 								}}
@@ -213,7 +307,7 @@
 								}}
 							>
 								<Check class={cn('mr-2 size-4', !isSelected(option.value) && 'text-transparent')} />
-								{option.label}
+								<span>{option.label}</span>
 							</Command.Item>
 						{/each}
 						{#if clearable && selected.length > 0}
@@ -233,6 +327,16 @@
 								<X class="mr-2 size-4" />
 								Clear selection
 							</Command.Item>
+						{/if}
+						<!-- If there are more items, show a message to state there are more and the user should search -->
+						{#if unselectedOptions.length > filteredOptions.length}
+							<div class="px-3 py-2 text-xs text-muted-foreground">
+								{unselectedOptions.length - filteredOptions.length} more item{unselectedOptions.length -
+									filteredOptions.length ===
+								1
+									? ''
+									: 's'}. Please refine your search to see more.
+							</div>
 						{/if}
 					</Command.Group>
 				</Command.List>

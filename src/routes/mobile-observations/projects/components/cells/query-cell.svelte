@@ -142,10 +142,13 @@
 				>.
 			</p>
 			<MultiSelect
-				options={session.observers.activationCodes.map((code) => ({
-					value: code,
-					label: code
-				}))}
+				options={session.observers.activationCodes
+					.filter((c) => c !== null)
+					.map((c) => c.trim())
+					.map((code) => ({
+						value: code,
+						label: code
+					}))}
 				selected={cell.content.query.args}
 				placeholder="Select observers"
 				onSelected={(selected) => {
@@ -156,6 +159,7 @@
 				searchable
 				clearable
 				allowPasting
+				caseSensitive={false}
 			/>
 		</div>
 	{/if}
