@@ -1,5 +1,6 @@
 <script lang="ts">
 	const { logoClass = 'size-24' } = $props();
+	import AIOLogoDark from '$lib/components/images/aio-logo-dark.png';
 </script>
 
 <a
@@ -20,9 +21,5 @@
 	rel="noopener noreferrer"
 	class="ring-2 ring-transparent hover:ring-orange-500"
 >
-	<img
-		src="https://images.squarespace-cdn.com/content/v1/649cfa2ca1a08259397c286f/5e2fd429-08c5-4760-8392-c31b0f12228e/aio-raw-logo-file.jpg?format=1500w"
-		alt="AIO Logo"
-		class={logoClass}
-	/>
+	<img src={AIOLogoDark} alt="AIO Logo" class={logoClass} />
 </a>
