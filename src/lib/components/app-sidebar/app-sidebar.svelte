@@ -16,6 +16,7 @@
 		Users,
 		SettingsIcon,
 		Folder, // Import Folder icon
+		Download,
 		ScanEyeIcon
 	} from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
@@ -70,6 +71,13 @@
 			url: withBase('data-download-packages'),
 			icon: Folder,
 			visible: true
+		},
+		{
+			title: 'Exports',
+			url: withBase('exports'),
+			icon: Download,
+			visible: false
+			// visible: auth.currentUser?.role === 'user' || auth.currentUser?.role === 'admin'
 		},
 		{
 			title: 'Web Observations',

@@ -19,6 +19,7 @@
 	import { twMerge } from 'tailwind-merge';
 	import { session } from '$lib/api/session/session.svelte';
 	import Cell from './cells/cell.svelte';
+	import CreateExportDialog from '../../../exports/components/create-export-dialog.svelte';
 
 	const { projectId }: { projectId: string } = $props();
 
@@ -41,6 +42,25 @@
 		}
 	});
 	setContext(PROJECT_MANAGER, () => manager);
+
+	let isCreatingExport = $state(false);
+	let exportQuery = $derived.by(() => {
+		if (manager && manager.exportCandidateId) {
+			const cell = manager.getCell(manager.exportCandidateId);
+			if (cell && cell.type === 'query') {
+				return (cell as QueryCellType).content.query;
+			}
+		}
+		return null;
+	});
+
+	$effect(() => {
+		if (manager && manager.exportCandidateId) {
+			isCreatingExport = true;
+		} else {
+			isCreatingExport = false;
+		}
+	});
 </script>
 
 <svelte:head>
@@ -87,3 +107,14 @@
 		</div>
 	</div>
 {/if}
+
+<CreateExportDialog
+	bind:open={isCreatingExport}
+	query={exportQuery || undefined}
+	isQueryEditable={false}
+	onOpenChange={(isOpen) => {
+		if (!isOpen && manager) {
+			manager.exportCandidateId = null;
+		}
+	}}
+/>

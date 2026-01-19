@@ -3456,6 +3456,385 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/exports/fields": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List all available exportable fields.
+         * @description Returns a list of fields that users can select to include in their exports.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description List of exportable fields */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id?: string;
+                            name?: string;
+                            description?: string;
+                            path?: string;
+                            is_default?: boolean;
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List all exports for a user.
+         * @description Returns exports created by the user or shared with them.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Optional user ID to filter exports. If not provided, returns exports for the authenticated user. */
+                    user_id?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description List of export jobs */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": Record<string, never>[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create a new export job.
+         * @description Initiates an asynchronous export job that will be processed by a background worker.
+         *     The export job will be queued and the user can monitor its status.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description Query to filter the data to export */
+                        query?: Record<string, never>;
+                        /** @default false */
+                        include_images?: boolean;
+                        /** @description List of field paths to include in the export */
+                        fields?: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Export job created successfully */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            export?: Record<string, never>;
+                        };
+                    };
+                };
+                /** @description Bad request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Failed to queue export job */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exports/{export_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a specific export job by ID.
+         * @description Returns detailed information about an export job including status, parameters, and download URL.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    export_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Export job details */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": Record<string, never>;
+                    };
+                };
+                /** @description Unauthorized access */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Export not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Delete an export job.
+         * @description Deletes the export job and its associated files. Only the creator or admin can delete an export.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    export_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Export deleted successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                        };
+                    };
+                };
+                /** @description Unauthorized access */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Export not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exports/{export_id}/share": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Share an export with other users.
+         * @description Adds users to the export's access list. Only the creator or admin can share.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    export_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description List of user IDs to share with */
+                        user_ids?: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Export shared successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            shared_with?: string[];
+                        };
+                    };
+                };
+                /** @description Bad request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized access */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Export not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exports/{export_id}/unshare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Remove users from an export's access list.
+         * @description Removes users from the export's shared access. Only the creator or admin can unshare.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    export_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description List of user IDs to remove from access */
+                        user_ids?: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Users removed from export successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            shared_with?: string[];
+                        };
+                    };
+                };
+                /** @description Bad request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized access */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Export not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reflect": {
         parameters: {
             query?: never;
@@ -3670,6 +4049,93 @@ export interface components {
             /** Score Normalized */
             score_normalized: number;
         };
+        /**
+         * Export
+         * @description Pydantic model for Export API responses.
+         */
+        Export: {
+            /** Id */
+            id: string;
+            /** Creator Id */
+            creator_id: string;
+            /**
+             * Include Images
+             * @default false
+             */
+            include_images: boolean;
+            /**
+             * Query String
+             * @default null
+             */
+            query_string: string | null;
+            /**
+             * Status
+             * @default pending
+             */
+            status: string;
+            /**
+             * Object Location
+             * @default null
+             */
+            object_location: string | null;
+            /**
+             * Created At
+             * @default null
+             */
+            created_at: string | null;
+            /**
+             * Updated At
+             * @default null
+             */
+            updated_at: string | null;
+            /**
+             * Started At
+             * @default null
+             */
+            started_at: string | null;
+            /**
+             * Completed At
+             * @default null
+             */
+            completed_at: string | null;
+            /**
+             * Message
+             * @default null
+             */
+            message: string | null;
+        };
+        /**
+         * ExportField
+         * @description Pydantic model for ExportField API responses.
+         */
+        ExportField: {
+            /** Export Id */
+            export_id: string;
+            /** Field Id */
+            field_id: string;
+        };
+        /**
+         * ExportableField
+         * @description Pydantic model for ExportableField API responses.
+         */
+        ExportableField: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /**
+             * Description
+             * @default null
+             */
+            description: string | null;
+            /** Path */
+            path: string;
+            /**
+             * Is Default
+             * @default false
+             */
+            is_default: boolean;
+        };
         /** LegacyAdTag */
         LegacyAdTag: {
             /** Id */
@@ -3749,6 +4215,16 @@ export interface components {
              * @default null
              */
             config: Record<string, never> | null;
+        };
+        /**
+         * SharedExport
+         * @description Pydantic model for SharedExport API responses.
+         */
+        SharedExport: {
+            /** Export Id */
+            export_id: string;
+            /** User Id */
+            user_id: string;
         };
         /** Tag */
         Tag: {

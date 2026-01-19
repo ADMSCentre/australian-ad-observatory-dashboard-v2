@@ -14,6 +14,11 @@ export class ProjectManager {
 			response?: QueryState;
 		};
 	}>({});
+	exportCandidateId = $state<string | null>(null);
+
+	startExport(cellId: string) {
+		this.exportCandidateId = cellId;
+	}
 
 	get currentUser() {
 		const authenticatedUser = session.users.all.find((u) => u.id === auth.currentUser?.sub);

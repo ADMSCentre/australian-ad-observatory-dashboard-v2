@@ -7,7 +7,8 @@
 		X,
 		Check,
 		LoaderCircle,
-		SaveIcon
+		SaveIcon,
+		Download
 	} from 'lucide-svelte';
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { twMerge } from 'tailwind-merge';
@@ -119,6 +120,11 @@
 					tooltip: 'Shift Cell Down',
 					onclick: () => projectManager.shiftCellDown(cell.id)
 				})}
+				<!-- {@render actionButton({
+					iconComponent: Download,
+					tooltip: 'Create Export',
+					onclick: () => projectManager.startExport(cell.id)
+				})} -->
 				{@render actionButton({
 					iconComponent: Trash,
 					tooltip: 'Delete Cell',

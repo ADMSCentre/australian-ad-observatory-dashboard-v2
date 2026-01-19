@@ -5,15 +5,23 @@
 
 	let {
 		open = $bindable(false),
+		onOpenChange,
 		summary,
 		children,
 		class: className
 	}: {
 		open?: boolean;
+		onOpenChange?: (open: boolean) => void;
 		summary: (open?: boolean) => ReturnType<Snippet>;
 		children: Snippet;
 		class?: string;
 	} = $props();
+
+	$effect(() => {
+		if (onOpenChange) {
+			onOpenChange(open);
+		}
+	});
 </script>
 
 <div class={className}>

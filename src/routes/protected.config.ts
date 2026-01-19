@@ -1,7 +1,8 @@
 import { withBase } from '$lib/utils';
 
 const protectedRoutes: Record<
-	string, {
+	string,
+	{
 		allowedRoles: ('user' | 'admin' | 'guest')[];
 	}
 > = {
@@ -34,10 +35,16 @@ const protectedRoutes: Record<
 	},
 	'/mobile-observations/hidden-ads': {
 		allowedRoles: ['admin']
+	},
+	'/exports': {
+		allowedRoles: ['user', 'admin']
 	}
-}
+};
 
-export const canUserAccessRoute = (path: string, currentUserRole: 'user' | 'admin' | 'guest' = 'guest') => {
+export const canUserAccessRoute = (
+	path: string,
+	currentUserRole: 'user' | 'admin' | 'guest' = 'guest'
+) => {
 	const relativePath = withBase(path).replace(/\/+$/, ''); // Remove trailing slashes
 	const routeConfig = protectedRoutes[relativePath];
 	if (!routeConfig) {
