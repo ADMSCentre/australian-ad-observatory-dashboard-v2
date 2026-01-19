@@ -124,7 +124,7 @@
 
 	const EXPORT_ADS_LIMITS = {
 		withImages: 10000,
-		withoutImages: 100000
+		withoutImages: 50000
 	};
 
 	const isValidExport = $derived.by(() => {

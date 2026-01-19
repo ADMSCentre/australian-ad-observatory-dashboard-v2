@@ -76,8 +76,7 @@
 			title: 'Exports',
 			url: withBase('exports'),
 			icon: Download,
-			visible: false
-			// visible: auth.currentUser?.role === 'user' || auth.currentUser?.role === 'admin'
+			visible: auth.currentUser?.role === 'user' || auth.currentUser?.role === 'admin'
 		},
 		{
 			title: 'Web Observations',
