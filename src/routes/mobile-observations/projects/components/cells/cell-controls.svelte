@@ -120,11 +120,13 @@
 					tooltip: 'Shift Cell Down',
 					onclick: () => projectManager.shiftCellDown(cell.id)
 				})}
-				{@render actionButton({
-					iconComponent: Download,
-					tooltip: 'Create Export',
-					onclick: () => projectManager.startExport(cell.id)
-				})}
+			{/if}
+			{@render actionButton({
+				iconComponent: Download,
+				tooltip: 'Create Export',
+				onclick: () => projectManager.startExport(cell.id)
+			})}
+			{#if projectManager.currentUser.isEditor}
 				{@render actionButton({
 					iconComponent: Trash,
 					tooltip: 'Delete Cell',
