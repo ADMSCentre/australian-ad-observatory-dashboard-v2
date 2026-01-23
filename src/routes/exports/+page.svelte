@@ -33,11 +33,7 @@
 	let expandedExportIds = $state<Set<string>>(new Set());
 
 	onMount(async () => {
-		await Promise.all([
-			exportsManager.fetchExports(),
-			exportsManager.fetchFields(),
-			session.users.fetch()
-		]);
+		await Promise.all([exportsManager.fetchExports(), session.users.fetch()]);
 	});
 
 	const POLL_INTERVAL = 10000; // 10 seconds

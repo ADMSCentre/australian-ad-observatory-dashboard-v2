@@ -17,6 +17,7 @@
 		selected = $bindable([]),
 		searchable = false,
 		clearable = false,
+		disabled = false,
 		allowPasting = false,
 		placeholder = 'Select options...',
 		contentClass = '',
@@ -138,6 +139,7 @@
 				inputRef.focus();
 			});
 		}}
+		{disabled}
 	>
 		<div class="flex items-center justify-between gap-2 rounded-md border border-border p-2">
 			<div class="flex w-full flex-col gap-2">
@@ -151,6 +153,7 @@
 								option={option || { value, label: value }}
 								onRemove={removeSelection}
 								class={twMerge(!option && 'bg-red-500/10 text-destructive')}
+								{disabled}
 							/>
 						{/each}
 					</div>
@@ -161,7 +164,7 @@
 					</div>
 				{/if}
 				<div class="flex w-fit items-center gap-2">
-					{#if clearable && selected.length > 0}
+					{#if clearable && selected.length > 0 && !disabled}
 						<div class="flex w-full items-center gap-2">
 							<Button
 								variant="ghost"
@@ -206,7 +209,7 @@
 						<ClipboardCopyIcon class="size-4" />
 						Copy
 					</Button>
-					{#if allowPasting}
+					{#if allowPasting && !disabled}
 						<Button
 							variant="ghost"
 							class="size-fit px-1 py-0.5 text-xs font-medium"
@@ -236,7 +239,9 @@
 					{/if}
 				</div>
 			</div>
-			<ChevronDownIcon size={20} />
+			{#if !disabled}
+				<ChevronDownIcon size={20} />
+			{/if}
 		</div>
 		<Popover.Content
 			onOpenAutoFocus={(e) => e.preventDefault()}
@@ -310,7 +315,7 @@
 								<span>{option.label}</span>
 							</Command.Item>
 						{/each}
-						{#if clearable && selected.length > 0}
+						{#if clearable && selected.length > 0 && !disabled}
 							<Command.Item
 								value="clear"
 								onSelect={() => {

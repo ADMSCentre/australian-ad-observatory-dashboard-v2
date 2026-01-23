@@ -16,12 +16,14 @@
 		open = $bindable(false),
 		query = DEFAULT_QUERY,
 		isQueryEditable = true,
-		onOpenChange
+		onOpenChange,
+		onSuccess
 	}: {
 		open?: boolean;
 		query?: Query;
 		isQueryEditable?: boolean;
 		onOpenChange?: (isOpen: boolean) => void;
+		onSuccess?: () => void;
 	} = $props();
 
 	let queryState = $state<Query>({ ...query });
@@ -110,7 +112,9 @@
 			if (result.success) {
 				pushToast({ type: 'success', message: 'Export job created successfully', timeout: 3000 });
 				resetForm();
+				onSuccess?.();
 				open = false;
+				handleClose();
 			} else {
 				pushToast({
 					type: 'error',

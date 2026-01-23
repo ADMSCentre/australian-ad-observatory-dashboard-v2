@@ -102,26 +102,12 @@
 			};
 		}
 	}
-
-	const includeObservers: string[] = $derived.by(() => {
-		const queryObj = query;
-		if (!queryObj) return [] as string[];
-		const { method } = queryObj;
-		if (method !== 'OBSERVER_ID_CONTAINS') return [] as string[];
-		return session.observers.all.filter((observer) => {
-			if (!queryObj || !queryObj.args || queryObj.args.length === 0) return false;
-			return queryObj.args.some((arg) => {
-				if (typeof arg === 'string') {
-					return observer.includes(arg);
-				}
-				return false;
-			});
-		});
-	});
 </script>
 
 <div class="flex flex-col gap-4">
-	<div class="flex max-w-full flex-col gap-2 overflow-x-auto overflow-y-hidden rounded border p-4">
+	<div
+		class="flex max-w-full flex-col gap-2 overflow-x-auto overflow-y-hidden rounded-md border-l-4 border-purple-500 bg-purple-500/[0.025] p-4"
+	>
 		{#if editorModeSelector.currentMode.type === 'multi-select'}
 			<div class="flex flex-col gap-2">
 				<p class="text-sm font-light text-zinc-500 dark:text-zinc-400">
@@ -163,7 +149,7 @@
 
 		<!-- Query controls -->
 		<div class="flex w-full items-end justify-between gap-2">
-			<Button onclick={runQuery} disabled={queryResponse?.loading || !editable || !isValidQuery}>
+			<Button onclick={runQuery} disabled={queryResponse?.loading || !isValidQuery}>
 				{#if queryResponse?.loading}
 					<LoaderIcon class="mr-2 size-4 animate-spin" />
 					Running...

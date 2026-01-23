@@ -5,11 +5,13 @@
 	const {
 		option,
 		onRemove,
-		class: className = ''
+		class: className = '',
+		disabled = false
 	}: {
 		option: { value: any; label: string };
 		onRemove?: (value: any) => void;
 		class?: string;
+		disabled?: boolean;
 	} = $props();
 </script>
 
@@ -17,13 +19,15 @@
 	class={twMerge('flex items-center gap-0.5 rounded-md bg-muted px-1 py-0.5 text-xs', className)}
 >
 	<span class="select-none">{option.label || 'Unknown'}</span>
-	<button
-		class="text-muted-foreground/50 hover:text-muted-foreground"
-		onclick={(e) => {
-			e.stopPropagation();
-			onRemove?.(option.value);
-		}}
-	>
-		<XIcon class="size-3" />
-	</button>
+	{#if !disabled}
+		<button
+			class="text-muted-foreground/50 hover:text-muted-foreground"
+			onclick={(e) => {
+				e.stopPropagation();
+				onRemove?.(option.value);
+			}}
+		>
+			<XIcon class="size-3" />
+		</button>
+	{/if}
 </div>

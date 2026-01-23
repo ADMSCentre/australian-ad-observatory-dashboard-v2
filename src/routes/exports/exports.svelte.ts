@@ -187,3 +187,4 @@ class ExportsManager {
 }
 
 export const exportsManager = new ExportsManager();
+exportsManager.fetchFields();
