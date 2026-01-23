@@ -40,6 +40,30 @@
 		]);
 	});
 
+	const POLL_INTERVAL = 10000; // 10 seconds
+	let pollTimer = $state<ReturnType<typeof setInterval> | null>(null);
+
+	// Polling mechanism to refresh exports with 'pending' or 'processing' status
+	onMount(() => {
+		pollTimer = setInterval(async () => {
+			const processingItems = exportsManager.sorted.filter(
+				(exportItem) => exportItem.status === 'pending' || exportItem.status === 'processing'
+			);
+			if (processingItems.length > 0) {
+				await exportsManager.refreshExports({
+					targets: processingItems.map((item) => item.export_id)
+				});
+			}
+		}, POLL_INTERVAL);
+
+		return () => {
+			if (pollTimer !== null) {
+				clearInterval(pollTimer);
+				pollTimer = null;
+			}
+		};
+	});
+
 	const toggleExpanded = (exportId: string) => {
 		const newSet = new Set(expandedExportIds);
 		if (newSet.has(exportId)) {
@@ -70,7 +94,7 @@
 	const getStatusColor = (status: string) => {
 		switch (status) {
 			case 'pending':
-				return 'text-muted-foreground';
+				return 'text-yellow-500';
 			case 'processing':
 				return 'text-blue-500';
 			case 'completed':
@@ -215,6 +239,10 @@
 								{#if exportItem.status === 'failed' && exportItem.message}
 									<p class="max-w-xs">{exportItem.message}</p>
 									<p class="text-xs text-muted-foreground">Please contact support for help.</p>
+								{:else if exportItem.status === 'pending'}
+									<p class="capitalize">Your export is being queued for processing.</p>
+								{:else if exportItem.status === 'processing'}
+									<p class="capitalize">Your export is currently being processed.</p>
 								{:else}
 									<p class="capitalize">{exportItem.status.replace('_', ' ')}</p>
 								{/if}
@@ -251,7 +279,7 @@
 								</Button>
 							{/if}
 
-							{#if exportItem.status === 'failed' || exportItem.status === 'expired'}
+							{#if exportItem.status === 'failed' || (exportItem.status === 'expired' && isCreator(exportItem))}
 								<Button
 									variant="ghost"
 									size="sm"

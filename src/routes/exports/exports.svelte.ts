@@ -36,6 +36,32 @@ class ExportsManager {
 		}
 	}
 
+	async refreshExports({
+		targets
+	}: {
+		targets: string[]; // List of export IDs to refresh
+	}) {
+		if (!auth.token) return;
+		for (const exportId of targets) {
+			const { data, error } = await client.GET('/exports/{export_id}', {
+				headers: this.authHeader,
+				params: { path: { export_id: exportId } }
+			});
+			if (error) {
+				console.error(`Failed to refresh export ${exportId}:`, error);
+				continue;
+			}
+			const updatedExport = data as unknown as Export;
+			// Update the export in the local state
+			const index = this.exports.findIndex((e) => e.export_id === exportId);
+			if (index !== -1) {
+				this.exports[index] = updatedExport;
+			} else {
+				this.exports.push(updatedExport);
+			}
+		}
+	}
+
 	async fetchFields() {
 		if (!auth.token) return;
 		this.fieldsLoading = true;
@@ -114,7 +140,7 @@ class ExportsManager {
 			return { success: false, error: 'Failed to share export' };
 		}
 
-		await this.fetchExports();
+		await this.refreshExports({ targets: [exportId] });
 		return { success: true };
 	}
 
@@ -134,7 +160,7 @@ class ExportsManager {
 			return { success: false, error: 'Failed to unshare export' };
 		}
 
-		await this.fetchExports();
+		await this.refreshExports({ targets: [exportId] });
 		return { success: true };
 	}
 
