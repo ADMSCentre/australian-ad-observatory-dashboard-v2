@@ -3,12 +3,14 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Checkbox from '$lib/components/ui/checkbox';
 	import Label from '$lib/components/ui/label/label.svelte';
+	import { Input } from '$lib/components/ui/input';
 	import { exportsManager } from '../exports.svelte';
 	import { DEFAULT_QUERY, type Query } from '../../mobile-observations/query/query';
 	import { pushToast } from '$lib/components/toasts/toasts.svelte';
-	import { AlertTriangle, LoaderCircle, ImageIcon, InfoIcon } from 'lucide-svelte';
+	import { AlertTriangle, LoaderCircle, ImageIcon, InfoIcon, Search, CircleX } from 'lucide-svelte';
 	import * as Alert from '$lib/components/ui/alert';
 	import QueryPreview from './query-preview.svelte';
+	import { onMount } from 'svelte';
 
 	let {
 		open = $bindable(false),
@@ -26,7 +28,20 @@
 	let includeImages = $state(false);
 	let selectedFields = $state<string[]>([]);
 	let submitting = $state(false);
-	let previewAdsCount = $state(0);
+	let previewAdsCount = $state<number | null>(null);
+
+	// Search/filter for fields
+	let fieldQuery = $state('');
+	const filteredFields = $derived.by(() => {
+		const q = (fieldQuery || '').trim().toLowerCase();
+		if (!q) return exportsManager.fields;
+		return exportsManager.fields.filter(
+			(f) =>
+				(f.name && f.name.toLowerCase().includes(q)) ||
+				(f.description && f.description.toLowerCase().includes(q)) ||
+				(f.path && f.path.toLowerCase().includes(q))
+		);
+	});
 
 	// Check if query is valid (has a method set and has some args)
 	const isQueryValid = $derived(
@@ -34,7 +49,7 @@
 	);
 
 	// Select default fields initially
-	$effect(() => {
+	onMount(() => {
 		if (exportsManager.fields.length > 0 && selectedFields.length === 0) {
 			selectedFields = exportsManager.fields.filter((f) => f.is_default).map((f) => f.path);
 		}
@@ -72,8 +87,10 @@
 		}
 
 		// Check limits
-		const limit = includeImages ? EXPORT_ADS_LIMITS.withImages : EXPORT_ADS_LIMITS.withoutImages;
-		if (previewAdsCount > limit) {
+		const limit = includeImages
+			? EXPORT_ADS_LIMITS.withImages
+			: EXPORT_ADS_LIMITS.withoutImages.hardLimit;
+		if (previewAdsCount && previewAdsCount > limit) {
 			pushToast({
 				type: 'error',
 				message: `Query exceeds the ${limit} ads limit. Please refine your query.`,
@@ -124,15 +141,22 @@
 
 	const EXPORT_ADS_LIMITS = {
 		withImages: 10000,
-		withoutImages: 50000
+		withoutImages: {
+			softLimit: 50000,
+			hardLimit: 300000
+		}
 	};
 
 	const isValidExport = $derived.by(() => {
+		if (previewAdsCount === null) return false;
 		return selectedFields.length > 0 && previewAdsCount > 0 && !isLimitExceeded;
 	});
 
 	const isLimitExceeded = $derived.by(() => {
-		const limit = includeImages ? EXPORT_ADS_LIMITS.withImages : EXPORT_ADS_LIMITS.withoutImages;
+		if (previewAdsCount === null) return false;
+		const limit = includeImages
+			? EXPORT_ADS_LIMITS.withImages
+			: EXPORT_ADS_LIMITS.withoutImages.hardLimit;
 		return previewAdsCount > limit;
 	});
 </script>
@@ -170,8 +194,8 @@
 				</p>
 				<QueryPreview
 					bind:query={queryState}
-					onResultsChange={(count) => {
-						previewAdsCount = count;
+					onResultsChange={(_, total) => {
+						previewAdsCount = total ?? null;
 					}}
 					editable={isQueryEditable}
 				/>
@@ -187,36 +211,64 @@
 						<Button variant="ghost" size="sm" onclick={clearFields}>Clear</Button>
 					</div>
 				</div>
-				<p class="text-sm text-muted-foreground">
-					Select which fields to include in the export. Default fields are pre-selected.
-				</p>
+				<div class="flex items-center justify-between">
+					<p class="text-sm text-muted-foreground">
+						Select which fields to include in the export. {selectedFields.length === 0
+							? 'No fields selected.'
+							: `${selectedFields.length} currently selected.`}
+					</p>
+					<div class="flex items-center gap-2">
+						<div class="relative w-64">
+							<Input placeholder="Search fields..." bind:value={fieldQuery} class="pl-8 pr-8" />
+							<Search
+								class="pointer-events-none absolute left-2 top-2.5 size-4 text-muted-foreground"
+							/>
+							{#if fieldQuery}
+								<button
+									type="button"
+									onclick={() => (fieldQuery = '')}
+									class="absolute right-2 top-2.5 text-muted-foreground hover:text-foreground"
+								>
+									<CircleX class="size-4" />
+								</button>
+							{/if}
+						</div>
+						<p class="self-center text-sm text-muted-foreground">
+							{filteredFields.length} / {exportsManager.fields.length}
+						</p>
+					</div>
+				</div>
 
 				{#if exportsManager.fieldsLoading}
 					<div class="flex items-center gap-2 py-4">
 						<LoaderCircle class="size-4 animate-spin" />
 						<span class="text-sm text-muted-foreground">Loading fields...</span>
 					</div>
+				{:else if filteredFields.length === 0}
+					<div class="py-4 text-sm text-muted-foreground">No fields match your search.</div>
 				{:else}
-					<div class="grid max-h-60 grid-cols-2 gap-2 overflow-y-auto rounded-lg border p-4">
-						{#each exportsManager.fields as field (field.id)}
-							<div class="flex items-start gap-2">
-								<Checkbox.Root
-									checked={selectedFields.includes(field.path)}
-									onCheckedChange={() => toggleField(field.path)}
-									id={`field-${field.id}`}
-									class="mt-0.5"
-								/>
-								<div class="flex flex-col">
-									<Label for={`field-${field.id}`} class="cursor-pointer text-sm font-medium">
-										{field.name}
-										{#if field.is_default}
-											<span class="ml-1 text-xs text-muted-foreground">(default)</span>
-										{/if}
-									</Label>
-									<span class="text-xs text-muted-foreground">{field.description}</span>
+					<div class="h-60 overflow-y-auto rounded-lg border p-4">
+						<div class="grid grid-cols-2 gap-4">
+							{#each filteredFields as field (field.id)}
+								<div class="flex items-start gap-2">
+									<Checkbox.Root
+										checked={selectedFields.includes(field.path)}
+										onCheckedChange={() => toggleField(field.path)}
+										id={`field-${field.id}`}
+										class="mt-0.5"
+									/>
+									<div class="flex flex-col">
+										<Label for={`field-${field.id}`} class="cursor-pointer text-sm font-medium">
+											{field.name}
+											{#if field.is_default}
+												<span class="ml-1 text-xs text-muted-foreground">(default)</span>
+											{/if}
+										</Label>
+										<span class="text-xs text-muted-foreground">{field.description}</span>
+									</div>
 								</div>
-							</div>
-						{/each}
+							{/each}
+						</div>
 					</div>
 				{/if}
 			</div>
@@ -248,16 +300,32 @@
 					</Alert.Root>
 				{/if}
 
-				{#if previewAdsCount > (includeImages ? EXPORT_ADS_LIMITS.withImages : EXPORT_ADS_LIMITS.withoutImages)}
+				{#if previewAdsCount && previewAdsCount > (includeImages ? EXPORT_ADS_LIMITS.withImages : EXPORT_ADS_LIMITS.withoutImages.hardLimit)}
 					<Alert.Root variant="default" class="border-red-500 bg-red-50 dark:bg-red-950">
 						<AlertTriangle class="size-4 text-red-600" />
 						<Alert.Title class="text-red-800 dark:text-red-200">Query Exceeds Limit</Alert.Title>
 						<Alert.Description class="text-red-700 dark:text-red-300">
 							<span class="contents">
 								Your query returned {previewAdsCount} ads, which exceeds the limit of
-								{includeImages ? EXPORT_ADS_LIMITS.withImages : EXPORT_ADS_LIMITS.withoutImages}
-								ads {includeImages ? 'with images' : ''}. Please refine your query to reduce the
+								{includeImages
+									? EXPORT_ADS_LIMITS.withImages
+									: EXPORT_ADS_LIMITS.withoutImages.hardLimit}
+								ads{includeImages ? ' with images' : ''}. Please refine your query to reduce the
 								number of results.
+							</span>
+						</Alert.Description>
+					</Alert.Root>
+				{:else if previewAdsCount && previewAdsCount > EXPORT_ADS_LIMITS.withoutImages.softLimit}
+					<Alert.Root variant="default" class="border-yellow-500 bg-yellow-50 dark:bg-yellow-950">
+						<AlertTriangle class="size-4 text-yellow-600" />
+						<Alert.Title class="text-yellow-800 dark:text-yellow-200">
+							Large Export Warning
+						</Alert.Title>
+						<Alert.Description class="text-yellow-700 dark:text-yellow-300">
+							<span class="contents">
+								Your query returned {previewAdsCount} ads, which is a large export. Please be aware that
+								generating and downloading large exports may take considerable time, and your system
+								may face performance issues when extracting the data.
 							</span>
 						</Alert.Description>
 					</Alert.Root>

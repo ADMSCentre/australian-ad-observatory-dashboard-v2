@@ -21,7 +21,7 @@
 	type QueryPreviewProps = {
 		query: Query;
 		editable?: boolean;
-		onResultsChange?: (adCount: number) => void;
+		onResultsChange?: (loadedAdCount: number, totalAdCount?: number) => void;
 	};
 
 	let { query = $bindable(), editable = true, onResultsChange }: QueryPreviewProps = $props();
@@ -45,6 +45,7 @@
 	});
 
 	const queryResults = $derived(queryResponse?.response?.paths ?? []);
+	const totalResults = $derived(queryResponse?.response?.total);
 
 	const ads = $derived.by(() => {
 		if (queryResults) {
@@ -56,7 +57,7 @@
 
 	$effect(() => {
 		if (onResultsChange) {
-			onResultsChange(ads.length);
+			onResultsChange(ads.length, totalResults);
 		}
 	});
 
