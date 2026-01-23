@@ -17,7 +17,7 @@
 		onClose
 	}: {
 		open: boolean;
-		exportItem: Export;
+		exportItem: Export | null;
 		onClose: () => void;
 	} = $props();
 
@@ -26,6 +26,7 @@
 
 	// Get users that are not already shared with
 	const availableUsers = $derived.by(() => {
+		if (!currentExport) return [];
 		return session.users.all.filter((user) => {
 			// Exclude the creator
 			if (user.id === currentExport.creator_id) return false;
@@ -44,6 +45,7 @@
 
 	const handleAddUser = async () => {
 		if (!selectedUserId) return;
+		if (!exportItem) return;
 
 		loading = true;
 		try {
@@ -60,6 +62,7 @@
 	};
 
 	const handleRemoveUser = async (userId: string) => {
+		if (!exportItem) return;
 		loading = true;
 		try {
 			const result = await exportsManager.unshareExport(exportItem.export_id, [userId]);
@@ -84,6 +87,7 @@
 
 	// Get the current export data (may have been updated)
 	const currentExport = $derived.by(() => {
+		if (!exportItem) return null;
 		return exportsManager.getExportById(exportItem.export_id) || exportItem;
 	});
 </script>
@@ -125,14 +129,14 @@
 			<!-- Shared with section -->
 			<div class="flex flex-col gap-2">
 				<span class="text-sm font-medium">
-					Shared With ({currentExport.shared_with.length})
+					Shared With ({currentExport?.shared_with.length})
 				</span>
 
-				{#if currentExport.shared_with.length === 0}
+				{#if currentExport?.shared_with.length === 0}
 					<p class="text-sm text-muted-foreground">This export is not shared with anyone yet.</p>
 				{:else}
 					<div class="flex flex-wrap gap-2">
-						{#each currentExport.shared_with as userId (userId)}
+						{#each currentExport?.shared_with as userId (userId)}
 							<Badge variant="secondary" class="flex items-center gap-1 pr-1">
 								<HoverCard.Root>
 									<HoverCard.Trigger class="no-underline">
