@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Input from '$lib/components/ui/input/input.svelte';
-	import { untrack } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import type { Query } from '../query';
 	import { getLocalTimeZone } from '@internationalized/date';
 
@@ -48,23 +48,33 @@
 		query.args[0] = timestamp.toString();
 		debouncedOnChange?.(query);
 	};
+
+	let datePicker = $state<HTMLInputElement | null>(null);
 </script>
 
 <input
 	type="datetime-local"
 	class="border-b bg-transparent text-sm outline-none"
+	bind:this={datePicker}
 	step="60"
 	bind:value
 	{onchange}
 	{disabled}
+	onclick={() => {
+		datePicker?.showPicker();
+	}}
 />
 
 <style>
 	:global(::-webkit-calendar-picker-indicator) {
-		margin-left: -1.25rem;
+		display: none;
+		-webkit-appearance: none;
 	}
 	:global(.dark) {
 		:global(::-webkit-calendar-picker-indicator) {
+			color-scheme: dark;
+		}
+		:global(input[type='datetime-local']) {
 			color-scheme: dark;
 		}
 	}
