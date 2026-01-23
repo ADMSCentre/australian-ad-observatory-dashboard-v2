@@ -9,6 +9,7 @@
 	import { pushToast } from '$lib/components/toasts/toasts.svelte';
 	import type { Export } from '../types';
 	import { X, UserPlus, LoaderCircle } from 'lucide-svelte';
+	import * as HoverCard from '$lib/components/ui/hover-card';
 
 	let {
 		open = $bindable(false),
@@ -24,12 +25,12 @@
 	let loading = $state(false);
 
 	// Get users that are not already shared with
-	const availableUsers = $derived(() => {
+	const availableUsers = $derived.by(() => {
 		return session.users.all.filter((user) => {
 			// Exclude the creator
-			if (user.id === exportItem.creator_id) return false;
+			if (user.id === currentExport.creator_id) return false;
 			// Exclude already shared users
-			if (exportItem.shared_with.includes(user.id)) return false;
+			if (currentExport.shared_with.includes(user.id)) return false;
 			// Exclude current user
 			if (user.id === auth.currentUser?.sub) return false;
 			return true;
@@ -82,7 +83,7 @@
 	};
 
 	// Get the current export data (may have been updated)
-	const currentExport = $derived(() => {
+	const currentExport = $derived.by(() => {
 		return exportsManager.getExportById(exportItem.export_id) || exportItem;
 	});
 </script>
@@ -103,20 +104,19 @@
 				<div class="flex gap-2">
 					<Dropdown
 						bind:selected={selectedUserId}
-						options={availableUsers().map((user) => ({
+						options={availableUsers.map((user) => ({
 							label: `${user.fullname || user.username} (${user.username})`,
 							value: user.id
 						}))}
+						onSelected={handleAddUser}
 						placeholder="Select a user..."
 						searchable
 						triggerClass="flex-1"
 						disabled={loading}
 					/>
-					<Button size="icon" onclick={handleAddUser} disabled={!selectedUserId || loading}>
+					<Button size="icon" onclick={handleAddUser} variant="ghost" disabled>
 						{#if loading}
 							<LoaderCircle class="size-4 animate-spin" />
-						{:else}
-							<UserPlus class="size-4" />
 						{/if}
 					</Button>
 				</div>
@@ -125,16 +125,28 @@
 			<!-- Shared with section -->
 			<div class="flex flex-col gap-2">
 				<span class="text-sm font-medium">
-					Shared With ({currentExport().shared_with.length})
+					Shared With ({currentExport.shared_with.length})
 				</span>
 
-				{#if currentExport().shared_with.length === 0}
+				{#if currentExport.shared_with.length === 0}
 					<p class="text-sm text-muted-foreground">This export is not shared with anyone yet.</p>
 				{:else}
 					<div class="flex flex-wrap gap-2">
-						{#each currentExport().shared_with as userId (userId)}
+						{#each currentExport.shared_with as userId (userId)}
 							<Badge variant="secondary" class="flex items-center gap-1 pr-1">
-								<span>{getUserDisplayName(userId)}</span>
+								<HoverCard.Root>
+									<HoverCard.Trigger class="no-underline">
+										<span class="font-medium">{getUserDisplayName(userId)}</span>
+									</HoverCard.Trigger>
+									<HoverCard.Content>
+										<div class="flex flex-col p-2">
+											<span class="font-medium">{getUserDisplayName(userId)}</span>
+											<span class="text-sm text-muted-foreground">
+												{session.users.all.find((u) => u.id === userId)?.username || 'Unknown'}
+											</span>
+										</div>
+									</HoverCard.Content>
+								</HoverCard.Root>
 								<button
 									class="ml-1 rounded-full p-0.5 hover:bg-muted"
 									onclick={() => handleRemoveUser(userId)}
