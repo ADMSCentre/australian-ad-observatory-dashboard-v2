@@ -286,7 +286,7 @@
 		if (uniqueClassificationLabels.size === 0) return;
 		untrack(() => {
 			const classifications = Array.from(uniqueClassificationLabels);
-			if (selectedClassifications.length === 0 && classifications.length > 0) {
+			if (selectedClassifications.length === 0) {
 				selectedClassifications = [...classifications, 'Unclassified'];
 			}
 		});
