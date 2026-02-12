@@ -3005,6 +3005,7 @@ export interface paths {
          * None
          * @description security:
          *     - bearerAuth: []
+         *     - apiKeyAuth: []
          */
         get: {
             parameters: {
@@ -3037,6 +3038,7 @@ export interface paths {
          * None
          * @description security:
          *     - bearerAuth: []
+         *     - apiKeyAuth: []
          */
         put: {
             parameters: {
@@ -3070,6 +3072,7 @@ export interface paths {
          * None
          * @description security:
          *     - bearerAuth: []
+         *     - apiKeyAuth: []
          */
         delete: {
             parameters: {
@@ -3835,6 +3838,436 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api-keys": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List API keys for the authenticated user (or any user for admins) [allows - user, admin]
+         * @description List all API keys. Regular users see only their own keys.
+         *     Admins can view any user's keys by providing a user_id query parameter.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description User ID to list keys for (admin only) */
+                    user_id?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description List of API keys */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            api_keys?: {
+                                id?: string;
+                                user_id?: string;
+                                title?: string;
+                                description?: string;
+                                /** @description Last 6 characters of the key */
+                                suffix?: string;
+                                created_at?: number;
+                                last_used_at?: number;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Not authenticated */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Insufficient permissions */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Create a new API key for the authenticated user [allows - user, admin]
+         * @description Create a new API key. The full key is only shown once in the response.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * @description A descriptive title for the API key
+                         * @example Data Export Script
+                         */
+                        title: string;
+                        /**
+                         * @description Optional description of the key's purpose
+                         * @example API key for automated data export pipeline
+                         */
+                        description?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description API key created successfully */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example true */
+                            success?: boolean;
+                            api_key?: {
+                                id?: string;
+                                user_id?: string;
+                                title?: string;
+                                description?: string;
+                                /** @description Last 6 characters of the key */
+                                suffix?: string;
+                                /** @description The full API key (only shown once) */
+                                key?: string;
+                                created_at?: number;
+                            };
+                            /** @example Store this key securely. It will not be shown again. */
+                            warning?: string;
+                        };
+                    };
+                };
+                /** @description Invalid request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description Not authenticated */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Insufficient permissions */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api-keys/{key_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get details of a specific API key [allows - user, admin]
+         * @description Get the details of an API key. Regular users can only view their own keys.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description API key ID */
+                    key_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description API key details */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id?: string;
+                            user_id?: string;
+                            title?: string;
+                            description?: string;
+                            suffix?: string;
+                            created_at?: number;
+                            last_used_at?: number;
+                        };
+                    };
+                };
+                /** @description Not authenticated */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Key belongs to another user */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Key not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Delete (revoke) an API key [allows - user, admin]
+         * @description Delete an API key, immediately revoking its access. Regular users can only delete their own keys.
+         *
+         *     This endpoint requires the authenticated user to have one of the following roles: **user, admin**.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description API key ID to delete */
+                    key_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description API key deleted successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example true */
+                            success?: boolean;
+                            /** @example API key deleted successfully */
+                            comment?: string;
+                        };
+                    };
+                };
+                /** @description Not authenticated */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Key belongs to another user */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Key not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ccl/entities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a paginated list of advertising entities from CCL enrichments.
+         * @description Supports filtering by observation_id, observer_id, platform and entity type,
+         *     and by free-text search on entity name/data. Uses
+         *     cursor-based pagination with the entity ID as the cursor.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Number of items per page (default 100, max 1000) */
+                    limit?: number;
+                    /** @description Entity ID to start after (for cursor-based pagination) */
+                    cursor?: string;
+                    observation_id?: string;
+                    observer_id?: string;
+                    platform?: string;
+                    /** @description Entity type filter */
+                    type?: string;
+                    /** @description Text search on entity name or JSONB data */
+                    search?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A paginated list of advertising entities */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            entities?: Record<string, never>[];
+                            pagination?: {
+                                /** @description Cursor for the next page (null if no more results) */
+                                next_cursor?: string | null;
+                                /** @description Total number of results matching the filters */
+                                total?: number;
+                            };
+                        };
+                    };
+                };
+                /** @description Internal server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            comment?: string;
+                            error?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ccl/snapshots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve a paginated list of advertisement snapshots from CCL enrichments.
+         * @description Supports filtering by observation_id, observer_id and platform,
+         *     and by free-text search on snapshot data. Uses
+         *     cursor-based pagination with the snapshot ID as the cursor.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Number of items per page (default 100, max 1000) */
+                    limit?: number;
+                    /** @description Snapshot ID to start after (for cursor-based pagination) */
+                    cursor?: string;
+                    observation_id?: string;
+                    observer_id?: string;
+                    platform?: string;
+                    /** @description Text search on JSONB data */
+                    search?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A paginated list of advertisement snapshots */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            success?: boolean;
+                            snapshots?: Record<string, never>[];
+                            pagination?: {
+                                /** @description Cursor for the next page (null if no more results) */
+                                next_cursor?: string | null;
+                                /** @description Total number of results matching the filters */
+                                total?: number;
+                            };
+                        };
+                    };
+                };
+                /** @description Internal server error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @example false */
+                            success?: boolean;
+                            comment?: string;
+                            error?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reflect": {
         parameters: {
             query?: never;
@@ -4010,6 +4443,64 @@ export interface components {
             observation_id: string;
             /** Tag Id */
             tag_id: string;
+        };
+        /** ApiKey */
+        ApiKey: {
+            /** Id */
+            id: string;
+            /** User Id */
+            user_id: string;
+            /** Title */
+            title: string;
+            /**
+             * Description
+             * @default null
+             */
+            description: string | null;
+            /** Hashed Key */
+            hashed_key: string;
+            /** Suffix */
+            suffix: string;
+            /** Created At */
+            created_at: number;
+            /**
+             * Last Used At
+             * @default null
+             */
+            last_used_at: number | null;
+        };
+        /** ApiKeyCreate */
+        ApiKeyCreate: {
+            /** Title */
+            title: string;
+            /**
+             * Description
+             * @default null
+             */
+            description: string | null;
+        };
+        /**
+         * ApiKeyWithSecret
+         * @description Response model for API key creation that includes the full key
+         */
+        ApiKeyWithSecret: {
+            /** Id */
+            id: string;
+            /** User Id */
+            user_id: string;
+            /** Title */
+            title: string;
+            /**
+             * Description
+             * @default null
+             */
+            description: string | null;
+            /** Suffix */
+            suffix: string;
+            /** Key */
+            key: string;
+            /** Created At */
+            created_at: number;
         };
         /** BaseCell */
         BaseCell: {
