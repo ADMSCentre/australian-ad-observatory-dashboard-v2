@@ -16,6 +16,7 @@
 	let snapshots = $state<CclSnapshot[]>([]);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
+	let isShowingRelatedOnly = $state(true);
 
 	onMount(async () => {
 		await loadSnapshots();
@@ -92,12 +93,17 @@
 		if (!snapshots) return [];
 		return snapshots
 			.filter((snapshot) => {
-				// Example filter: only include active snapshots
-				return snapshot.data.is_related_to_query_term;
+				if (isShowingRelatedOnly) {
+					return snapshot.data.is_related_to_query_term;
+				}
+				return true;
 			})
 			.sort((a, b) => {
-				// Sort by end date descending
-				return (b.data.end_date || 0) - (a.data.end_date || 0);
+				if (a.data.is_related_to_query_term === b.data.is_related_to_query_term) {
+					return (b.data.end_date || 0) - (a.data.end_date || 0);
+				}
+				// Put related snapshots first
+				return a.data.is_related_to_query_term ? -1 : 1;
 			});
 	});
 </script>
@@ -130,13 +136,23 @@
 	<!-- Snapshots list -->
 	{#if !loading && !error && snapshots.length > 0}
 		<div class="mb-2">
-			<h3 class="text-lg font-semibold">
-				CCL Snapshots
-				<span class="text-sm font-normal text-muted-foreground">
-					({snapshots.length}
-					{snapshots.length === 1 ? 'snapshot' : 'snapshots'})
-				</span>
-			</h3>
+			<div class="flex items-center justify-between">
+				<h3 class="text-lg font-semibold">
+					CCL Snapshots
+					<span class="text-sm font-normal text-muted-foreground">
+						({filteredSnapshots.length}
+						{filteredSnapshots.length === 1 ? 'snapshot' : 'snapshots'})
+					</span>
+				</h3>
+				<label class="flex items-center gap-2 text-sm">
+					<input
+						type="checkbox"
+						bind:checked={isShowingRelatedOnly}
+						class="rounded border border-input"
+					/>
+					Show related only
+				</label>
+			</div>
 			<p class="text-sm text-muted-foreground">
 				Commercial Content Library enrichment data for this observation
 			</p>
