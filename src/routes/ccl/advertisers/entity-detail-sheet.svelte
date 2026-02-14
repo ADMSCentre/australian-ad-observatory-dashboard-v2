@@ -5,12 +5,12 @@
 	import type { CclEntity } from '$lib/types/ccl';
 
 	interface Props {
-		entity: CclEntity;
+		entity: CclEntity | null;
 		onClose: () => void;
 	}
 
 	const { entity, onClose }: Props = $props();
-	const data = $derived(entity.data);
+	const data = $derived(entity?.data);
 </script>
 
 <Sheet.Root
@@ -21,9 +21,9 @@
 >
 	<Sheet.Content class="min-w-[100vw] overflow-y-scroll sm:min-w-[40vw] sm:max-w-2xl">
 		<Sheet.Header>
-			<Sheet.Title>{entity.name}</Sheet.Title>
+			<Sheet.Title>{entity?.name}</Sheet.Title>
 			<Sheet.Description>
-				{data.category || 'Unknown category'} &middot; {entity.type}
+				{data?.category || 'Unknown category'} &middot; {entity?.type}
 			</Sheet.Description>
 		</Sheet.Header>
 
@@ -37,10 +37,10 @@
 			<!-- Overview Tab -->
 			<Tabs.Content value="overview">
 				<div class="space-y-4 py-4">
-					{#if data.image_uri}
+					{#if data?.image_uri}
 						<img
-							src={data.image_uri}
-							alt={data.name}
+							src={data?.image_uri}
+							alt={data?.name}
 							class="h-48 w-full rounded-md object-cover"
 							onerror={(e) => {
 								(e.target as HTMLImageElement).style.display = 'none';
@@ -51,39 +51,39 @@
 					<div class="space-y-3">
 						<div>
 							<p class="text-xs font-semibold uppercase text-muted-foreground">Name</p>
-							<p class="font-medium">{data.name}</p>
+							<p class="font-medium">{data?.name}</p>
 						</div>
 
 						<div>
 							<p class="text-xs font-semibold uppercase text-muted-foreground">Category</p>
-							<p class="font-medium">{data.category || 'N/A'}</p>
+							<p class="font-medium">{data?.category || 'N/A'}</p>
 						</div>
 
 						<div class="grid grid-cols-2 gap-4">
 							<div>
 								<p class="text-xs font-semibold uppercase text-muted-foreground">Likes</p>
-								<p class="font-medium">{data.likes?.toLocaleString() ?? 0}</p>
+								<p class="font-medium">{data?.likes?.toLocaleString() ?? 0}</p>
 							</div>
 							<div>
 								<p class="text-xs font-semibold uppercase text-muted-foreground">Country</p>
-								<p class="font-medium">{data.country || 'Unknown'}</p>
+								<p class="font-medium">{data?.country || 'Unknown'}</p>
 							</div>
 						</div>
 
-						{#if data.ig_username || data.ig_followers}
+						{#if data?.ig_username || data?.ig_followers}
 							<div class="grid grid-cols-2 gap-4">
-								{#if data.ig_username}
+								{#if data?.ig_username}
 									<div>
 										<p class="text-xs font-semibold uppercase text-muted-foreground">IG Username</p>
-										<p class="font-medium">@{data.ig_username}</p>
+										<p class="font-medium">@{data?.ig_username}</p>
 									</div>
 								{/if}
-								{#if data.ig_followers}
+								{#if data?.ig_followers}
 									<div>
 										<p class="text-xs font-semibold uppercase text-muted-foreground">
 											IG Followers
 										</p>
-										<p class="font-medium">{data.ig_followers.toLocaleString()}</p>
+										<p class="font-medium">{data?.ig_followers?.toLocaleString()}</p>
 									</div>
 								{/if}
 							</div>
@@ -92,13 +92,13 @@
 						<div class="flex flex-wrap items-center gap-2">
 							<Badge
 								variant="outline"
-								class={data.verification === 'BLUE_VERIFIED'
+								class={data?.verification === 'BLUE_VERIFIED'
 									? 'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-300'
 									: ''}
 							>
-								{data.verification === 'BLUE_VERIFIED' ? 'Verified' : 'Not Verified'}
+								{data?.verification === 'BLUE_VERIFIED' ? 'Verified' : 'Not Verified'}
 							</Badge>
-							{#if data.ig_verification}
+							{#if data?.ig_verification}
 								<Badge
 									variant="outline"
 									class="border-purple-300 bg-purple-50 text-purple-700 dark:border-purple-700 dark:bg-purple-950 dark:text-purple-300"
@@ -106,18 +106,18 @@
 									IG Verified
 								</Badge>
 							{/if}
-							{#if data.page_is_deleted}
+							{#if data?.page_is_deleted}
 								<Badge variant="destructive">Page Deleted</Badge>
 							{/if}
 						</div>
 
 						<div class="space-y-1 text-sm text-muted-foreground">
-							<p><span class="font-medium">Page ID:</span> {data.page_id}</p>
-							{#if data.page_alias}
-								<p><span class="font-medium">Alias:</span> {data.page_alias}</p>
+							<p><span class="font-medium">Page ID:</span> {data?.page_id}</p>
+							{#if data?.page_alias}
+								<p><span class="font-medium">Alias:</span> {data?.page_alias}</p>
 							{/if}
-							<p><span class="font-medium">Entity Type:</span> {data.entity_type}</p>
-							<p><span class="font-medium">Source ID:</span> {entity.source_id}</p>
+							<p><span class="font-medium">Entity Type:</span> {data?.entity_type}</p>
+							<p><span class="font-medium">Source ID:</span> {entity?.source_id}</p>
 						</div>
 					</div>
 				</div>
@@ -126,7 +126,7 @@
 			<!-- Details Tab - All fields in table format -->
 			<Tabs.Content value="details">
 				<div class="max-h-[70vh] space-y-3 overflow-y-auto py-4">
-					{#each Object.entries(data) as [key, value]}
+					{#each Object.entries(data ?? {}) as [key, value]}
 						{#if value !== null && value !== undefined && typeof value !== 'object'}
 							<div class="border-b pb-2">
 								<p class="text-xs font-semibold uppercase text-muted-foreground">
@@ -137,7 +137,7 @@
 						{/if}
 					{/each}
 					<!-- Object fields shown as JSON snippets -->
-					{#each Object.entries(data) as [key, value]}
+					{#each Object.entries(data ?? {}) as [key, value]}
 						{#if value !== null && value !== undefined && typeof value === 'object'}
 							<div class="border-b pb-2">
 								<p class="text-xs font-semibold uppercase text-muted-foreground">
