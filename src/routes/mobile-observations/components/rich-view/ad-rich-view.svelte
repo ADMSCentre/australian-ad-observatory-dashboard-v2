@@ -5,16 +5,9 @@
 	import Codemirror from 'svelte-codemirror-editor';
 	import { json } from '@codemirror/lang-json';
 
-	import { fetchRichDataObject } from '$lib/api/session/ads/utils';
 	import AdCardBody from '../ad-card/ad-card-body.svelte';
 	import OcrView from './ocr-view.svelte';
-	import CandidatesView from './candidates-view.svelte';
 	import CclSnapshotsView from './ccl-snapshots-view.svelte';
-	import type {
-		MediaSource,
-		Ranking,
-		RichDataObject
-	} from '$lib/api/session/ads/rich-data-object-type';
 	import type { RichAdData } from '$lib/api/session/ads/types';
 	import { session } from '$lib/api/session/session.svelte';
 	import Table from './table.svelte';
@@ -52,79 +45,6 @@
 		if (!currentAd || !currentAd.richDataObject) return null;
 		return currentAd.richDataObject.observer.uuid;
 	});
-	const candidates = $derived.by(() => {
-		if (!currentAd || !currentAd.richDataObject) return null;
-		const rdoMetaAdLibraryCandidates =
-			currentAd.richDataObject.enrichment.meta_adlibrary_scrape.candidates;
-		if (rdoMetaAdLibraryCandidates && rdoMetaAdLibraryCandidates.length > 0)
-			return rdoMetaAdLibraryCandidates;
-		return [];
-	});
-	// const candidates = $derived(
-	// 	(currentAd?.metaLibraryScrape?.candidates.map((c, index) => {
-	// 		return {
-	// 			ad_library_scrape_candidates_i: index,
-	// 			data: c
-	// 		};
-	// 	}) as RichDataObject['enrichment']['meta_adlibrary_scrape']['candidates']) || null
-	// );
-	// const rankings = $derived.by(() => {
-	// 	if (!currentAd || !currentAd.richDataObject) return null;
-	// 	return currentAd.richDataObject.enrichment.meta_adlibrary_scrape.rankings;
-	// });
-	const rankings = $derived((currentAd?.metaLibraryScrape?.rankings as Ranking[]) || null);
-	// const mediaMapping = $derived.by(() => {
-	// 	if (!currentAd || !currentAd.richDataObject) return null;
-	// 	const scrapeReference =
-	// 		currentAd.richDataObject.enrichment.meta_adlibrary_scrape.reference.scrape;
-
-	// 	const scrapeSources = {
-	// 		...currentAd.richDataObject.enrichment.meta_adlibrary_scrape.comparisons.image
-	// 			.ad_scrape_sources,
-	// 		...currentAd.richDataObject.enrichment.meta_adlibrary_scrape.comparisons.video
-	// 			.ad_scrape_sources
-	// 	};
-	// 	return Object.entries(scrapeSources).reduce(
-	// 		(acc, [path, mediaObj]: [string, any]) => {
-	// 			const mediaUrl = mediaObj.media_url;
-	// 			const fullPath = `${scrapeReference.observer_uuid}/meta_adlibrary_scrape/${scrapeReference.tentative_ad}/${path}`;
-	// 			acc[mediaUrl] = { filename: path, fullPath };
-	// 			return acc;
-	// 		},
-	// 		{} as Record<string, { filename: string; fullPath: string }>
-	// 	);
-	// });
-
-	// Creates a mapping from the original URL to the S3 path for the media files
-	const mediaMapping = $derived.by(() => {
-		if (
-			!currentAd ||
-			(!currentAd.metaLibraryScrape?.mediaPaths && !currentAd.richDataObject?.enrichment?.media)
-		)
-			return null;
-		const observerId = currentAd.observer;
-		const observationId = `${currentAd.timestamp}.${currentAd.adId}`;
-
-		const mapping = {
-			...Object.entries(currentAd?.metaLibraryScrape?.mediaPaths || {}).reduce(
-				(acc, [originalUrl, path]: [string, string]) => {
-					const fullPath = `${observerId}/meta_adlibrary_scrape/${observationId}/${path}`;
-					acc[originalUrl] = { filename: path, fullPath };
-					return acc;
-				},
-				{} as Record<string, { filename: string; fullPath: string }>
-			),
-			...Object.entries(currentAd?.richDataObject?.enrichment.media || {}).reduce(
-				(acc, [originalUrl, path]: [string, string]) => {
-					const filename = path.split('/').pop() || path;
-					acc[originalUrl] = { filename, fullPath: path.replaceAll('//', '/') };
-					return acc;
-				},
-				{} as Record<string, { filename: string; fullPath: string }>
-			)
-		};
-		return mapping;
-	});
 </script>
 
 {#if currentAd}
@@ -161,7 +81,6 @@
 						<Tabs.Trigger value="captured-ad">Capture</Tabs.Trigger>
 					{/if}
 					<Tabs.Trigger value="ocr-data">OCR</Tabs.Trigger>
-					<Tabs.Trigger value="candidate-ads">Candidates</Tabs.Trigger>
 					{#if !auth.isGuest}
 						<Tabs.Trigger value="ccl">CCL</Tabs.Trigger>
 					{/if}
@@ -184,11 +103,6 @@
 							observationId={`${currentAd.timestamp}.${currentAd.adId}`}
 							observerId={currentAd.observer}
 						/>
-					{/if}
-				</Tabs.Content>
-				<Tabs.Content value="candidate-ads">
-					{#if candidates && rankings && mediaMapping}
-						<CandidatesView {candidates} {rankings} {mediaMapping} />
 					{/if}
 				</Tabs.Content>
 				<Tabs.Content value="ccl">
