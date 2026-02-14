@@ -186,8 +186,26 @@
 							{/if}
 
 							<div class="flex-1">
-								<!-- Page name -->
-								<p class="text-xs text-muted-foreground">{snapshot.data.page_name}</p>
+								<div class="flex items-center gap-2">
+									<!-- Page name -->
+									<p class="text-xs text-muted-foreground">{snapshot.data.page_name}</p>
+									{#if snapshot.data.is_active}
+										<Badge
+											variant="outline"
+											class="border-green-300 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-950 dark:text-green-300"
+										>
+											Active
+										</Badge>
+									{:else}
+										<Badge variant="secondary">Inactive</Badge>
+									{/if}
+									<!-- Categories -->
+									{#if snapshot.data.categories.length > 0}
+										{#each snapshot.data.categories as category}
+											<Badge variant="outline" class="text-xs">{category}</Badge>
+										{/each}
+									{/if}
+								</div>
 								<h3 class="mb-1 line-clamp-1 text-base font-semibold">
 									{snapshot.data.snapshot.title || firstCard?.title || 'Untitled Ad'}
 								</h3>
@@ -201,16 +219,6 @@
 
 								<!-- Metadata row -->
 								<div class="flex flex-wrap items-center gap-2">
-									{#if snapshot.data.is_active}
-										<Badge
-											variant="outline"
-											class="border-green-300 bg-green-50 text-green-700 dark:border-green-700 dark:bg-green-950 dark:text-green-300"
-										>
-											Active
-										</Badge>
-									{:else}
-										<Badge variant="secondary">Inactive</Badge>
-									{/if}
 									{#if snapshot.data.publisher_platform && snapshot.data.publisher_platform.length > 0}
 										{#each snapshot.data.publisher_platform as platform}
 											<Badge variant="secondary" class="text-xs">{platform}</Badge>
