@@ -38,6 +38,12 @@ const protectedRoutes: Record<
 	},
 	'/exports': {
 		allowedRoles: ['user', 'admin']
+	},
+	'/ccl/advertisers': {
+		allowedRoles: ['user', 'admin']
+	},
+	'/ccl/snapshots': {
+		allowedRoles: ['user', 'admin']
 	}
 };
 
