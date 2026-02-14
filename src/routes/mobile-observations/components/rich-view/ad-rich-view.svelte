@@ -9,6 +9,7 @@
 	import AdCardBody from '../ad-card/ad-card-body.svelte';
 	import OcrView from './ocr-view.svelte';
 	import CandidatesView from './candidates-view.svelte';
+	import CclSnapshotsView from './ccl-snapshots-view.svelte';
 	import type {
 		MediaSource,
 		Ranking,
@@ -57,12 +58,6 @@
 			currentAd.richDataObject.enrichment.meta_adlibrary_scrape.candidates;
 		if (rdoMetaAdLibraryCandidates && rdoMetaAdLibraryCandidates.length > 0)
 			return rdoMetaAdLibraryCandidates;
-		const cclCandidates = (currentAd.richDataObject.enrichment as any).ccl?.scrapes?.[0]?.response
-			?.response_interpreted?.json_raw;
-		if (cclCandidates && cclCandidates.length > 0)
-			return cclCandidates.map((value: any) => ({
-				data: value
-			}));
 		return [];
 	});
 	// const candidates = $derived(
@@ -167,6 +162,9 @@
 					{/if}
 					<Tabs.Trigger value="ocr-data">OCR</Tabs.Trigger>
 					<Tabs.Trigger value="candidate-ads">Candidates</Tabs.Trigger>
+					{#if !auth.isGuest}
+						<Tabs.Trigger value="ccl">CCL</Tabs.Trigger>
+					{/if}
 					<Tabs.Trigger value="classifications">Classifications</Tabs.Trigger>
 					<Tabs.Trigger value="rich-data-table">Table</Tabs.Trigger>
 					{#if !auth.isGuest}
@@ -191,6 +189,15 @@
 				<Tabs.Content value="candidate-ads">
 					{#if candidates && rankings && mediaMapping}
 						<CandidatesView {candidates} {rankings} {mediaMapping} />
+					{/if}
+				</Tabs.Content>
+				<Tabs.Content value="ccl">
+					{#if observationId}
+						<CclSnapshotsView {observationId} />
+					{:else}
+						<div class="flex items-center justify-center p-8 text-muted-foreground">
+							<p>Observation ID not available.</p>
+						</div>
 					{/if}
 				</Tabs.Content>
 				<Tabs.Content value="classifications">
