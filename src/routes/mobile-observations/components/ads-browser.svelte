@@ -221,7 +221,7 @@
 	let selectedTagIds = $state<(string | null)[]>([]);
 	const selectedTagIdSet = $derived(new Set(selectedTagIds));
 
-	let selectedClassifications = $state<string[]>([]);
+	let selectedClassifications = $state<string[]>(['Unclassified']);
 	const selectedClassificationsSet = $derived(new Set(selectedClassifications));
 
 	/**
@@ -286,7 +286,8 @@
 		if (uniqueClassificationLabels.size === 0) return;
 		untrack(() => {
 			const classifications = Array.from(uniqueClassificationLabels);
-			if (selectedClassifications.length === 0) {
+			// Select all classifications by default if the only one currently selected is "Unclassified" (which is the default state before enrichment)
+			if (selectedClassifications.length === 1 && selectedClassifications[0] === 'Unclassified') {
 				selectedClassifications = [...classifications, 'Unclassified'];
 			}
 		});
