@@ -10,6 +10,7 @@
 	import type { CclSnapshot } from '$lib/types/ccl';
 	import Codemirror from 'svelte-codemirror-editor';
 	import { json } from '@codemirror/lang-json';
+	import { twMerge } from 'tailwind-merge';
 
 	let { observationId }: { observationId: string } = $props();
 
@@ -67,18 +68,6 @@
 		return null;
 	}
 
-	// Helper to get the body text
-	function getBodyText(snapshot: CclSnapshot): string {
-		const snap = snapshot.data.snapshot;
-		if (snap.cards && snap.cards.length > 0 && snap.cards[0].body) {
-			return snap.cards[0].body;
-		}
-		if (snap.body?.text) {
-			return snap.body.text;
-		}
-		return '';
-	}
-
 	// Helper to format dates from epoch seconds
 	function formatDate(epoch: number): string {
 		if (!epoch) return 'N/A';
@@ -106,6 +95,24 @@
 				return a.data.is_related_to_query_term ? -1 : 1;
 			});
 	});
+
+	function getProductTitle(snapshot: CclSnapshot): string {
+		const snap = snapshot.data.snapshot;
+		// Handle cases where the title is a placeholder like "{{product.name}}"
+		if (!snap.title || snap.title === '{{product.name}}') {
+			return snap.cards?.[0]?.title || 'Untitled Ad';
+		}
+		return snap.title;
+	}
+
+	function getProductBody(snapshot: CclSnapshot): string {
+		const snap = snapshot.data.snapshot;
+		// Handle cases where the body is a placeholder like "{{product.brand}}"
+		if (!snap.body?.text || snap.body.text === '{{product.brand}}') {
+			return snap.cards?.[0]?.body || '';
+		}
+		return snap.body.text;
+	}
 </script>
 
 <div class="flex flex-col gap-4 p-4">
@@ -158,11 +165,22 @@
 			</p>
 		</div>
 
+		{#if filteredSnapshots.length === 0}
+			<div class="flex h-40 items-center justify-center text-muted-foreground">
+				<p>
+					No CCL snapshots match the filter criteria.
+					{#if snapshots.length > 0}
+						<br />
+						<span class="text-xs">Try unchecking "Show related only" to see all snapshots.</span>
+					{/if}
+				</p>
+			</div>
+		{/if}
+
 		<Accordion.Root class="space-y-4" type="single">
 			{#each filteredSnapshots as snapshot, idx (snapshot.id)}
 				{@const previewImage = getPreviewImage(snapshot)}
-				{@const bodyText = getBodyText(snapshot)}
-				{@const firstCard = snapshot.data.snapshot.cards?.[0]}
+				{@const bodyText = getProductBody(snapshot)}
 				{@const snapshotData = snapshot.data.snapshot}
 
 				<Accordion.Item value={`snapshot-${idx}`} class="rounded border-b-2 border-muted shadow">
@@ -207,7 +225,7 @@
 									{/if}
 								</div>
 								<h3 class="mb-1 line-clamp-1 text-base font-semibold">
-									{snapshot.data.snapshot.title || firstCard?.title || 'Untitled Ad'}
+									{getProductTitle(snapshot)}
 								</h3>
 
 								<!-- Body preview -->
@@ -216,14 +234,7 @@
 										{bodyText}
 									</p>
 								{/if}
-
-								<!-- Metadata row -->
 								<div class="flex flex-wrap items-center gap-2">
-									{#if snapshot.data.publisher_platform && snapshot.data.publisher_platform.length > 0}
-										{#each snapshot.data.publisher_platform as platform}
-											<Badge variant="secondary" class="text-xs">{platform}</Badge>
-										{/each}
-									{/if}
 									<span class="text-xs text-muted-foreground">
 										{formatDate(snapshot.data.start_date)} — {formatDate(snapshot.data.end_date)}
 									</span>
@@ -235,119 +246,200 @@
 					<Accordion.Content class="px-4 pb-4">
 						<div class="space-y-4 border-t pt-4">
 							<!-- Metadata section -->
-							<div class="space-y-3 rounded-lg bg-muted/40 p-4">
-								<h4 class="font-semibold">Metadata</h4>
+							<div
+								class={twMerge(
+									'grid gap-4',
+									(snapshotData.images?.length ?? 0) > 0 ||
+										((snapshotData.videos?.length ?? 0) > 0 &&
+											snapshot.data.is_related_to_query_term)
+										? 'md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]'
+										: 'md:grid-cols-1'
+								)}
+							>
+								{#if snapshot.data.is_related_to_query_term}
+									<div class="space-y-4">
+										<!-- Images -->
+										{#if (snapshotData.images?.length ?? 0) > 0}
+											<div>
+												<h4 class="mb-3 font-semibold">Images</h4>
+												<div class="grid grid-cols-2 gap-3">
+													{#each snapshotData.images ?? [] as img}
+														<img
+															src={img.resized_image_url}
+															alt="Ad preview"
+															class="h-auto w-full rounded-md"
+															loading="lazy"
+															onerror={(e) => {
+																(e.target as HTMLImageElement).style.display = 'none';
+															}}
+														/>
+													{/each}
+												</div>
+											</div>
+										{/if}
 
-								<div class="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
-									<div>
-										<p class="text-xs font-semibold uppercase text-muted-foreground">Title</p>
-										<p>{snapshotData.title || 'N/A'}</p>
+										<!-- Videos -->
+										{#if (snapshotData.videos?.length ?? 0) > 0}
+											<div>
+												<h4 class="mb-3 font-semibold">Videos</h4>
+												<div class="flex gap-4 overflow-x-auto">
+													{#each snapshotData.videos ?? [] as video}
+														<video controls class="w-full max-w-sm rounded-md">
+															<source src={video.video_sd_url as string} type="video/mp4" />
+															Your browser does not support the video tag.
+															<track kind="captions" />
+														</video>
+													{/each}
+												</div>
+											</div>
+										{/if}
 									</div>
+								{/if}
 
-									<div>
-										<p class="text-xs font-semibold uppercase text-muted-foreground">Body</p>
-										<p class="line-clamp-3">{snapshotData.body?.text || 'N/A'}</p>
-									</div>
-
-									<div>
-										<p class="text-xs font-semibold uppercase text-muted-foreground">CTA</p>
-										<p>{snapshotData.cta_text || 'N/A'}</p>
-									</div>
-
-									<div>
-										<p class="text-xs font-semibold uppercase text-muted-foreground">
-											Display Format
-										</p>
-										<p>{snapshotData.display_format || 'N/A'}</p>
-									</div>
-
-									<div>
-										<p class="text-xs font-semibold uppercase text-muted-foreground">Page Likes</p>
-										<p>{snapshotData.page_like_count?.toLocaleString() ?? 'N/A'}</p>
-									</div>
-
-									<div>
-										<p class="text-xs font-semibold uppercase text-muted-foreground">
-											Collation Count
-										</p>
-										<p>{snapshot.data.collation_count?.toLocaleString() ?? 'N/A'}</p>
-									</div>
-
-									{#if snapshot.data.impressions_with_index?.impressions_text}
+								<div class="space-y-4">
+									<h4 class="font-semibold">Snapshot Details</h4>
+									<div class="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
 										<div>
-											<p class="text-xs font-semibold uppercase text-muted-foreground">
-												Impressions
-											</p>
-											<p>{snapshot.data.impressions_with_index.impressions_text}</p>
-										</div>
-									{/if}
-
-									{#if snapshot.data.spend}
-										<div>
-											<p class="text-xs font-semibold uppercase text-muted-foreground">Spend</p>
+											<p class="text-xs font-semibold uppercase text-muted-foreground">Title</p>
 											<p>
-												{snapshot.data.spend}
-												{snapshot.data.currency}
+												{getProductTitle(snapshot)}
 											</p>
 										</div>
-									{/if}
-
-									{#if snapshot.data.reach_estimate}
+										<div class="col-span-2">
+											<p class="text-xs font-semibold uppercase text-muted-foreground">Body</p>
+											<p class="line-clamp-3">
+												{getProductBody(snapshot) || 'N/A'}
+											</p>
+										</div>
+										<div>
+											<p class="text-xs font-semibold uppercase text-muted-foreground">CTA</p>
+											<p>{snapshotData.cta_text || 'N/A'}</p>
+										</div>
 										<div>
 											<p class="text-xs font-semibold uppercase text-muted-foreground">
-												Reach Estimate
+												Display Format
 											</p>
-											<p>{snapshot.data.reach_estimate}</p>
+											<p>{snapshotData.display_format || 'N/A'}</p>
+										</div>
+										<!-- Page profile with uri -->
+										{#if snapshot.data.page_name}
+											<div>
+												<p class="text-xs font-semibold uppercase text-muted-foreground">
+													Page Profile
+												</p>
+												<p>
+													<a
+														href={snapshot.data.snapshot.page_profile_uri}
+														target="_blank"
+														rel="noopener noreferrer"
+														class="underline"
+													>
+														{snapshot.data.page_name ||
+															snapshot.data.snapshot.page_profile_uri ||
+															'N/A'}
+													</a>
+												</p>
+											</div>
+										{/if}
+										<div>
+											<p class="text-xs font-semibold uppercase text-muted-foreground">
+												Page Likes
+											</p>
+											<p>{snapshotData.page_like_count?.toLocaleString() ?? 'N/A'}</p>
+										</div>
+										{#if (snapshotData.page_categories?.length ?? 0) > 0}
+											<div>
+												<p class="text-xs font-semibold uppercase text-muted-foreground">
+													Page Categories
+												</p>
+												<div class="flex flex-wrap gap-1">
+													{#each snapshotData.page_categories ?? [] as cat}
+														<Badge variant="secondary" class="text-xs">{cat}</Badge>
+													{/each}
+												</div>
+											</div>
+										{/if}
+										<div>
+											<p class="text-xs font-semibold uppercase text-muted-foreground">
+												Collation Count
+											</p>
+											<p>{snapshot.data.collation_count?.toLocaleString() ?? 'N/A'}</p>
+										</div>
+										{#if snapshot.data.impressions_with_index?.impressions_text}
+											<div>
+												<p class="text-xs font-semibold uppercase text-muted-foreground">
+													Impressions
+												</p>
+												<p>{snapshot.data.impressions_with_index.impressions_text}</p>
+											</div>
+										{/if}
+										{#if snapshot.data.spend}
+											<div>
+												<p class="text-xs font-semibold uppercase text-muted-foreground">Spend</p>
+												<p>
+													{snapshot.data.spend}
+													{snapshot.data.currency}
+												</p>
+											</div>
+										{/if}
+										{#if snapshot.data.reach_estimate}
+											<div>
+												<p class="text-xs font-semibold uppercase text-muted-foreground">
+													Reach Estimate
+												</p>
+												<p>{snapshot.data.reach_estimate}</p>
+											</div>
+										{/if}
+										<!-- Publisher platforms -->
+										{#if snapshot.data.publisher_platform && snapshot.data.publisher_platform.length > 0}
+											<div>
+												<p class="text-xs font-semibold uppercase text-muted-foreground">
+													Publisher Platforms
+												</p>
+												<div class="flex flex-wrap gap-1">
+													{#each snapshot.data.publisher_platform as platform}
+														<Badge variant="secondary" class="text-xs">{platform}</Badge>
+													{/each}
+												</div>
+											</div>
+										{/if}
+										{#if snapshotData.link_url}
+											<div class="col-span-2">
+												<p class="text-xs font-semibold uppercase text-muted-foreground">
+													Link URL
+												</p>
+												<p class="break-all text-xs">
+													<a
+														href={snapshotData.link_url}
+														target="_blank"
+														rel="noopener noreferrer"
+														class="underline">{snapshotData.link_url}</a
+													>
+												</p>
+											</div>
+										{/if}
+									</div>
+									{#if (snapshot.data.targeted_or_reached_countries?.length ?? 0) > 0}
+										<div>
+											<p class="text-xs font-semibold uppercase text-muted-foreground">
+												Targeted Countries
+											</p>
+											<p class="text-sm">
+												{snapshot.data.targeted_or_reached_countries.join(', ')}
+											</p>
 										</div>
 									{/if}
-
-									{#if snapshotData.link_url}
-										<div class="col-span-2">
-											<p class="text-xs font-semibold uppercase text-muted-foreground">Link URL</p>
-											<p class="break-all text-xs">
-												<a
-													href={snapshotData.link_url}
-													target="_blank"
-													rel="noopener noreferrer"
-													class="underline">{snapshotData.link_url}</a
-												>
-											</p>
-										</div>
-									{/if}
-								</div>
-
-								{#if (snapshot.data.targeted_or_reached_countries?.length ?? 0) > 0}
-									<div>
-										<p class="text-xs font-semibold uppercase text-muted-foreground">
-											Targeted Countries
+									<div class="grid grid-cols-3 gap-1 text-2xs text-muted-foreground">
+										<p><span class="font-medium">Page ID:</span> {snapshotData.page_id}</p>
+										<p>
+											<span class="font-medium">Ad Archive ID:</span>
+											{snapshot.data.ad_archive_id}
 										</p>
-										<p class="text-sm">{snapshot.data.targeted_or_reached_countries.join(', ')}</p>
-									</div>
-								{/if}
-
-								{#if (snapshotData.page_categories?.length ?? 0) > 0}
-									<div>
-										<p class="text-xs font-semibold uppercase text-muted-foreground">
-											Page Categories
+										<p>
+											<span class="font-medium">Collation ID:</span>
+											{snapshot.data.collation_id}
 										</p>
-										<div class="flex flex-wrap gap-1">
-											{#each snapshotData.page_categories ?? [] as cat}
-												<Badge variant="secondary" class="text-xs">{cat}</Badge>
-											{/each}
-										</div>
 									</div>
-								{/if}
-
-								<div class="space-y-1 text-xs text-muted-foreground">
-									<p><span class="font-medium">Page ID:</span> {snapshotData.page_id}</p>
-									<p>
-										<span class="font-medium">Ad Archive ID:</span>
-										{snapshot.data.ad_archive_id}
-									</p>
-									<p>
-										<span class="font-medium">Collation ID:</span>
-										{snapshot.data.collation_id}
-									</p>
 								</div>
 							</div>
 							<!-- Cards -->
@@ -406,26 +498,6 @@
 									</div>
 								</div>
 							{/each}
-
-							<!-- Extra images -->
-							{#if (snapshotData.images?.length ?? 0) > 0}
-								<div>
-									<h4 class="mb-3 font-semibold">Images</h4>
-									<div class="grid grid-cols-2 gap-3">
-										{#each snapshotData.images ?? [] as img}
-											<img
-												src={img.resized_image_url}
-												alt="Ad preview"
-												class="h-auto w-full rounded-md"
-												loading="lazy"
-												onerror={(e) => {
-													(e.target as HTMLImageElement).style.display = 'none';
-												}}
-											/>
-										{/each}
-									</div>
-								</div>
-							{/if}
 
 							<!-- Extra images from cards -->
 							{#if (snapshotData.extra_images?.length ?? 0) > 0}
