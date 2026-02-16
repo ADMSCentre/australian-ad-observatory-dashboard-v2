@@ -11,6 +11,8 @@
 	import Codemirror from 'svelte-codemirror-editor';
 	import { json } from '@codemirror/lang-json';
 	import { twMerge } from 'tailwind-merge';
+	import type { Query } from 'mobile-observations/query/query';
+	import RelatedObservations from './components/related-observations.svelte';
 
 	let { observationId }: { observationId: string } = $props();
 
@@ -59,6 +61,9 @@
 		if (snap.cards && snap.cards.length > 0 && snap.cards[0].resized_image_url) {
 			return snap.cards[0].resized_image_url;
 		}
+		if (snap.cards && snap.cards.length > 0 && snap.cards[0].video_preview_image_url) {
+			return snap.cards[0].video_preview_image_url;
+		}
 		if (snap.images && snap.images.length > 0 && snap.images[0].resized_image_url) {
 			return snap.images[0].resized_image_url;
 		}
@@ -91,8 +96,8 @@
 				if (a.data.is_related_to_query_term === b.data.is_related_to_query_term) {
 					return (b.data.end_date || 0) - (a.data.end_date || 0);
 				}
-				// Put related snapshots first
-				return a.data.is_related_to_query_term ? -1 : 1;
+				// Put unrelated snapshots first as they are only available if user chooses to show them
+				return a.data.is_related_to_query_term ? 1 : -1;
 			});
 	});
 
@@ -113,6 +118,17 @@
 		}
 		return snap.body.text;
 	}
+
+	function getRelatedObservations(snapshot: CclSnapshot): string[] {
+		const relatedObservationIds = snapshot.observed_in || [];
+		return relatedObservationIds.filter((id) => id !== observationId); // Exclude the current observation ID
+	}
+
+	const hiddenSnapshots = $derived.by(() => {
+		if (!snapshots) return [];
+		// Get snapshots not in filteredSnapshots
+		return snapshots.filter((snap) => !filteredSnapshots.includes(snap));
+	});
 </script>
 
 <div class="flex flex-col gap-4 p-4">
@@ -147,8 +163,8 @@
 				<h3 class="text-lg font-semibold">
 					CCL Snapshots
 					<span class="text-sm font-normal text-muted-foreground">
-						({filteredSnapshots.length}
-						{filteredSnapshots.length === 1 ? 'snapshot' : 'snapshots'})
+						({filteredSnapshots.length} shown,
+						{hiddenSnapshots.length} hidden)
 					</span>
 				</h3>
 				<label class="flex items-center gap-2 text-sm">
@@ -182,6 +198,7 @@
 				{@const previewImage = getPreviewImage(snapshot)}
 				{@const bodyText = getProductBody(snapshot)}
 				{@const snapshotData = snapshot.data.snapshot}
+				{@const relatedObservationIds = getRelatedObservations(snapshot)}
 
 				<Accordion.Item value={`snapshot-${idx}`} class="rounded border-b-2 border-muted shadow">
 					<Accordion.Trigger
@@ -203,7 +220,7 @@
 								</div>
 							{/if}
 
-							<div class="flex-1">
+							<div class="flex-1 space-y-1">
 								<div class="flex items-center gap-2">
 									<!-- Page name -->
 									<p class="text-xs text-muted-foreground">{snapshot.data.page_name}</p>
@@ -224,20 +241,34 @@
 										{/each}
 									{/if}
 								</div>
-								<h3 class="mb-1 line-clamp-1 text-base font-semibold">
+								<h3 class=" line-clamp-1 text-base font-semibold">
 									{getProductTitle(snapshot)}
 								</h3>
 
 								<!-- Body preview -->
 								{#if bodyText}
-									<p class="mb-2 line-clamp-2 text-sm text-muted-foreground">
+									<p class="line-clamp-2 text-sm text-muted-foreground">
 										{bodyText}
 									</p>
 								{/if}
-								<div class="flex flex-wrap items-center gap-2">
+								<div class="flex items-center gap-4">
 									<span class="text-xs text-muted-foreground">
 										{formatDate(snapshot.data.start_date)} — {formatDate(snapshot.data.end_date)}
 									</span>
+									{#if relatedObservationIds.length > 0}
+										<span class="text-xs text-muted-foreground">
+											Seen in {relatedObservationIds.length} other observation{relatedObservationIds.length >
+											1
+												? 's'
+												: ''}
+										</span>
+									{/if}
+									<!-- Low relevance -->
+									{#if !snapshot.data.is_related_to_query_term}
+										<Badge variant="outline" class="border-destructive text-xs text-destructive"
+											>Low relevance</Badge
+										>
+									{/if}
 								</div>
 							</div>
 						</div>
@@ -517,6 +548,22 @@
 										{/each}
 									</div>
 								</div>
+							{/if}
+
+							<!-- Other observations of this same ad -->
+							<h4 class="mb-3 font-semibold">Related Observations</h4>
+							{#if relatedObservationIds.length === 0}
+								<p class="text-sm text-muted-foreground">
+									No related observations found for this snapshot.
+								</p>
+							{:else}
+								<p class="mb-2 text-xs text-muted-foreground">
+									The following observations are considered related to this snapshot. Some of these
+									observations may be from the same ad seen at different times or on different
+									platforms, while others may be from different ads that share similar attributes
+									(e.g. same page name or similar content).
+								</p>
+								<RelatedObservations {relatedObservationIds} />
 							{/if}
 
 							<!-- Raw JSON -->

@@ -10,6 +10,7 @@
 	import Codemirror from 'svelte-codemirror-editor';
 	import { json } from '@codemirror/lang-json';
 	import { twMerge } from 'tailwind-merge';
+	import RelatedObservations from 'mobile-observations/components/rich-view/components/related-observations.svelte';
 
 	const PAGE_SIZE = 20;
 
@@ -78,6 +79,9 @@
 		if (snap.images && snap.images.length > 0 && snap.images[0].resized_image_url) {
 			return snap.images[0].resized_image_url;
 		}
+		if (snap.images && snap.images.length > 0 && snap.images[0].resized_image_url) {
+			return snap.images[0].resized_image_url;
+		}
 		if (snap.page_profile_picture_url) {
 			return snap.page_profile_picture_url;
 		}
@@ -110,6 +114,10 @@
 			return snap.cards?.[0]?.body || '';
 		}
 		return snap.body.text;
+	}
+
+	function getRelatedObservations(snapshot: CclSnapshot): string[] {
+		return snapshot.observed_in || [];
 	}
 </script>
 
@@ -151,14 +159,7 @@
 
 	<!-- Header with counts -->
 	<div class="flex items-center justify-between">
-		<h2 class="text-xl font-semibold">
-			Snapshots
-			{#if cclSnapshots.total > 0}
-				<span class="text-sm font-normal text-muted-foreground">
-					(Page {cclSnapshots.currentPage} &middot; {cclSnapshots.total.toLocaleString()} total)
-				</span>
-			{/if}
-		</h2>
+		<h2 class="text-xl font-semibold">Snapshots</h2>
 		{#if cclSnapshots.loading}
 			<div class="flex items-center gap-2 text-sm text-muted-foreground">
 				<LoaderCircle class="h-4 w-4 animate-spin" />
@@ -197,6 +198,7 @@
 			{@const previewImage = getPreviewImage(snapshot)}
 			{@const bodyText = getProductBody(snapshot)}
 			{@const snapshotData = snapshot.data.snapshot}
+			{@const observationIds = getRelatedObservations(snapshot)}
 
 			<Accordion.Item value={`snapshot-${idx}`} class="rounded border-b-2 border-muted shadow">
 				<Accordion.Trigger
@@ -249,10 +251,17 @@
 									{bodyText}
 								</p>
 							{/if}
-							<div class="flex flex-wrap items-center gap-2">
+							<div class="flex flex-wrap items-center gap-4">
 								<span class="text-xs text-muted-foreground">
 									{formatDate(snapshot.data.start_date)} — {formatDate(snapshot.data.end_date)}
 								</span>
+								{#if observationIds.length > 0}
+									<span class="text-xs text-muted-foreground">
+										Seen in {observationIds.length} observation{observationIds.length > 1
+											? 's'
+											: ''}
+									</span>
+								{/if}
 							</div>
 						</div>
 					</div>
@@ -297,7 +306,7 @@
 										<div class="flex gap-4 overflow-x-auto">
 											{#each snapshotData.videos ?? [] as video}
 												<video controls class="w-full max-w-sm rounded-md">
-													<source src={video.video_sd_url} type="video/mp4" />
+													<source src={video.video_sd_url as string} type="video/mp4" />
 													Your browser does not support the video tag.
 													<track kind="captions" />
 												</video>
@@ -526,6 +535,24 @@
 							</div>
 						{/if}
 
+						<!-- Related Observations -->
+						<div>
+							<h4 class="mb-3 font-semibold">Related Observations</h4>
+							{#if observationIds.length === 0}
+								<p class="text-sm text-muted-foreground">
+									No related observations found for this snapshot.
+								</p>
+							{:else}
+								<p class="mb-2 text-xs text-muted-foreground">
+									The following observations are considered related to this snapshot. Some of these
+									observations may be from the same ad seen at different times or on different
+									platforms, while others may be from different ads that share similar attributes
+									(e.g. same page name or similar content).
+								</p>
+								<RelatedObservations relatedObservationIds={observationIds} />
+							{/if}
+						</div>
+
 						<!-- Raw JSON -->
 						<div class="mt-4">
 							<h4 class="mb-2 text-sm font-medium">Raw JSON</h4>
@@ -547,9 +574,6 @@
 	<div class="flex items-center justify-between border-t pt-4">
 		<p class="text-sm text-muted-foreground">
 			Page {cclSnapshots.currentPage}
-			{#if cclSnapshots.total > 0}
-				&middot; {cclSnapshots.total.toLocaleString()} total results
-			{/if}
 		</p>
 		<div class="flex items-center gap-2">
 			<Button

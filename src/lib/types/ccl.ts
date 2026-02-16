@@ -129,6 +129,7 @@ export interface CclSnapshot {
 	ccl_enrichment_id: string;
 	source_id: string;
 	data: SnapshotData;
+	observed_in?: string[];
 }
 
 export interface CclPagination {
