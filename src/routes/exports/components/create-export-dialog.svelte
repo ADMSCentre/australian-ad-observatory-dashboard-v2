@@ -7,10 +7,19 @@
 	import { exportsManager } from '../exports.svelte';
 	import { DEFAULT_QUERY, type Query } from '../../mobile-observations/query/query';
 	import { pushToast } from '$lib/components/toasts/toasts.svelte';
-	import { AlertTriangle, LoaderCircle, ImageIcon, InfoIcon, Search, CircleX } from 'lucide-svelte';
+	import {
+		AlertTriangle,
+		LoaderCircle,
+		ImageIcon,
+		InfoIcon,
+		Search,
+		CircleX,
+		Play
+	} from 'lucide-svelte';
 	import * as Alert from '$lib/components/ui/alert';
 	import QueryPreview from './query-preview.svelte';
 	import { onMount } from 'svelte';
+	import { Emitter } from '$lib/utils/emitter';
 
 	let {
 		open = $bindable(false),
@@ -163,6 +172,8 @@
 			: EXPORT_ADS_LIMITS.withoutImages.hardLimit;
 		return previewAdsCount > limit;
 	});
+
+	const queryEmitter = new Emitter<'run-query'>();
 </script>
 
 <Dialog.Root bind:open onOpenChange={(isOpen) => !isOpen && handleClose()}>
@@ -201,7 +212,11 @@
 					onResultsChange={(_, total) => {
 						previewAdsCount = total ?? null;
 					}}
+					onQueryChange={() => {
+						previewAdsCount = null; // Reset preview count when query changes
+					}}
 					editable={isQueryEditable}
+					emitter={queryEmitter}
 				/>
 			</div>
 
@@ -339,17 +354,27 @@
 
 		<Dialog.Footer>
 			<Button variant="outline" onclick={handleClose} disabled={submitting}>Cancel</Button>
-			<Button
-				onclick={handleSubmit}
-				disabled={submitting || previewAdsCount === 0 || !isValidExport}
-			>
-				{#if submitting}
-					<LoaderCircle class="mr-2 size-4 animate-spin" />
-					Creating...
-				{:else}
-					Create Export
-				{/if}
-			</Button>
+			{#if previewAdsCount === null}
+				<Button
+					onclick={() => queryEmitter.emit('run-query')}
+					disabled={submitting || !isQueryValid}
+				>
+					<Play class="mr-2 size-4" />
+					Run Query
+				</Button>
+			{:else}
+				<Button
+					onclick={handleSubmit}
+					disabled={submitting || previewAdsCount === 0 || !isValidExport}
+				>
+					{#if submitting}
+						<LoaderCircle class="mr-2 size-4 animate-spin" />
+						Creating...
+					{:else}
+						Create Export
+					{/if}
+				</Button>
+			{/if}
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>

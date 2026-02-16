@@ -7,13 +7,14 @@
 	import QueryBuilder from 'mobile-observations/query/components/query-builder.svelte';
 	import QueryTextEditor from 'mobile-observations/query/components/query-text-editor.svelte';
 	import { getMethodByValue, type Query } from 'mobile-observations/query/query';
-	import { untrack } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import MultiSelect from '$lib/components/multi-select/multi-select.svelte';
 	import { session } from '$lib/api/session/session.svelte';
 	import { QueryModeSelector } from 'mobile-observations/query/query-modes.svelte';
 	import Progress from '$lib/components/ui/progress/progress.svelte';
 	import AdsBrowser from 'mobile-observations/components/ads-browser.svelte';
 	import type { QueryState } from '$lib/api/session/query/index.svelte';
+	import type { Emitter } from '$lib/utils/emitter';
 
 	let editorModeSelector = $state(new QueryModeSelector());
 	let adsBrowserOpen = $state(false);
@@ -22,9 +23,17 @@
 		query: Query;
 		editable?: boolean;
 		onResultsChange?: (loadedAdCount: number, totalAdCount?: number) => void;
+		onQueryChange?: (updatedQuery: Query) => void;
+		emitter?: Emitter<'run-query'>; // Optional emitter to listen for external events that may require re-running the query (e.g., new data available)
 	};
 
-	let { query = $bindable(), editable = true, onResultsChange }: QueryPreviewProps = $props();
+	let {
+		query = $bindable(),
+		editable = true,
+		onQueryChange,
+		onResultsChange,
+		emitter
+	}: QueryPreviewProps = $props();
 
 	// Local query state management
 	let queryResponse = $state<{
@@ -58,6 +67,14 @@
 	$effect(() => {
 		if (onResultsChange) {
 			onResultsChange(ads.length, totalResults);
+		}
+	});
+
+	$effect(() => {
+		if (onQueryChange) {
+			// Somehow the console log is needed here to make sure this effect runs when query changes...
+			console.log(query);
+			onQueryChange(query);
 		}
 	});
 
@@ -102,6 +119,18 @@
 			};
 		}
 	}
+
+	onMount(() => {
+		if (emitter) {
+			const handleExternalRunTrigger = () => {
+				runQuery();
+			};
+			emitter.on('run-query', handleExternalRunTrigger);
+			return () => {
+				emitter.off('run-query', handleExternalRunTrigger);
+			};
+		}
+	});
 </script>
 
 <div class="flex flex-col gap-4">
