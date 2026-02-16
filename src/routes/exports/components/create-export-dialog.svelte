@@ -18,7 +18,7 @@
 	} from 'lucide-svelte';
 	import * as Alert from '$lib/components/ui/alert';
 	import QueryPreview from './query-preview.svelte';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { Emitter } from '$lib/utils/emitter';
 
 	let {
@@ -60,10 +60,13 @@
 	);
 
 	// Select default fields initially
-	onMount(() => {
-		if (exportsManager.fields.length > 0 && selectedFields.length === 0) {
-			selectedFields = exportsManager.fields.filter((f) => f.is_default).map((f) => f.path);
-		}
+	$effect(() => {
+		exportsManager.fields.length;
+		untrack(() => {
+			if (exportsManager.fields.length > 0 && selectedFields.length === 0) {
+				selectedFields = exportsManager.fields.filter((f) => f.is_default).map((f) => f.path);
+			}
+		});
 	});
 
 	const toggleField = (fieldPath: string) => {
@@ -150,6 +153,7 @@
 		if (onOpenChange) {
 			onOpenChange(open);
 		}
+		resetForm();
 	};
 
 	const EXPORT_ADS_LIMITS = {
@@ -234,7 +238,7 @@
 					<p class="text-sm text-muted-foreground">
 						Select which fields to include in the export. {selectedFields.length === 0
 							? 'No fields selected.'
-							: `${selectedFields.length} currently selected.`}
+							: `${selectedFields.length}/${exportsManager.fields.length} selected.`}
 					</p>
 					<div class="flex items-center gap-2">
 						<div class="relative w-64">
@@ -252,9 +256,6 @@
 								</button>
 							{/if}
 						</div>
-						<p class="self-center text-sm text-muted-foreground">
-							{filteredFields.length} / {exportsManager.fields.length}
-						</p>
 					</div>
 				</div>
 
