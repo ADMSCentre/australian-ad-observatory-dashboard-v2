@@ -121,12 +121,13 @@ class CclSnapshotsManager {
 		return `${cursor ?? 'start'}_${limit ?? 20}_${search ?? ''}`;
 	}
 
-	async load(params: FetchCclSnapshotsParams = {}) {
+	async load(params: FetchCclSnapshotsParams = {}, mode: 'replace' | 'append' = 'replace') {
 		const cacheKey = this.getCacheKey(params.cursor, params.limit, params.search);
 
 		if (this.cache.has(cacheKey)) {
 			const cached = this.cache.get(cacheKey)!;
-			this.items = cached.items;
+			// this.items = cached.items;
+			this.items = mode === 'append' ? [...this.items, ...cached.items] : cached.items;
 			this.nextCursor = cached.nextCursor;
 			this.hasMore = cached.nextCursor !== null;
 			this.total = cached.total;
@@ -139,7 +140,8 @@ class CclSnapshotsManager {
 
 		try {
 			const response = await fetchCclSnapshots(params);
-			this.items = response.snapshots;
+			// this.items = response.snapshots;
+			this.items = mode === 'append' ? [...this.items, ...response.snapshots] : response.snapshots;
 			this.nextCursor = response.pagination.next_cursor;
 			this.hasMore = response.pagination.next_cursor !== null;
 			this.total = response.pagination.total;
@@ -163,13 +165,16 @@ class CclSnapshotsManager {
 		await this.load({ ...params, cursor: undefined });
 	}
 
-	async loadNext(params: Omit<FetchCclSnapshotsParams, 'cursor'> = {}) {
+	async loadNext(
+		params: Omit<FetchCclSnapshotsParams, 'cursor'> = {},
+		mode: 'replace' | 'append' = 'replace'
+	) {
 		if (!this.nextCursor) return;
 		this.pageIndex += 1;
 		if (this.cursorHistory.length <= this.pageIndex) {
 			this.cursorHistory.push(this.nextCursor);
 		}
-		await this.load({ ...params, cursor: this.nextCursor });
+		await this.load({ ...params, cursor: this.nextCursor }, mode);
 	}
 
 	async loadPrevious(params: Omit<FetchCclSnapshotsParams, 'cursor'> = {}) {

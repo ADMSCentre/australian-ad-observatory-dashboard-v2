@@ -104,6 +104,6 @@
 		params={{
 			group: 'none'
 		}}
-		useParentRichView
+		virtualised={false}
 	/>
 {/if}

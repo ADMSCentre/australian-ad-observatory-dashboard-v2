@@ -58,6 +58,10 @@
 	// Helper to get the best preview image
 	function getPreviewImage(snapshot: CclSnapshot): string | null {
 		const snap = snapshot.data.snapshot;
+		// If not related to query term, show nothing
+		if (!snapshot.data.is_related_to_query_term) {
+			return null;
+		}
 		if (snap.cards && snap.cards.length > 0 && snap.cards[0].resized_image_url) {
 			return snap.cards[0].resized_image_url;
 		}
@@ -129,6 +133,8 @@
 		// Get snapshots not in filteredSnapshots
 		return snapshots.filter((snap) => !filteredSnapshots.includes(snap));
 	});
+
+	let expandedSnapshotIndices = $state<string[]>();
 </script>
 
 <div class="flex flex-col gap-4 p-4">
@@ -193,7 +199,7 @@
 			</div>
 		{/if}
 
-		<Accordion.Root class="space-y-4" type="single">
+		<Accordion.Root class="space-y-4" type="multiple" bind:value={expandedSnapshotIndices}>
 			{#each filteredSnapshots as snapshot, idx (snapshot.id)}
 				{@const previewImage = getPreviewImage(snapshot)}
 				{@const bodyText = getProductBody(snapshot)}
@@ -556,7 +562,8 @@
 								<p class="text-sm text-muted-foreground">
 									No related observations found for this snapshot.
 								</p>
-							{:else}
+							{:else if expandedSnapshotIndices && expandedSnapshotIndices.includes(`snapshot-${idx}`)}
+								<!-- Only show related observations if this snapshot is expanded -->
 								<p class="mb-2 text-xs text-muted-foreground">
 									The following observations are considered related to this snapshot. Some of these
 									observations may be from the same ad seen at different times or on different

@@ -111,14 +111,7 @@
 
 	<!-- Header with counts -->
 	<div class="flex items-center justify-between">
-		<h2 class="text-xl font-semibold">
-			Advertisers
-			{#if cclEntities.total > 0}
-				<span class="text-sm font-normal text-muted-foreground">
-					(Page {cclEntities.currentPage} &middot; {cclEntities.total.toLocaleString()} total)
-				</span>
-			{/if}
-		</h2>
+		<h2 class="text-xl font-semibold">Advertisers</h2>
 		{#if cclEntities.loading}
 			<div class="flex items-center gap-2 text-sm text-muted-foreground">
 				<LoaderCircle class="h-4 w-4 animate-spin" />
@@ -206,9 +199,6 @@
 	<div class="flex items-center justify-between border-t pt-4">
 		<p class="text-sm text-muted-foreground">
 			Page {cclEntities.currentPage}
-			{#if cclEntities.total > 0}
-				&middot; {cclEntities.total.toLocaleString()} total results
-			{/if}
 		</p>
 		<div class="flex items-center gap-2">
 			<Button
