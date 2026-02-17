@@ -76,13 +76,11 @@
 			subItems: [
 				{
 					title: 'Advertisers',
-					icon: Building2,
 					url: withBase('ccl/advertisers'),
-					visible: true
+					visible: false
 				},
 				{
 					title: 'Snapshots',
-					icon: Camera,
 					url: withBase('ccl/snapshots'),
 					visible: true
 				}
