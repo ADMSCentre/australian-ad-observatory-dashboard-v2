@@ -38,6 +38,7 @@
 				[attribute: string]: string;
 			};
 		};
+		virtualised?: boolean; // Whether to use windowing for the ad list (recommended for >100 ads)
 	};
 
 	let {
@@ -52,7 +53,8 @@
 		filters = [],
 		richViewExpanded = $bindable(false),
 		syncQueryParams = true,
-		enableAttributeFilter: attributeFilter = true
+		enableAttributeFilter: attributeFilter = true,
+		virtualised = true
 	}: Props = $props();
 
 	const defaultSearchKey = params.search || $page.url.searchParams.get('search') || '';
@@ -443,6 +445,23 @@
 	});
 </script>
 
+{#snippet adRow(item: RichAdData[])}
+	<div class="flex w-full flex-col items-center">
+		<div class="grid w-full gap-10" style={`grid-template-columns: repeat(${cardsPerRow}, 1fr)`}>
+			{#each item as adData (adData.adId)}
+				<div class="will-change-transform">
+					<AdCard
+						adData={ads[getAdIndex(adData)]}
+						{exclude}
+						onExpand={() => onSingleAdExpand(ads[getAdIndex(adData)])}
+						class="grid w-full grid-rows-[auto_384px_auto]"
+					/>
+				</div>
+			{/each}
+		</div>
+	</div>
+{/snippet}
+
 <div class="relative flex flex-col gap-4" bind:clientWidth>
 	<!-- Controls (grouping, ordering) -->
 	<div
@@ -653,28 +672,19 @@
 							></div>
 						</div>
 					{/snippet}
+
 					<div transition:slide class={twMerge(adData.length > 0 ? 'p-4' : '')}>
-						<WindowVirtualizer data={rowData} overscan={3} itemSize={450}>
-							{#snippet children(item, index)}
-								<div class="flex w-full flex-col items-center">
-									<div
-										class="grid w-full gap-10"
-										style={`grid-template-columns: repeat(${cardsPerRow}, 1fr)`}
-									>
-										{#each item as adData (adData.adId)}
-											<div class="will-change-transform">
-												<AdCard
-													adData={ads[getAdIndex(adData)]}
-													{exclude}
-													onExpand={() => onSingleAdExpand(ads[getAdIndex(adData)])}
-													class="grid w-full grid-rows-[auto_384px_auto]"
-												/>
-											</div>
-										{/each}
-									</div>
-								</div>
-							{/snippet}
-						</WindowVirtualizer>
+						{#if virtualised}
+							<WindowVirtualizer data={rowData} overscan={3} itemSize={450}>
+								{#snippet children(item, index)}
+									{@render adRow(item)}
+								{/snippet}
+							</WindowVirtualizer>
+						{:else}
+							{#each rowData as item (item[0].adId)}
+								{@render adRow(item)}
+							{/each}
+						{/if}
 					</div>
 				</Accordion>
 			</div>

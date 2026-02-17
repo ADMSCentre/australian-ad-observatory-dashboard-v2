@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
-	import { ScanSearch, Check, ChevronRightIcon } from 'lucide-svelte/icons';
+	import { ScanSearch, Check, ChevronRightIcon, LoaderCircle } from 'lucide-svelte/icons';
 	import type { IndexGroupType, RichAdData } from '$lib/api/session/ads/types';
 	import IntersectionObserverSvelte from 'svelte-intersection-observer/IntersectionObserver.svelte';
 	import { withBase } from '$lib/utils';
@@ -11,6 +11,7 @@
 	import { type Tag } from '$lib/api/session/tags/index.svelte';
 	import parseActivationCode from '$lib/utils/parse-activation-code';
 	import * as HoverCard from '$lib/components/ui/hover-card/index.js';
+	import { cclAvailability } from '$lib/api/ccl.svelte';
 
 	export type AdElement = 'adId' | 'time' | 'date' | 'observer';
 
@@ -80,6 +81,17 @@
 			.filter((c) => c.score < CLASSIFICATION_SCORE_THRESHOLD)
 			.sort((a, b) => b.score - a.score);
 	});
+
+	// CCL availability badge - check when card becomes visible
+	const cclObservationId = `${adData.adId}`;
+	$effect(() => {
+		if (intersecting) {
+			cclAvailability.check(cclObservationId);
+		}
+	});
+	const cclChecked = $derived(cclAvailability.hasChecked(cclObservationId));
+	const cclLoading = $derived(cclAvailability.isLoading(cclObservationId));
+	const cclIsAvailable = $derived(cclAvailability.isAvailable(cclObservationId));
 </script>
 
 {#snippet tag(tag: Tag)}
@@ -167,7 +179,7 @@
 
 		<!-- Footer -->
 		<div class="flex flex-col gap-2">
-			<div class="flex w-fit gap-1 text-sm">
+			<div class="flex w-fit flex-wrap gap-1 text-sm">
 				{#each fullTypes as type}
 					<div
 						class="flex items-center gap-2 rounded-full bg-zinc-300 px-2 py-1 text-xs font-light dark:bg-zinc-700"
@@ -178,8 +190,30 @@
 						<Check size={10} />
 					</div>
 				{/each}
-			</div>
-			<div class="flex w-fit max-w-full flex-wrap items-center gap-2 text-sm">
+				<!-- CCL availability badge -->
+				{#if cclLoading}
+					<div
+						class="inline-flex items-center gap-1 rounded-full bg-zinc-200 px-2 py-1 dark:bg-zinc-700"
+					>
+						<LoaderCircle class="h-3 w-3 animate-spin text-muted-foreground" />
+						<span class="text-xs text-muted-foreground">CCL...</span>
+					</div>
+				{:else if cclChecked}
+					<div
+						class="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium {cclIsAvailable
+							? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300'
+							: 'bg-zinc-200 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400'}"
+					>
+						<span
+							class="h-2 w-2 rounded-full {cclIsAvailable
+								? 'bg-green-600 dark:bg-green-400'
+								: 'bg-zinc-400 dark:bg-zinc-500'}"
+						></span>
+						{cclIsAvailable ? 'CCL Available' : 'No CCL'}
+					</div>
+				{/if}
+				</div>
+				<div class="flex w-fit max-w-full flex-wrap items-center gap-2 text-sm">
 				{#each appliedTags as t}
 					{@render tag(t)}
 				{/each}

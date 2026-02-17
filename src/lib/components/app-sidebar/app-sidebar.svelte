@@ -17,7 +17,10 @@
 		SettingsIcon,
 		Folder, // Import Folder icon
 		Download,
-		ScanEyeIcon
+		ScanEyeIcon,
+		Library,
+		Building2,
+		Camera
 	} from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
 	import { auth } from '$lib/api/auth/auth.svelte';
@@ -62,6 +65,23 @@
 					title: 'Settings',
 					url: withBase('mobile-observations/settings'),
 					icon: SettingsIcon,
+					visible: true
+				}
+			]
+		},
+		{
+			title: 'Commercial Content Library',
+			icon: Library,
+			visible: auth.currentUser?.role === 'user' || auth.currentUser?.role === 'admin',
+			subItems: [
+				{
+					title: 'Advertisers',
+					url: withBase('ccl/advertisers'),
+					visible: false
+				},
+				{
+					title: 'Snapshots',
+					url: withBase('ccl/snapshots'),
 					visible: true
 				}
 			]
