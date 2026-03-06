@@ -129,6 +129,8 @@
 			});
 		});
 	});
+
+	$inspect('includeObservers', includeObservers);
 </script>
 
 <div

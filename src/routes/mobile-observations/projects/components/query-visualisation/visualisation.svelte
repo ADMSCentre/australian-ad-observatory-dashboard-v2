@@ -49,6 +49,22 @@
 		'ads-browser': 'Ads Browser',
 		raw: 'Raw JSON'
 	};
+
+	function shouldShowVisualisation(type: (typeof VISUALISATION_TYPES)[number], ads: RichAdData[]) {
+		if (type === 'timeline') {
+			return ads.length > 0;
+		}
+		if (type === 'observer-table') {
+			return true;
+		}
+		if (type === 'ads-browser') {
+			return ads.length > 0;
+		}
+		if (type === 'raw') {
+			return ads.length > 0;
+		}
+		return false;
+	}
 </script>
 
 <div class="group/visualisation relative">
@@ -93,19 +109,18 @@
 		</div>
 	{/if}
 
-	{#if ads.length > 0}
-		<Accordion bind:open={config.open as boolean}>
-			{#snippet summary(open)}
-				<div class="flex w-full items-center justify-between pb-2 text-sm font-light">
-					<span class="inline-flex items-center gap-1 text-muted-foreground">
-						<ChevronRightIcon
-							class={twMerge('size-3 transition', open ? 'rotate-90 transform' : '')}
-						/>
-						<span class=" underline">{labels[type]}</span>
-					</span>
-				</div>
-			{/snippet}
-
+	<Accordion bind:open={config.open as boolean}>
+		{#snippet summary(open)}
+			<div class="flex w-full items-center justify-between pb-2 text-sm font-light">
+				<span class="inline-flex items-center gap-1 text-muted-foreground">
+					<ChevronRightIcon
+						class={twMerge('size-3 transition', open ? 'rotate-90 transform' : '')}
+					/>
+					<span class=" underline">{labels[type]}</span>
+				</span>
+			</div>
+		{/snippet}
+		{#if shouldShowVisualisation(type, ads)}
 			{#if type === 'timeline'}
 				<ObservationsTimeline {ads} />
 			{/if}
@@ -128,6 +143,10 @@
 					useTab={false}
 				/>
 			{/if}
-		</Accordion>
-	{/if}
+		{:else}
+			<div class="flex h-24 items-center justify-center rounded bg-muted">
+				<span class="text-sm text-muted-foreground">No data available for this visualisation.</span>
+			</div>
+		{/if}
+	</Accordion>
 </div>

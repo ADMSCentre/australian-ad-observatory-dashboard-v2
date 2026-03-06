@@ -6,6 +6,7 @@
 	import type { BasicAdData } from '$lib/api/session/ads/types';
 	import parseActivationCode from '$lib/utils/parse-activation-code';
 	import type { SortDirection } from 'ag-grid-community';
+	import { onMount } from 'svelte';
 
 	const {
 		ads,
@@ -123,7 +124,12 @@
 		];
 	});
 
-	$inspect(includeObservers, 'includeObservers');
+	onMount(() => {
+		console.log('ObserversTable mounted');
+		console.log('Initial includeObservers:', includeObservers);
+	});
+
+	$inspect('[ObserversTable] includeObservers', includeObservers);
 
 	const rowData = $derived.by(() => {
 		return Object.entries(adsByObserverAndTime).map(([observer, ads]) => {
