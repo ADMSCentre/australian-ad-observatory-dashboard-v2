@@ -24,6 +24,7 @@
 		// Controls whether searches, comparisons and pasted values are treated as case-sensitive.
 		// true = case-sensitive; false = case-insensitive (normalizes to lower-case for matching)
 		caseSensitive = true,
+		stripWhitespaces = false,
 		onSelected
 	}: {
 		options: { value: any; label: string }[];
@@ -35,6 +36,7 @@
 		allowPasting?: boolean;
 		contentClass?: string;
 		caseSensitive?: boolean;
+		stripWhitespaces?: boolean;
 		onSelected?: (value: any[]) => void;
 	} = $props();
 
@@ -71,8 +73,15 @@
 	}
 
 	function normalise(value: any) {
-		if (typeof value === 'string') return caseSensitive ? value : value.toLocaleLowerCase();
+		if (typeof value === 'string') {
+			const stripped = stripWhitespaces ? value.trim() : value;
+			return caseSensitive ? stripped : stripped.toLocaleLowerCase();
+		}
 		return value;
+	}
+
+	function strip(value: any) {
+		return stripWhitespaces && typeof value === 'string' ? value.trim() : value;
 	}
 
 	function isSelected(value: any) {
@@ -80,6 +89,7 @@
 	}
 
 	function toggleSelection(value: any) {
+		value = strip(value);
 		if (isSelected(value)) {
 			selected = selected.filter((v) => normalise(v) !== normalise(value));
 		} else {
@@ -93,6 +103,7 @@
 	}
 
 	function removeSelection(value: any) {
+		value = strip(value);
 		selected = selected.filter((v) => normalise(v) !== normalise(value));
 		onSelected?.(selected);
 	}
@@ -108,22 +119,24 @@
 		return options
 			.filter((option) => {
 				if (!searchTerm || searchTerm.trim() === '') return true;
-				const term =
-					typeof searchTerm === 'string'
-						? caseSensitive
-							? searchTerm
-							: searchTerm.toLocaleLowerCase()
-						: searchTerm;
-				const label =
-					typeof option.label === 'string'
-						? caseSensitive
-							? option.label
-							: option.label.toLocaleLowerCase()
-						: option.label;
+				const term = normalise(searchTerm);
+				const label = normalise(option.label);
 				return typeof label === 'string' && label.includes(term as string);
 			})
 			.slice(0, 100); // Limit to first 100 results
 	});
+
+	const searchValue = $derived(strip(searchTerm));
+
+	function selectSearchValue() {
+		if (searchValue.trim() === '') return;
+		const match = options.find(
+			(o) =>
+				normalise(o.value) === normalise(searchValue) ||
+				normalise(o.label) === normalise(searchValue)
+		);
+		toggleSelection(match ? match.value : searchValue);
+	}
 
 	$inspect({
 		searchTerm,
@@ -259,49 +272,32 @@
 				{/if}
 				<Command.List>
 					<!-- Enable user to add terms not included in the list -->
-					{#if searchTerm.trimEnd() !== '' && !filteredOptions.some((o) => normalise(o.value) === normalise(searchTerm) || normalise(o.label) === normalise(searchTerm))}
+					{#if searchValue.trimEnd() !== '' && !filteredOptions.some((o) => normalise(o.value) === normalise(searchValue) || normalise(o.label) === normalise(searchValue))}
 						<Command.Group>
 							<Command.Item
-								value={searchTerm}
+								value={searchValue}
 								keywords={caseSensitive
-									? [searchTerm]
-									: [searchTerm, searchTerm.toLocaleLowerCase()]}
-								onSelect={() => {
-									if (searchTerm.trim() !== '') {
-										const match = options.find(
-											(o) =>
-												normalise(o.value) === normalise(searchTerm) ||
-												normalise(o.label) === normalise(searchTerm)
-										);
-										toggleSelection(match ? match.value : searchTerm);
-									}
-								}}
+									? [searchValue]
+									: [searchValue, searchValue.toLocaleLowerCase()]}
+								onSelect={selectSearchValue}
 								onclick={(e) => {
 									e.stopPropagation();
 									e.preventDefault();
-									if (searchTerm.trim() !== '') {
-										const match = options.find(
-											(o) =>
-												normalise(o.value) === normalise(searchTerm) ||
-												normalise(o.label) === normalise(searchTerm)
-										);
-										toggleSelection(match ? match.value : searchTerm);
-									}
+									selectSearchValue();
 								}}
 							>
 								<PlusIcon class="mr-2 size-4" />
-								{normalise(searchTerm)}
+								{normalise(searchValue)}
 							</Command.Item>
 						</Command.Group>
 					{/if}
 					<!-- <Command.Empty>No results found.</Command.Empty> -->
 					<Command.Group>
 						{#each filteredOptions as option}
+							{@const label = strip(option.label)}
 							<Command.Item
-								value={option.value}
-								keywords={caseSensitive
-									? [option.label]
-									: [option.label, option.label.toLocaleLowerCase()]}
+								value={strip(option.value)}
+								keywords={caseSensitive ? [label] : [label, label.toLocaleLowerCase()]}
 								onSelect={() => {
 									toggleSelection(option.value);
 								}}
@@ -312,7 +308,7 @@
 								}}
 							>
 								<Check class={cn('mr-2 size-4', !isSelected(option.value) && 'text-transparent')} />
-								<span>{option.label}</span>
+								<span>{label}</span>
 							</Command.Item>
 						{/each}
 						{#if clearable && selected.length > 0 && !disabled}

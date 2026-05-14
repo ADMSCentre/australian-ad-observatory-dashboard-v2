@@ -162,6 +162,7 @@
 				clearable
 				allowPasting
 				caseSensitive={false}
+				stripWhitespaces
 			/>
 		</div>
 	{/if}
