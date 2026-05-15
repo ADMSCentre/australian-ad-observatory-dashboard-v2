@@ -16,6 +16,7 @@
 	const { projectId }: { projectId: string } = $props();
 
 	let manager = $state<ProjectManager | null>();
+	let activeCellId = $state<string | null>(null);
 	onMount(() => {
 		session.projects.get(projectId).then((p) => {
 			if (p) {
@@ -75,7 +76,16 @@
 					>
 						<CellCreateMenu {index} />
 					</div>
-					<Cell bind:cell={manager.project.cells[index]} />
+					<Cell
+						bind:cell={manager.project.cells[index]}
+						active={activeCellId === cell.id}
+						onActivate={() => {
+							activeCellId = cell.id;
+						}}
+						onDeactivate={() => {
+							if (activeCellId === cell.id) activeCellId = null;
+						}}
+					/>
 				</div>
 			{/each}
 			{#if manager.project.cells.length === 0}

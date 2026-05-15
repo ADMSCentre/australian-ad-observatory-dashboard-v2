@@ -34,7 +34,8 @@ export class ProjectManager {
 			},
 			get isViewer() {
 				return user?.role === 'viewer' || this.isEditor || this.isAdmin;
-			}
+			},
+			displayName: authenticatedUser ? authenticatedUser.fullname || authenticatedUser.username : 'Unknown User'
 		};
 	}
 

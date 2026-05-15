@@ -1,16 +1,14 @@
 <script lang="ts">
 	import { session } from '$lib/api/session/session.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import Dropdown from '$lib/components/dropdown/dropdown.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Badge } from '$lib/components/ui/badge';
-	import { Plus, Users, X, CrownIcon, UserIcon } from 'lucide-svelte';
+	import { Plus, Search, Users, X, CrownIcon, UserIcon } from 'lucide-svelte';
 	import { PROJECT_MANAGER, ProjectManager } from 'mobile-observations/projects/manager.svelte';
 	import type { TeamMember } from 'mobile-observations/projects/types';
 	import { getContext } from 'svelte';
 	import { twMerge } from 'tailwind-merge';
 	import * as HoverCard from '$lib/components/ui/hover-card';
-	import UserSearch from '$lib/components/user-search/user-search.svelte';
 
 	const { class: className = '' }: { class?: string } = $props();
 
@@ -28,6 +26,12 @@
 		admin: 'Admins',
 		editor: 'Editors',
 		viewer: 'Viewers'
+	};
+
+	const roleOptionLabels: Record<Role, string> = {
+		admin: 'Admin',
+		editor: 'Editor',
+		viewer: 'Viewer'
 	};
 
 	const roleDescriptions: Record<Role, string> = {
@@ -48,6 +52,10 @@
 	let dragTargetRole = $state<Role | null>(null);
 	let deleteMemberUsername = $state<string | null>(null);
 	let deleteMemberDialogOpen = $state(false);
+	let memberSearchQuery = $state('');
+	let memberSearchOpen = $state(false);
+	let activeMemberSearchIndex = $state(0);
+	let memberSearchInput = $state<HTMLInputElement | null>(null);
 
 	const groupedMembers = $derived.by(() => {
 		const groups: Record<Role, TeamMember[]> = {
@@ -73,6 +81,20 @@
 			username: '',
 			role: 'viewer'
 		};
+	}
+
+	function getUserSearchLabel(username: string) {
+		const user = session.users.all.find((item) => item.username === username);
+		if (!user) return username;
+		return `${user.fullname || user.username} (${user.username})`;
+	}
+
+	function selectMember(username: string) {
+		newMember.username = username;
+		memberSearchQuery = getUserSearchLabel(username);
+		memberSearchOpen = false;
+		activeMemberSearchIndex = 0;
+		memberSearchInput?.focus();
 	}
 
 	function getMemberName(username: string) {
@@ -128,6 +150,41 @@
 			return !project.team.some((member) => member.username === user.username);
 		});
 	});
+
+	const filteredAvailableUsers = $derived.by(() => {
+		const query = memberSearchQuery.trim().toLowerCase();
+		if (!query) return availableUsers.slice(0, 8);
+		return availableUsers
+			.filter((user) => {
+				return [user.fullname, user.username, user.id].some((value) =>
+					value?.toLowerCase().includes(query)
+				);
+			})
+			.slice(0, 8);
+	});
+
+	function handleMemberSearchKeydown(event: KeyboardEvent) {
+		if (event.key === 'ArrowDown') {
+			event.preventDefault();
+			memberSearchOpen = true;
+			activeMemberSearchIndex = Math.min(
+				activeMemberSearchIndex + 1,
+				Math.max(filteredAvailableUsers.length - 1, 0)
+			);
+		}
+		if (event.key === 'ArrowUp') {
+			event.preventDefault();
+			activeMemberSearchIndex = Math.max(activeMemberSearchIndex - 1, 0);
+		}
+		if (event.key === 'Enter') {
+			event.preventDefault();
+			const user = filteredAvailableUsers[activeMemberSearchIndex];
+			if (user) selectMember(user.username);
+		}
+		if (event.key === 'Escape') {
+			memberSearchOpen = false;
+		}
+	}
 </script>
 
 {#if project}
@@ -142,10 +199,114 @@
 		<Dialog.Content class="sm:max-w-xl">
 			<Dialog.Header>
 				<Dialog.Title>Manage Team</Dialog.Title>
-				<Dialog.Description>Drag users between groups to change their role.</Dialog.Description>
 			</Dialog.Header>
 			<div class="flex flex-col gap-4">
+				{#if projectManager.currentUser.isAdmin}
+					<div class="border-b border-border pb-4">
+						<div class="space-y-1 mb-3">
+							<h3 class="text-sm font-semibold text-foreground">Add Collaborator</h3>
+							<p class="text-xs leading-5 text-muted-foreground">Use the form below to add a new collaborator to this project.</p>
+						</div>
+						<div class="flex flex-col gap-2 sm:flex-row">
+							<div class="relative flex-1">
+								<Search
+									class="pointer-events-none absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2 text-muted-foreground"
+								/>
+								<input
+									bind:this={memberSearchInput}
+									bind:value={memberSearchQuery}
+									type="text"
+									placeholder="Search for a user to add to project..."
+									autocomplete="off"
+									role="combobox"
+									aria-expanded={memberSearchOpen}
+									aria-controls="project-member-search-listbox"
+									aria-activedescendant={memberSearchOpen
+										? `project-member-search-option-${activeMemberSearchIndex}`
+										: undefined}
+									class="h-9 w-full rounded-md border border-input bg-background py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+									oninput={() => {
+										newMember.username = '';
+										memberSearchOpen = true;
+										activeMemberSearchIndex = 0;
+									}}
+									onclick={() => {
+										memberSearchOpen = true;
+									}}
+									onblur={() => {
+										setTimeout(() => {
+											memberSearchOpen = false;
+										}, 100);
+									}}
+									onkeydown={handleMemberSearchKeydown}
+								/>
+								{#if memberSearchOpen}
+									<ul
+										id="project-member-search-listbox"
+										role="listbox"
+										class="absolute left-0 top-full z-50 mt-1 max-h-56 w-full overflow-y-auto rounded-md border border-border bg-card shadow-md"
+									>
+										{#each filteredAvailableUsers as user, index (user.username)}
+											<li
+												id={`project-member-search-option-${index}`}
+												role="option"
+												aria-selected={index === activeMemberSearchIndex}
+												class={twMerge(
+													'flex cursor-pointer flex-col px-3 py-2 text-sm transition-colors',
+													index === activeMemberSearchIndex
+														? 'bg-accent text-accent-foreground'
+														: 'text-foreground hover:bg-muted'
+												)}
+												onmousedown={(event) => {
+													event.preventDefault();
+													selectMember(user.username);
+												}}
+												onmouseenter={() => {
+													activeMemberSearchIndex = index;
+												}}
+											>
+												<span class="font-medium">{user.fullname || user.username}</span>
+												<span class="text-xs text-muted-foreground">{user.username}</span>
+											</li>
+										{/each}
+										{#if filteredAvailableUsers.length === 0}
+											<li class="px-3 py-2 text-sm text-muted-foreground">No users found.</li>
+										{/if}
+									</ul>
+								{/if}
+							</div>
+							<select
+								bind:value={newMember.role}
+								class="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring sm:w-32"
+							>
+								{#each roles as role (role)}
+									<option value={role}>{roleOptionLabels[role]}</option>
+								{/each}
+							</select>
+							<Button
+								class="h-9 gap-2"
+								disabled={!newMember.username}
+								onclick={() => {
+									addMember();
+									memberSearchQuery = '';
+									memberSearchOpen = false;
+									activeMemberSearchIndex = 0;
+								}}
+							>
+								<Plus class="size-4" />
+								Add
+							</Button>
+						</div>
+					</div>
+				{/if}
+
 				<div class="flex flex-col gap-4">
+					<div class="space-y-1">
+						<h3 class="text-sm font-semibold text-foreground">Current Users</h3>
+						<p class="text-xs leading-5 text-muted-foreground">
+							Drag users between groups to change their role.
+						</p>
+					</div>
 					{#each roles as role (role)}
 						<section
 							role="group"
@@ -178,7 +339,7 @@
 											<Badge
 												variant="secondary"
 												class={twMerge(
-													'gap-1 rounded-md border border-border bg-background py-1 pr-1 text-foreground cursor-default',
+													'cursor-default gap-1 rounded-md border border-border bg-background py-1 pr-1 text-foreground',
 													projectManager.currentUser.isAdmin &&
 														!isOwner &&
 														'cursor-grab active:cursor-grabbing'
@@ -211,7 +372,9 @@
 										</HoverCard.Trigger>
 										<HoverCard.Content class="flex w-fit flex-col gap-1 rounded-xl">
 											<p class="text-sm font-semibold">{memberUser?.fullname || member.username}</p>
-											<p class="text-xs text-muted-foreground">{memberUser?.username || member.username}</p>
+											<p class="text-xs text-muted-foreground">
+												{memberUser?.username || member.username}
+											</p>
 										</HoverCard.Content>
 									</HoverCard.Root>
 								{/each}
@@ -219,42 +382,6 @@
 						</section>
 					{/each}
 				</div>
-
-				{#if projectManager.currentUser.isAdmin}
-					<div
-						class="grid grid-cols-[minmax(0,1fr)_7.5rem_auto] items-center gap-x-2 gap-y-2 border-t border-border pt-4"
-					>
-						<UserSearch
-							users={availableUsers}
-							bind:selected={newMember.username}
-							placeholder="New member"
-							triggerClass="w-full h-8 px-2 text-xs"
-							contentClass="w-72"
-						/>
-						<Dropdown
-							bind:selected={newMember.role}
-							triggerClass="w-full h-8 px-2 text-xs"
-							contentClass="w-32"
-							options={[
-								{
-									label: 'Viewer',
-									value: 'viewer'
-								},
-								{
-									label: 'Editor',
-									value: 'editor'
-								},
-								{
-									label: 'Admin',
-									value: 'admin'
-								}
-							]}
-						/>
-						<Button size="icon" class="size-8" disabled={!newMember.username} onclick={addMember}>
-							<Plus class="size-4" />
-						</Button>
-					</div>
-				{/if}
 			</div>
 		</Dialog.Content>
 	</Dialog.Root>

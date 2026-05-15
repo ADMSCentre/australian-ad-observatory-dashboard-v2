@@ -30,18 +30,17 @@
 	}
 
 	function accessibleSummary() {
-		if (accessibleMembers.length === 0) return 'Accessible by project owner only';
+		if (accessibleMembers.length === 0) return 'No collaborators were added to this project';
 
-		const names = visibleAccessibleMembers.map((member) => getMemberName(member.username));
-		const prefix =
-			names.length === 1
-				? names[0]
-				: names.length === 2
-					? `${names[0]} and ${names[1]}`
-					: `${names.slice(0, -1).join(', ')}, and ${names[names.length - 1]}`;
+		const names = visibleAccessibleMembers
+			.map((member) => getMemberName(member.username))
+			.filter(Boolean);
 
-		if (additionalAccessibleCount === 0) return `Also accessible by ${prefix}`;
-		return `Also accessible by ${prefix}, and ${additionalAccessibleCount} others`;
+		// If only two, show A and B:
+		if (names.length === 1) return `Also accessible by ${names[0]}`;
+		if (names.length === 2) return `Also accessible by ${names[0]} and ${names[1]}`;
+		// If more than 3, show A, B, C, and X others:
+		return `Also accessible by ${names[0]}, ${names[1]}, ${names[2]}, and ${additionalAccessibleCount} other${additionalAccessibleCount === 1 ? '' : 's'}`;
 	}
 </script>
 

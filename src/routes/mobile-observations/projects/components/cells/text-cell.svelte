@@ -4,7 +4,7 @@
 	import type { TextCell } from 'mobile-observations/projects/types';
 	import { getContext } from 'svelte';
 
-	let { cell = $bindable() }: { cell: TextCell } = $props();
+	let { cell = $bindable(), active = false }: { cell: TextCell; active?: boolean } = $props();
 	const projectManager = (getContext(PROJECT_MANAGER) as () => ProjectManager | undefined)();
 	if (!projectManager)
 		throw new Error(
@@ -20,7 +20,7 @@
 	menus={{
 		floating: false,
 		bubble: false,
-		toolbar: true
+		toolbar: active
 	}}
 	placeholder="Enter text (Markdown supported)..."
 	bind:value={cell.content}
