@@ -149,8 +149,6 @@
 		if (interval) clearInterval(interval);
 		loading = false;
 		current = 0;
-		console.log('Completed fetching tables');
-
 		const joinedRows = tables.map((t) => t.rows).flat();
 		const joinedTable: TableObjectType = {
 			...tables[0],
@@ -163,8 +161,8 @@
 
 <Dialog.Root>
 	<Dialog.Trigger>
-		<Button>
-			<DownloadIcon />
+		<Button class="h-9 gap-2">
+			<DownloadIcon class="size-4" />
 			{#if loading}
 				Exporting... <span class="font-mono">{formattedEta}</span>
 			{:else}
@@ -172,28 +170,30 @@
 			{/if}
 		</Button>
 	</Dialog.Trigger>
-	<Dialog.Content class="max-h-screen max-w-screen-lg overflow-y-auto">
+	<Dialog.Content class="max-h-screen max-w-screen-lg overflow-y-auto rounded-xl">
 		<Dialog.Header>
-			<Dialog.Title>Export Data</Dialog.Title>
+			<Dialog.Title>Export data</Dialog.Title>
 		</Dialog.Header>
-		<div class="flex flex-col gap-4">
+		<div class="flex flex-col gap-4 pt-2">
 			<ExportFieldsSelector {allKeys} bind:selectedKeys disabled={loading} />
-			<span class="text-lg font-semibold">Preview</span>
+			<span class="text-lg font-semibold tracking-normal">Preview</span>
 			{#if (!loading || tables.length == 0) && adData.length > 0 && adData[0].richDataObject}
 				<AdTable richDataObject={attachRichDataObject(adData[0])} {selectedKeys} class="h-72" />
 			{:else}
 				<Table table={fullTable} />
 			{/if}
-			<div class="flex w-full gap-4">
-				<Button onclick={startExport} disabled={loading}>
-					<DownloadIcon />
+			<div
+				class="flex w-full flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center"
+			>
+				<Button class="h-9 gap-2" onclick={startExport} disabled={loading}>
+					<DownloadIcon class="size-4" />
 					Export data
 				</Button>
 				{#if loading}
-					<div class="flex w-full items-center gap-2">
+					<div class="flex w-full items-center gap-2 text-sm text-muted-foreground">
 						<span class="text-nowrap">Data export in progress...</span>
 						<Progress value={progress} />
-						<span>{progress.toFixed(2)}%</span>
+						<span class="font-mono text-xs tabular-nums">{progress.toFixed(2)}%</span>
 					</div>
 				{/if}
 			</div>

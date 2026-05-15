@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { onDestroy, onMount } from 'svelte';
+	import { onDestroy } from 'svelte';
+	import { twMerge } from 'tailwind-merge';
 
 	const {
 		exp,
@@ -47,7 +48,7 @@
 </script>
 
 {#if timeLeft !== undefined}
-	<span class={className}>
+	<span class={twMerge('font-mono text-sm font-semibold tabular-nums tracking-normal', className)}>
 		{formatTime(timeLeft)}
 	</span>
 {/if}

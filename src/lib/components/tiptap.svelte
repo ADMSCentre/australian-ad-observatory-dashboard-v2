@@ -1,19 +1,15 @@
 <script lang="ts">
-	import { onMount, onDestroy, type Component } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import StarterKit from '@tiptap/starter-kit';
 	import Placeholder from '@tiptap/extension-placeholder';
 	import Link from '@tiptap/extension-link';
-	import BulletList from '@tiptap/extension-bullet-list';
-	import OrderedList from '@tiptap/extension-ordered-list';
-	import ListItem from '@tiptap/extension-list-item';
 	import { twMerge } from 'tailwind-merge';
 	import Underline from '@tiptap/extension-underline';
-	import { createEditor, Editor, EditorContent, FloatingMenu, BubbleMenu } from 'svelte-tiptap';
+	import { createEditor, Editor, EditorContent, BubbleMenu } from 'svelte-tiptap';
 	import type { Readable } from 'svelte/store';
 	import * as ToggleGroup from '$lib/components/ui/toggle-group/index.js';
 	import {
 		Bold,
-		Heading,
 		Heading1,
 		Heading2,
 		Heading3,
@@ -35,11 +31,13 @@
 		disabled = false,
 		menus = { bubble: true, floating: true, toolbar: true },
 		oninput = () => {},
-		inputDebounceAmount = 500
+		inputDebounceAmount = 500,
+		editorClasses = ''
 	}: {
 		value?: string;
 		placeholder?: string;
 		class?: string;
+		editorClasses?: string;
 		disabled?: boolean;
 		menus?: {
 			bubble?: boolean;
@@ -59,7 +57,7 @@
 			}, delay);
 		};
 	};
-	const oninputDebounced = debounced((value: string) => oninput(value), inputDebounceAmount);
+	let oninputDebounced = $derived(debounced((text: string) => oninput(text), inputDebounceAmount));
 
 	onMount(() => {
 		editor = createEditor({
@@ -271,16 +269,22 @@
 	});
 </script>
 
-<!-- <div class={twMerge('relative size-full rounded border p-2', className)} bind:this={element}></div> -->
-
-<div class={twMerge('relative flex size-full flex-col border ', className)}>
+<div
+	class={twMerge(
+		'relative flex size-full flex-col rounded-xl border border-border bg-card text-sm shadow-none transition-colors duration-200 focus-within:border-amber-300',
+		className
+	)}
+>
 	{#if $editor && !disabled}
-		<EditorContent editor={$editor} class="box-border h-full flex-1 overflow-y-auto p-2" />
+		<EditorContent
+			editor={$editor}
+			class={twMerge('box-border h-full flex-1 overflow-y-auto p-3', editorClasses)}
+		/>
 		{#if menus.toolbar}
 			<ToggleGroup.Root
 				type="multiple"
 				class={twMerge(
-					'absolute top-0 flex w-fit -translate-y-1/2 flex-wrap justify-start gap-1 border bg-background p-1',
+					'absolute left-3 top-0 flex w-fit -translate-y-1/2 flex-wrap justify-start gap-1 rounded-lg border border-border bg-background p-1 shadow-sm',
 					!isFocused && 'pointer-events-none invisible'
 				)}
 				value={formatGroups.flatMap((group) =>
@@ -288,14 +292,14 @@
 				)}
 				onValueChange={toggleFormats}
 			>
-				{#each formatGroups as group}
-					{#each group.formats as format}
+				{#each formatGroups as group (group.formats.map((format) => format.name).join('-'))}
+					{#each group.formats as format (format.name)}
 						<ToggleGroup.Item
 							value={format.name}
 							aria-label={format.label}
-							class="!inline !size-fit min-w-0 flex-grow-0 !p-1"
+							class="!inline !size-7 min-w-0 flex-grow-0 !p-1 text-muted-foreground data-[state=on]:text-foreground"
 						>
-							<format.icon />
+							<format.icon class="size-4" />
 						</ToggleGroup.Item>
 					{/each}
 				{/each}
@@ -305,15 +309,19 @@
 			<BubbleMenu editor={$editor} tippyOptions={{ duration: 100 }}>
 				<ToggleGroup.Root
 					type="multiple"
-					class="bubble-menu"
+					class="bubble-menu flex gap-1 rounded-lg border border-border bg-background p-1 shadow-sm"
 					value={formatGroups.flatMap((group) =>
 						group.formats.filter((format) => format.isActive()).map((format) => format.name)
 					)}
 					onValueChange={toggleFormats}
 				>
-					{#each formatGroups as group}
-						{#each group.formats as format}
-							<ToggleGroup.Item value={format.name} aria-label={format.label}>
+					{#each formatGroups as group (group.formats.map((format) => format.name).join('-'))}
+						{#each group.formats as format (format.name)}
+							<ToggleGroup.Item
+								value={format.name}
+								aria-label={format.label}
+								class="size-7 p-1 text-muted-foreground data-[state=on]:bg-muted data-[state=on]:text-foreground"
+							>
 								<format.icon class="size-4" />
 							</ToggleGroup.Item>
 						{/each}
@@ -324,7 +332,14 @@
 	{/if}
 
 	{#if disabled}
-		<div class="rendered-text box-border h-full flex-1 overflow-y-auto p-2">{@html value}</div>
+		<div
+			class={twMerge(
+				'rendered-text box-border h-full flex-1 overflow-y-auto p-3 text-sm leading-6',
+				editorClasses
+			)}
+		>
+			{@html value}
+		</div>
 	{/if}
 </div>
 
@@ -343,31 +358,52 @@
 	}
 
 	:global(.ProseMirror) {
-		@apply relative size-full select-none bg-background leading-normal text-foreground focus:outline-none;
-		& ul {
-			@apply list-disc pl-6;
-		}
-		& ol {
-			@apply list-decimal pl-6;
-		}
+		position: relative;
+		width: 100%;
+		height: 100%;
+		user-select: none;
+		background: hsl(var(--background));
+		color: hsl(var(--foreground));
+		font-size: 0.875rem;
+		line-height: 1.5rem;
 	}
 
-	:global(.bubble-menu) {
-		@apply flex rounded-lg border bg-background;
+	:global(.ProseMirror:focus) {
+		outline: none;
+	}
 
-		button {
-			background-color: unset;
+	:global(.ProseMirror ul) {
+		margin: 0.5rem 0;
+		list-style: disc;
+		padding-left: 1.5rem;
+	}
 
-			&:hover {
-				@apply bg-muted;
-			}
+	:global(.ProseMirror ol) {
+		margin: 0.5rem 0;
+		list-style: decimal;
+		padding-left: 1.5rem;
+	}
 
-			&.is-active {
-				@apply bg-zinc-500;
-				&:hover {
-					@apply bg-zinc-600;
-				}
-			}
-		}
+	:global(.ProseMirror p) {
+		margin: 0.25rem 0;
+	}
+
+	:global(.ProseMirror h1) {
+		font-size: 1.25rem;
+		font-weight: 600;
+		letter-spacing: 0;
+	}
+
+	:global(.ProseMirror h2) {
+		font-size: 1.125rem;
+		font-weight: 600;
+		letter-spacing: 0;
+	}
+
+	:global(.ProseMirror h3),
+	:global(.ProseMirror h4) {
+		font-size: 1rem;
+		font-weight: 600;
+		letter-spacing: 0;
 	}
 </style>

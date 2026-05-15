@@ -447,7 +447,7 @@
 
 {#snippet adRow(item: RichAdData[])}
 	<div class="flex w-full flex-col items-center">
-		<div class="grid w-full gap-10" style={`grid-template-columns: repeat(${cardsPerRow}, 1fr)`}>
+		<div class="grid w-full gap-4" style={`grid-template-columns: repeat(${cardsPerRow}, 1fr)`}>
 			{#each item as adData (adData.adId)}
 				<div class="will-change-transform">
 					<AdCard
@@ -462,12 +462,12 @@
 	</div>
 {/snippet}
 
-<div class="relative flex flex-col gap-4" bind:clientWidth>
+<div class="relative flex flex-col gap-4 py-4" bind:clientWidth>
 	<!-- Controls (grouping, ordering) -->
 	<div
-		class="flex flex-col items-end gap-2 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+		class="flex flex-col gap-3 text-sm lg:flex-row lg:items-center lg:justify-between"
 	>
-		<div class="relative flex items-center gap-2">
+		<div class="relative flex flex-wrap items-center gap-2">
 			<HoverCard.Root>
 				<HoverCard.Trigger class="no-underline">
 					<Input
@@ -477,13 +477,15 @@
 							const target = e.target as HTMLInputElement;
 							searchDebounce(target.value);
 						}}
-						class="pl-8"
+						class="h-9 bg-background pl-9 text-sm"
 					/>
-					<SearchIcon class="absolute left-2 top-1/2 -translate-y-1/2 transform" size={20} />
+					<SearchIcon
+						class="absolute left-3 top-1/2 size-4 -translate-y-1/2 transform text-muted-foreground"
+					/>
 				</HoverCard.Trigger>
-				<HoverCard.Content class="w-fit max-w-sm">
-					<h3 class="mb-2 text-base font-semibold">Search Ads</h3>
-					<p class="text-sm text-muted-foreground">
+				<HoverCard.Content class="w-80 rounded-xl">
+					<h3 class="mb-2 text-base font-semibold">Search ads</h3>
+					<p class="text-sm leading-5 text-muted-foreground">
 						Search ads by Ad ID or Observer ID. The search is case-insensitive and matches any part
 						of the ID.
 					</p>
@@ -492,34 +494,34 @@
 
 			<Popover.Root>
 				<Popover.Trigger>
-					<Button variant="outline" class="ml-2 flex items-center gap-2">
+					<Button variant="outline" class="h-9 gap-2">
 						{#if loading}
 							{@const percent = Math.floor((progress.completed / progress.total) * 100)}
 
 							<ProgressCircle size={16} {progress} />
 							<span>
 								Preparing filters...
-								<span class="text-xs font-light text-foreground/75">
+								<span class="font-mono text-xs tabular-nums text-foreground/75">
 									{percent}%
 								</span>
 							</span>
 						{:else}
-							<FilterIcon size={16} />
+							<FilterIcon class="size-4" />
 							<span>Filters</span>
-							<ChevronRight size={16} />
+							<ChevronRight class="size-4" />
 						{/if}
 					</Button>
 				</Popover.Trigger>
-				<Popover.Content class="w-fit">
-					<h2 class=" text-lg font-medium">Filters</h2>
-					<p class=" text-sm text-muted-foreground">
+				<Popover.Content class="w-80 rounded-xl p-4 shadow-sm">
+					<h2 class="text-lg font-semibold tracking-normal">Filters</h2>
+					<p class="text-sm leading-5 text-muted-foreground">
 						Narrow down the ads displayed with the filters below.
 					</p>
-					<div class="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-2 py-4">
+					<div class="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-3 py-4 text-sm">
 						{#if allowAttributesFilter}
-							{#each attributeFilterOptions as { label, value, attribute }}
+							{#each attributeFilterOptions as { label, value, attribute } (attribute)}
 								<div class="contents">
-									<span>{label}</span>
+									<span class="font-medium text-muted-foreground">{label}</span>
 									{#if loading}
 										<LoaderCircleIcon class="animate-spin" size={16} />
 									{:else}
@@ -530,7 +532,7 @@
 												value: key,
 												label: option.label
 											}))}
-											triggerClass="w-full"
+											triggerClass="w-full h-8 text-xs"
 											contentClass="w-fit"
 											disabled={loading}
 											selected={value}
@@ -563,7 +565,7 @@
 										...session.tags.all.map((t) => ({ value: t.id, label: t.name })),
 										{ value: null, label: 'No tag' }
 									]}
-									triggerClass="w-full"
+									triggerClass="w-full h-8 text-xs"
 									disabled={session.tags.loading}
 									bind:selected={selectedTagIds}
 									clearable={true}
@@ -574,7 +576,7 @@
 						</div>
 
 						<div class="contents">
-							<span>Classifications</span>
+							<span class="font-medium text-muted-foreground">Classifications</span>
 							{#if loading}
 								<LoaderCircleIcon class="animate-spin" size={16} />
 							{:else}
@@ -590,7 +592,7 @@
 											label: 'Unclassified'
 										})}
 									disabled={loading}
-									triggerClass="w-full"
+									triggerClass="w-full h-8 text-xs"
 									bind:selected={selectedClassifications}
 									clearable={true}
 									searchable={true}
@@ -603,14 +605,14 @@
 				>
 			</Popover.Root>
 		</div>
-		<div class="flex items-center gap-2">
+		<div class="flex flex-wrap items-center gap-2">
 			<div class="flex items-center gap-2">
-				<p>Group by:</p>
+				<p class="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Group</p>
 				<Dropdown
 					options={groups}
 					selected={groupBy.value}
-					triggerClass="w-fit"
-					contentClass="w-fit"
+					triggerClass="w-32 h-8 text-xs"
+					contentClass="w-32"
 					onSelected={(option: string) => {
 						groupBy = groups.find((g) => g.value === option) || groups[0];
 						// Update URL
@@ -621,12 +623,12 @@
 				/>
 			</div>
 			<div class="flex items-center gap-2">
-				<p>Sort by:</p>
+				<p class="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Sort</p>
 				<Dropdown
 					options={sortOptions}
 					selected={sortBy.value}
-					triggerClass="w-fit"
-					contentClass="w-fit"
+					triggerClass="w-32 h-8 text-xs"
+					contentClass="w-32"
 					onSelected={(option: string) => {
 						sortBy = sortOptions.find((s) => s.value === option) || sortOptions[0];
 						// Update URL
@@ -640,8 +642,10 @@
 	</div>
 
 	{#if !groupedAds || groupedAds.length === 0}
-		<div class="flex h-full w-full items-center justify-center">
-			<p class="text-muted-foreground">
+		<div
+			class="flex h-full min-h-32 w-full items-center justify-center p-6 text-center"
+		>
+			<p class="text-sm leading-6 text-muted-foreground">
 				There are {ads.length} ad{ads.length > 1 ? 's' : ''} in the sample, but none match the filters.
 				Try changing the filters to see the ads.
 			</p>
@@ -659,21 +663,26 @@
 				>
 					{#snippet summary(open)}
 						<div
-							class="sticky top-0 z-10 flex w-full cursor-pointer items-center gap-2 border-b bg-background bg-opacity-50 px-2 py-1.5 text-left font-medium backdrop-blur-sm"
+							class="sticky top-0 z-10 flex w-full cursor-pointer items-center gap-2 overflow-hidden rounded-xl bg-background/90 px-3 py-2 text-left text-sm font-medium backdrop-blur-sm"
 						>
 							<ChevronRight
-								class={twMerge('size-4 transition', open ? 'rotate-90 transform' : '')}
+								class={twMerge(
+									'z-10 size-4 shrink-0 text-muted-foreground transition',
+									open ? 'rotate-90 transform' : ''
+								)}
 							/>
-							{groupKey} ({adData.length} ad{adData.length > 1 ? 's' : ''})
+							<span class="z-10">
+								{groupKey} ({adData.length} ad{adData.length > 1 ? 's' : ''})
+							</span>
 							<!-- Ad count bar background -->
 							<div
-								class="absolute left-0 top-0 h-full bg-gradient-to-r from-foreground/25 to-transparent"
+								class="absolute left-0 top-0 h-full bg-gradient-to-r from-amber-100 to-transparent"
 								style={`width: ${adCountBarWidth}`}
 							></div>
 						</div>
 					{/snippet}
 
-					<div transition:slide class={twMerge(adData.length > 0 ? 'p-4' : '')}>
+					<div transition:slide class={twMerge(adData.length > 0 ? 'py-4' : '')}>
 						{#if virtualised}
 							<WindowVirtualizer data={rowData} overscan={3} itemSize={450}>
 								{#snippet children(item, index)}

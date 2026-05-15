@@ -15,13 +15,17 @@
 	} = $props();
 </script>
 
-<Button {variant} class="p-0" {...restProps}>
-	{label}
+<Button
+	{variant}
+	class="h-auto gap-1.5 p-0 text-xs font-semibold uppercase tracking-widest text-muted-foreground hover:text-foreground"
+	{...restProps}
+>
+	<span class="truncate">{label}</span>
 	{#if sortDir === 'asc'}
-		<ArrowUp class="ml-2 size-4" />
+		<ArrowUp class="size-3.5 shrink-0" />
 	{:else if sortDir === 'desc'}
-		<ArrowDown class="ml-2 size-4" />
+		<ArrowDown class="size-3.5 shrink-0" />
 	{:else}
-		<span class="ml-2 size-4"></span>
+		<span class="size-3.5 shrink-0"></span>
 	{/if}
 </Button>

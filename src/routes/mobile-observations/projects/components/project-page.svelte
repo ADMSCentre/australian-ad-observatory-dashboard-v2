@@ -1,14 +1,7 @@
 <script lang="ts">
-	import {
-		type Project,
-		type TextCell as TextCellType,
-		type QueryCell as QueryCellType
-	} from '../types';
-	import TextCell from './cells/text-cell.svelte';
-	import QueryCell from './cells/query-cell.svelte';
+	import { type QueryCell as QueryCellType } from '../types';
 	import ProjectHeader from './project-header.svelte';
-	import CellControls from './cells/cell-controls.svelte';
-	import { getContext, onDestroy, onMount, setContext, untrack } from 'svelte';
+	import { onDestroy, onMount, setContext } from 'svelte';
 	import { PROJECT_MANAGER, ProjectManager } from '../manager.svelte';
 	import { flip } from 'svelte/animate';
 	import CellCreateMenu from './cells/cell-create-menu.svelte';
@@ -16,17 +9,14 @@
 	import { withBase } from '$lib/utils';
 	import { ArrowLeft } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { twMerge } from 'tailwind-merge';
 	import { session } from '$lib/api/session/session.svelte';
 	import Cell from './cells/cell.svelte';
 	import CreateExportDialog from '../../../exports/components/create-export-dialog.svelte';
-	import { goto } from '$app/navigation';
 
 	const { projectId }: { projectId: string } = $props();
 
 	let manager = $state<ProjectManager | null>();
 	onMount(() => {
-		console.log(`Project page mounted with projectId: ${projectId}, running all queries...`);
 		session.projects.get(projectId).then((p) => {
 			if (p) {
 				manager = new ProjectManager(p);
@@ -36,7 +26,6 @@
 	});
 
 	onDestroy(() => {
-		console.log('Project page destroyed, aborting all cells...');
 		if (manager) {
 			manager.abortAllCells();
 			manager = null;
@@ -64,21 +53,25 @@
 </svelte:head>
 
 {#if manager && manager.project}
-	<div class="flex h-full flex-col gap-8 p-4">
+	<div class="flex h-full w-full flex-col gap-4 px-2 sm:px-4">
 		{#if !auth.isGuest}
-			<div class="flex justify-between">
-				<Button href={withBase('/mobile-observations/projects')}>
-					<ArrowLeft />
+			<div class="flex justify-between border-b border-border pb-4">
+				<Button
+					variant="outline"
+					class="h-9 gap-2"
+					href={withBase('/mobile-observations/projects')}
+				>
+					<ArrowLeft class="size-4" />
 					Back
 				</Button>
 			</div>
 		{/if}
 		<ProjectHeader />
-		<div class="flex h-full flex-col gap-2">
+		<div class="flex h-full flex-col gap-4">
 			{#each manager.project.cells as cell, index (cell.id)}
-				<div class="group flex h-full flex-col gap-2" animate:flip={{ duration: 300 }}>
+				<div class="group flex h-full flex-col gap-2" animate:flip={{ duration: 240 }}>
 					<div
-						class="flex w-full items-center justify-center opacity-0 transition-opacity group-hover:opacity-100"
+						class="flex w-full items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100"
 					>
 						<CellCreateMenu {index} />
 					</div>
@@ -86,14 +79,14 @@
 				</div>
 			{/each}
 			{#if manager.project.cells.length === 0}
-				<p>
-					You have not added any observations to this project yet. Click the "+ Query" button below
-					to construct a new query.
-				</p>
+				<div class="rounded-xl border border-border bg-muted/30 p-6 text-center">
+					<p class="text-sm leading-6 text-muted-foreground">
+						You have not added any observations to this project yet. Add a text or query cell to
+						start building the project.
+					</p>
+				</div>
 			{/if}
-			<div
-				class={twMerge('flex w-full items-center justify-center opacity-100 transition-opacity')}
-			>
+			<div class="flex w-full items-center justify-center">
 				<CellCreateMenu index={manager.project.cells.length} />
 			</div>
 		</div>

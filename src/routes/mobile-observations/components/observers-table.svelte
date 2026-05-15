@@ -6,7 +6,6 @@
 	import type { BasicAdData } from '$lib/api/session/ads/types';
 	import parseActivationCode from '$lib/utils/parse-activation-code';
 	import type { SortDirection } from 'ag-grid-community';
-	import { onMount } from 'svelte';
 
 	const {
 		ads,
@@ -79,7 +78,6 @@
 	});
 
 	const columnDefs = $derived.by(() => {
-		console.log('Recomputing columnDefs');
 		return [
 			{
 				headerName: 'Activation Code',
@@ -124,13 +122,6 @@
 		];
 	});
 
-	onMount(() => {
-		console.log('ObserversTable mounted');
-		console.log('Initial includeObservers:', includeObservers);
-	});
-
-	$inspect('[ObserversTable] includeObservers', includeObservers);
-
 	const rowData = $derived.by(() => {
 		return Object.entries(adsByObserverAndTime).map(([observer, ads]) => {
 			const row: { observer: string; activationCode: string; [key: string]: any } = {
@@ -148,7 +139,7 @@
 	});
 </script>
 
-<div class="h-96">
+<div class="h-96 py-3">
 	<AgGrid
 		{columnDefs}
 		{rowData}

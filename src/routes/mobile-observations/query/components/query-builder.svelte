@@ -130,7 +130,7 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	class="relative flex w-fit flex-col items-center gap-1 p-2"
+	class="relative flex w-fit flex-col items-center gap-1 rounded-xl p-1"
 	onmouseenter={(e) => toggleShowAndOr(e, true)}
 	onmouseleave={(e) => toggleShowAndOr(e, false)}
 	onclick={(e) => {
@@ -138,10 +138,10 @@
 		e.preventDefault();
 	}}
 >
-	<div class=" flex items-center gap-1">
+	<div class="flex items-center gap-1">
 		<div
 			class={twMerge(
-				'relative flex w-fit items-center gap-2 rounded border border-dashed',
+				'relative flex w-fit items-center gap-2 rounded-lg border border-dashed border-border bg-background p-1 text-sm',
 				flexDirection,
 				methodType === 'function' && 'border-none',
 				className
@@ -173,9 +173,9 @@
 				transition:slide={{ duration: 150, axis: 'x' }}
 			>
 				<Button
-					variant="link"
+					variant="outline"
 					size="sm"
-					class="pointer-events-auto size-fit p-0 text-2xs opacity-10 hover:opacity-100"
+					class="pointer-events-auto h-7 rounded-full px-2 text-[10px] font-semibold uppercase tracking-widest opacity-20 transition-opacity hover:opacity-100"
 					onclick={addAnd}
 				>
 					+ AND
@@ -186,8 +186,8 @@
 	{#if showAndOr && !disabled}
 		<div class="z-10 -mt-3 size-fit" transition:slide={{ duration: 150, axis: 'y' }}>
 			<Button
-				variant="link"
-				class="pointer-events-auto size-fit p-0 text-2xs opacity-10 hover:opacity-100"
+				variant="outline"
+				class="pointer-events-auto h-7 rounded-full px-2 text-[10px] font-semibold uppercase tracking-widest opacity-20 transition-opacity hover:opacity-100"
 				size="sm"
 				onclick={addOr}
 			>

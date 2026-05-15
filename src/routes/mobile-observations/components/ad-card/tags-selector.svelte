@@ -28,8 +28,6 @@
 		});
 	});
 
-	$inspect('Ordered tags', orderedTags);
-
 	const appliedTags = $derived.by(() => {
 		return orderedTags.filter((tag) => isTagApplied(tag.id));
 	});
@@ -90,7 +88,7 @@
 {#snippet tag(tag: Tag)}
 	<Button
 		variant="ghost"
-		class="group/tag-button relative flex size-fit items-center gap-2 overflow-clip rounded-md p-0"
+		class="group/tag-button relative flex size-fit items-center gap-2 overflow-clip rounded-full p-0"
 		onclick={() => {
 			if (isTagApplied(tag.id)) {
 				removeTag(tag);
@@ -121,7 +119,7 @@
 
 {#if appliedTags.length > 0}
 	<div class="flex flex-col gap-2">
-		<p class="text-xs text-muted-foreground">Current tags (click to remove)</p>
+		<p class="text-xs font-medium text-muted-foreground">Current tags</p>
 		<div class="flex flex-wrap gap-2">
 			{#each appliedTags as t}
 				{@render tag(t)}
@@ -131,7 +129,7 @@
 {/if}
 {#if unappliedTags.length > 0}
 	<div class="flex flex-col gap-2">
-		<p class="text-xs text-muted-foreground">Click to apply one or more tags</p>
+		<p class="text-xs font-medium text-muted-foreground">Available tags</p>
 		<div class="flex flex-wrap gap-2">
 			{#each unappliedTags as t}
 				{@render tag(t)}
@@ -144,8 +142,8 @@
 {/if}
 
 <!-- Create new tag form -->
-<div class="flex flex-col gap-2">
-	<p class="text-xs text-muted-foreground">Create a new tag</p>
+<div class="flex flex-col gap-2 pt-2">
+	<p class="text-xs font-medium text-muted-foreground">Create a new tag</p>
 	<CreateTagForm
 		include={{ description: false, labels: false, prompt: false }}
 		randomizerClasses={{
@@ -154,8 +152,8 @@
 		}}
 		class="bg-transparent p-0"
 		formClass="flex items-center w-full gap-1.5"
-		inputClass="h-fit px-1 py-0.5"
-		createButtonClass="size-6 rounded bg-primary p-1 aspect-square text-primary-foreground hover:opacity-90 disabled:opacity-15"
+		inputClass="h-8 px-2 py-1 text-sm"
+		createButtonClass="size-8 rounded-md bg-primary p-1 aspect-square text-primary-foreground hover:opacity-90 disabled:opacity-15"
 	>
 		{#snippet createButtonContent()}
 			+

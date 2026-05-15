@@ -7,7 +7,6 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { cn } from '$lib/utils.js';
 	import { twMerge } from 'tailwind-merge';
-	import { Separator } from 'bits-ui';
 
 	let {
 		options,
@@ -100,21 +99,26 @@
 		{#snippet child({ props })}
 			<Button
 				variant="outline"
-				class={twMerge('w-[200px] justify-between', triggerClass)}
+				class={twMerge(
+					'h-9 w-[220px] justify-between gap-2 rounded-md border-border bg-background px-3 text-left text-sm font-normal shadow-none hover:border-amber-300',
+					triggerClass
+				)}
 				{...props}
 				role="combobox"
 				aria-expanded={open}
 				{disabled}
 			>
-				{selectedValues || placeholder}
+				<span class="truncate text-left">{selectedValues || placeholder}</span>
 				<ChevronsUpDown class="ml-2 size-4 shrink-0 opacity-50" />
 			</Button>
 		{/snippet}
 	</Popover.Trigger>
-	<Popover.Content class={twMerge('w-[200px] p-0', contentClass)}>
+	<Popover.Content
+		class={twMerge('w-[220px] rounded-xl border-border p-1 shadow-sm', contentClass)}
+	>
 		<Command.Root>
 			{#if searchable}
-				<Command.Input placeholder="Search option..." />
+				<Command.Input placeholder="Search option..." class="h-9 text-sm" />
 			{/if}
 			<Command.List>
 				<Command.Empty>No results found.</Command.Empty>
@@ -126,7 +130,7 @@
 								closeAndFocusTrigger();
 								onSelected?.(selected);
 							}}
-							class="pl-10"
+							class="pl-9 text-sm"
 						>
 							Select all
 						</Command.Item>
@@ -138,17 +142,18 @@
 								closeAndFocusTrigger();
 								onSelected?.(null);
 							}}
-							class="pl-10 text-destructive"
+							class="pl-9 text-sm text-destructive"
 						>
 							Clear selection
 						</Command.Item>
 					{/if}
 				</Command.Group>
 				<Command.Group>
-					{#each options as option}
+					{#each options as option (option.value)}
 						<Command.Item
 							value={option.value}
 							keywords={[option.label]}
+							class="text-sm"
 							onSelect={() => {
 								// selected = option.value;
 								if (mode === 'single') {
@@ -165,7 +170,7 @@
 							}}
 						>
 							<Check class={cn('mr-2 size-4', !isSelected(option.value) && 'text-transparent')} />
-							{option.label}
+							<span class="truncate">{option.label}</span>
 						</Command.Item>
 					{/each}
 				</Command.Group>

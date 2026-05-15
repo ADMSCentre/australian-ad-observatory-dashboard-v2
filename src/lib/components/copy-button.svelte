@@ -14,14 +14,16 @@
 <Button
 	size="icon"
 	variant={copied ? 'default' : 'outline'}
+	class="size-8 shrink-0"
+	aria-label={copied ? 'Copied' : 'Copy to clipboard'}
 	onclick={() => {
 		navigator.clipboard.writeText(text);
 		copied = true;
 	}}
 >
 	{#if !copied}
-		<Copy />
+		<Copy class="size-4" />
 	{:else}
-		<Check />
+		<Check class="size-4" />
 	{/if}
 </Button>

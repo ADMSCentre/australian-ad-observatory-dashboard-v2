@@ -29,25 +29,30 @@
 
 {#if currentMaintenance}
 	<Dialog.Root open>
-		<Dialog.Content class="flex flex-col gap-y-6">
-			<h2 class="text-xl font-bold">
-				<ConstructionIcon class="mr-2 inline-block" />
+		<Dialog.Content class="flex max-w-lg flex-col gap-y-5 rounded-xl">
+			<h2 class="flex items-center gap-2 text-xl font-semibold tracking-normal">
+				<ConstructionIcon class="size-5 text-amber-600" />
 				Maintenance Notice
 			</h2>
-			<p>
+			<p class="text-sm leading-6 text-muted-foreground">
 				The system is currently undergoing a scheduled maintenance. You can continue to use the
 				dashboard, but some features may not work as expected, and your work may not be saved until
 				the maintenance is complete.
 			</p>
 			<div
-				class="flex flex-col items-center gap-2 rounded border-l-4 border-brand bg-brand/5 p-2 text-lg"
+				class="flex flex-col items-center gap-2 rounded-xl border border-amber-200 bg-amber-50/80 p-4 text-amber-950"
 			>
-				<span class=" w-full text-xs font-light uppercase">Time remaining:</span>
-				<Timer class="select-none font-bold" exp={currentMaintenance.endDate.getTime()} />
+				<span class="w-full text-xs font-semibold uppercase tracking-widest text-amber-700">
+					Time remaining
+				</span>
+				<Timer
+					class="select-none text-2xl text-amber-950"
+					exp={currentMaintenance.endDate.getTime()}
+				/>
 			</div>
-			<div>
-				<strong>Maintenance Details:</strong>
-				<ul class="list-disc pl-5">
+			<div class="rounded-xl border border-border bg-muted/30 p-4 text-sm leading-6">
+				<strong class="font-semibold text-foreground">Maintenance details</strong>
+				<ul class="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
 					<li><strong>Title:</strong> {currentMaintenance.title}</li>
 					<li><strong>Description:</strong> {currentMaintenance.description}</li>
 					<li>

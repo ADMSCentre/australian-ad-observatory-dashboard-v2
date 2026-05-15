@@ -23,11 +23,11 @@
 </script>
 
 <button
-	class="flex size-full cursor-pointer flex-col justify-between rounded-lg border bg-card p-4 text-left text-card-foreground shadow-md hover:shadow-2xl"
+	class="flex h-52 w-full cursor-pointer flex-col justify-between rounded-xl border border-border bg-card p-4 text-left text-card-foreground shadow-none transition-all duration-200 hover:bg-muted/40 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 	onclick={navigateToProject}
 >
 	<div class="flex flex-row items-start justify-between gap-4">
-		<h2 class="text-xl font-bold">{project.name}</h2>
+		<h2 class="line-clamp-2 text-lg font-semibold leading-6 tracking-normal">{project.name}</h2>
 		<!-- <Button size="icon" variant="destructive">
 			<Trash />
 		</Button> -->
@@ -37,7 +37,7 @@
 					<Button
 						size="icon"
 						variant="ghost"
-						class="text-destructive/25 hover:bg-destructive/10 hover:text-destructive"
+						class="size-8 shrink-0 text-destructive/40 hover:bg-destructive/10 hover:text-destructive"
 						onclick={(e) => {
 							e.stopPropagation();
 							isDeleteDialogOpen = true;
@@ -48,7 +48,7 @@
 				</Dialog.Trigger>
 				<Dialog.Content>
 					<Dialog.Header>
-						<Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
+						<Dialog.Title>Delete project?</Dialog.Title>
 						<Dialog.Description
 							>This action cannot be undone. This will delete the project and all of its queries.</Dialog.Description
 						>
@@ -72,18 +72,16 @@
 			</Dialog.Root>
 		{/if}
 	</div>
-	<p class="mt-2 h-full max-h-20 overflow-hidden text-sm">{@html project.description}</p>
-	<div class="flex items-center justify-between gap-4">
-		<p class="mt-4 text-sm">Owner: {project.ownerId}</p>
-		<p class="mt-4 text-sm">Members: {project.team.length}</p>
+	<div class="mt-3 h-full max-h-20 overflow-hidden text-sm leading-5 text-muted-foreground">
+		{@html project.description || '<p>No description provided.</p>'}
+	</div>
+	<div class="mt-4 flex items-center justify-between gap-4 pt-3">
+		<p class="truncate text-xs text-muted-foreground">
+			<span class="font-medium text-foreground">Owner:</span>
+			{project.ownerId}
+		</p>
+		<p class="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+			{project.team.length} member{project.team.length === 1 ? '' : 's'}
+		</p>
 	</div>
 </button>
-
-<style>
-	.bg-card {
-		background-color: var(--card);
-	}
-	.text-card-foreground {
-		color: var(--card-foreground);
-	}
-</style>

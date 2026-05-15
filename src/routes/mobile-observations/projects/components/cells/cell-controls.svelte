@@ -18,10 +18,10 @@
 	import { PROJECT_MANAGER, ProjectManager } from 'mobile-observations/projects/manager.svelte';
 
 	const {
-		class: className,
+		class: className = '',
 		cell
 	}: {
-		class: string;
+		class?: string;
 		cell: Cell;
 	} = $props();
 
@@ -41,6 +41,7 @@
 	iconComponent: any;
 	classes?: {
 		icon?: string;
+		button?: string;
 	};
 	tooltip: string;
 	onclick: () => void;
@@ -54,11 +55,14 @@
 					<Button
 						variant="ghost"
 						size="icon"
-						class="size-fit p-1"
+						class={twMerge(
+							'size-8 text-muted-foreground hover:text-foreground',
+							props.classes?.button || ''
+						)}
 						onclick={props.onclick}
 						disabled={props.disabled}
 					>
-						<props.iconComponent class={props.classes?.icon || ''} />
+						<props.iconComponent class={twMerge('size-4', props.classes?.icon || '')} />
 					</Button>
 				</Tooltip.Trigger>
 				<Tooltip.Content>{props.tooltip}</Tooltip.Content>
@@ -68,7 +72,7 @@
 {/snippet}
 
 {#if projectManager}
-	<div class={twMerge('flex gap-1 border bg-background p-1', className)}>
+	<div class={twMerge('flex items-center gap-1', className)}>
 		{#if !isDeleting}
 			{#if cell.type === 'query'}
 				<!-- {#if !queryResult || !queryResult.loading}
@@ -86,7 +90,8 @@
 					iconComponent: queryResult?.loading ? LoaderCircle : Play,
 					tooltip: 'Run',
 					classes: {
-						icon: queryResult?.loading ? 'animate-spin' : ''
+						icon: queryResult?.loading ? 'animate-spin' : '',
+						button: 'text-brand hover:bg-brand/10 hover:text-brand'
 					},
 					onclick: async () => await projectManager.runCell(cell.id),
 					disabled: queryResult?.loading
@@ -95,7 +100,8 @@
 			{@render actionButton({
 				iconComponent: saving ? LoaderCircle : SaveIcon,
 				classes: {
-					icon: saving ? 'animate-spin' : ''
+					icon: saving ? 'animate-spin' : '',
+					button: cell.hasChanges ? 'text-brand hover:bg-brand/10 hover:text-brand' : ''
 				},
 				tooltip: 'Save',
 				onclick: async () => {
@@ -121,11 +127,13 @@
 					onclick: () => projectManager.shiftCellDown(cell.id)
 				})}
 			{/if}
-			{@render actionButton({
-				iconComponent: Download,
-				tooltip: 'Create Export',
-				onclick: () => projectManager.startExport(cell.id)
-			})}
+			{#if cell.type === 'query'}
+				{@render actionButton({
+					iconComponent: Download,
+					tooltip: 'Create Export',
+					onclick: () => projectManager.startExport(cell.id)
+				})}
+			{/if}
 			{#if projectManager.currentUser.isEditor}
 				{@render actionButton({
 					iconComponent: Trash,
@@ -134,19 +142,26 @@
 				})}
 			{/if}
 		{:else}
-			<Button variant="ghost" size="icon" class="size-fit p-1" onclick={() => (isDeleting = false)}>
-				<X />
+			<Button
+				variant="ghost"
+				size="icon"
+				class="size-8"
+				aria-label="Cancel delete"
+				onclick={() => (isDeleting = false)}
+			>
+				<X class="size-4" />
 			</Button>
 			<Button
 				variant="destructive"
 				size="icon"
-				class="size-fit p-1"
+				class="size-8"
+				aria-label="Confirm delete"
 				onclick={() => {
 					projectManager.popCell(cell.id);
 					projectManager.update();
 				}}
 			>
-				<Trash />
+				<Trash class="size-4" />
 			</Button>
 		{/if}
 	</div>

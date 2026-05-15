@@ -44,15 +44,27 @@
 	};
 </script>
 
-<div class={twMerge('flex gap-2', className)}>
+<div class={twMerge('flex flex-wrap items-center justify-center gap-2', className)}>
 	{#if projectManager.currentUser.isEditor}
-		<Button variant="outline" size="sm" class="size-fit px-2 py-1" onclick={insertTextCell}>
-			<Plus /> Text
+		<Button
+			variant="outline"
+			size="sm"
+			class="h-8 gap-1.5 rounded-full px-3 text-xs"
+			onclick={insertTextCell}
+		>
+			<Plus class="size-3.5" /> Text
 		</Button>
-		<Button variant="outline" size="sm" class="size-fit px-2 py-1" onclick={insertQueryCell}>
-			<Plus /> Query
+		<Button
+			variant="outline"
+			size="sm"
+			class="h-8 gap-1.5 rounded-full px-3 text-xs"
+			onclick={insertQueryCell}
+		>
+			<Plus class="size-3.5" /> Query
 		</Button>
 	{:else}
-		<span class="text-sm text-zinc-500">You need to be an editor to add cells</span>
+		<span class="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
+			You need to be an editor to add cells
+		</span>
 	{/if}
 </div>

@@ -14,10 +14,9 @@
 	const originalContent = cell.content;
 </script>
 
-<!-- <p>{content}</p> -->
-
 <Tiptap
-	class="h-full rounded border border-transparent leading-loose hover:shadow [&_.tiptap]:bg-transparent"
+	class="min-h-1 border-none bg-transparent shadow-none"
+	editorClasses="border-none p-0"
 	menus={{
 		floating: false,
 		bubble: false,
@@ -26,7 +25,6 @@
 	placeholder="Enter text (Markdown supported)..."
 	bind:value={cell.content}
 	oninput={(content) => {
-		console.log('TextCell content changed:', content);
 		cell.hasChanges = originalContent !== content;
 	}}
 	disabled={!projectManager.currentUser.isEditor}

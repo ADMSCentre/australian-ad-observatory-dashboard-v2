@@ -4,10 +4,16 @@
 
 	let {
 		selected = $bindable(),
-		onSelected = null
+		onSelected = null,
+		placeholder = '+ New visualisation...',
+		triggerClass = 'h-9 w-56',
+		contentClass = 'w-56'
 	}: {
 		selected: (typeof VISUALISATION_TYPES)[number] | null;
 		onSelected?: ((value: (typeof VISUALISATION_TYPES)[number] | null) => void) | null;
+		placeholder?: string;
+		triggerClass?: string;
+		contentClass?: string;
 	} = $props();
 
 	const labels: Record<(typeof VISUALISATION_TYPES)[number], string> = {
@@ -41,4 +47,4 @@
 	}
 </script>
 
-<Dropdown {options} {selected} onSelected={select} placeholder="+ New visualisation..." />
+<Dropdown {options} {selected} onSelected={select} {placeholder} {triggerClass} {contentClass} />

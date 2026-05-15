@@ -12,14 +12,10 @@
 		getFilteredRowModel,
 		type Table
 	} from '@tanstack/table-core';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import * as TableComponent from '$lib/components/ui/table/index.js';
 	import { createSvelteTable, FlexRender } from '$lib/components/ui/data-table';
-	import { Input } from '$lib/components/ui/input';
-	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import { Button } from '$lib/components/ui/button';
 	import Dropdown from '$lib/components/dropdown/dropdown.svelte';
-	import CreateUserDialog from '../../../routes/users/create-user-dialog.svelte';
 	import { ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from 'lucide-svelte';
 	import type { Snippet } from 'svelte';
 
@@ -108,17 +104,19 @@
 	});
 </script>
 
-<div class="w-full">
+<div class="w-full space-y-4">
 	{#if before}
 		{@render before(table)}
 	{/if}
-	<div class="rounded-md border">
+	<div class="overflow-hidden rounded-xl border border-border bg-card shadow-none">
 		<TableComponent.Root>
 			<TableComponent.Header>
 				{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
-					<TableComponent.Row>
+					<TableComponent.Row class="bg-muted/50">
 						{#each headerGroup.headers as header (header.id)}
-							<TableComponent.Head>
+							<TableComponent.Head
+								class="text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+							>
 								{#if !header.isPlaceholder}
 									<FlexRender
 										content={header.column.columnDef.header}
@@ -132,16 +130,21 @@
 			</TableComponent.Header>
 			<TableComponent.Body>
 				{#each table.getRowModel().rows as row (row.id)}
-					<TableComponent.Row data-state={row.getIsSelected() && 'selected'}>
+					<TableComponent.Row
+						data-state={row.getIsSelected() && 'selected'}
+						class="transition-colors duration-200 hover:bg-muted/40"
+					>
 						{#each row.getVisibleCells() as cell (cell.id)}
-							<TableComponent.Cell>
+							<TableComponent.Cell class="text-sm">
 								<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
 							</TableComponent.Cell>
 						{/each}
 					</TableComponent.Row>
 				{:else}
 					<TableComponent.Row>
-						<TableComponent.Cell colspan={columns.length} class="h-24 text-center"
+						<TableComponent.Cell
+							colspan={columns.length}
+							class="h-28 text-center text-sm text-muted-foreground"
 							>No results.</TableComponent.Cell
 						>
 					</TableComponent.Row>
@@ -150,11 +153,14 @@
 		</TableComponent.Root>
 	</div>
 	<!-- Pagination controls -->
-	<div class="sm: flex flex-col items-center justify-end gap-1 sm:flex-row sm:gap-4">
-		<div>
-			Rows per page:
+	<div
+		class="flex flex-col items-start justify-between gap-3 rounded-xl border border-border bg-muted/30 px-3 py-2 text-sm sm:flex-row sm:items-center"
+	>
+		<div class="flex items-center gap-2 text-muted-foreground">
+			<span class="font-medium text-foreground">Rows per page</span>
 			<Dropdown
-				triggerClass="w-20"
+				triggerClass="w-20 h-8"
+				contentClass="w-20"
 				options={[
 					{
 						value: 10,
@@ -179,14 +185,15 @@
 				}}
 			/>
 		</div>
-		<div class="flex flex-1 items-center">
-			<span class="p-2 text-sm font-medium">
+		<div class="flex flex-1 items-center justify-end gap-2">
+			<span class="text-sm font-medium text-muted-foreground">
 				Page {pagination.pageIndex + 1} of {table.getPageCount()}
 			</span>
-			<div class="flex items-center justify-end space-x-2 p-2">
+			<div class="flex items-center justify-end gap-1">
 				<Button
 					variant="outline"
 					size="icon"
+					class="size-8"
 					onclick={() => table.firstPage()}
 					disabled={!table.getCanPreviousPage()}
 				>
@@ -195,6 +202,7 @@
 				<Button
 					variant="outline"
 					size="icon"
+					class="size-8"
 					onclick={() => table.previousPage()}
 					disabled={!table.getCanPreviousPage()}
 				>
@@ -203,6 +211,7 @@
 				<Button
 					variant="outline"
 					size="icon"
+					class="size-8"
 					onclick={() => table.nextPage()}
 					disabled={!table.getCanNextPage()}
 				>
@@ -211,6 +220,7 @@
 				<Button
 					variant="outline"
 					size="icon"
+					class="size-8"
 					onclick={() => table.lastPage()}
 					disabled={!table.getCanNextPage()}
 				>

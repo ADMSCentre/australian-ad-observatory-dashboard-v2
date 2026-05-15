@@ -117,7 +117,7 @@
 <IntersectionObserverSvelte {element} threshold={0.25} once bind:intersecting>
 	<div
 		class={twMerge(
-			'mb-4 flex w-fit break-inside-avoid flex-col gap-2 rounded border bg-zinc-50 p-4 transition-all content-visibility-auto hover:shadow-lg dark:bg-zinc-900 dark:shadow-zinc-800',
+			'mb-4 flex w-fit break-inside-avoid flex-col gap-3 rounded-xl border border-border bg-background p-4 shadow-none transition-all duration-200 content-visibility-auto hover:bg-muted/40 hover:shadow-sm',
 			adData.attributes?.hidden?.value?.toLowerCase() === 'true' && 'opacity-35',
 			className
 		)}
@@ -125,9 +125,9 @@
 		style="content-visibility: auto"
 	>
 		<!-- Header -->
-		<div class="flex flex-col gap-0.5">
+		<div class="flex flex-col gap-1.5">
 			<div class="flex items-center justify-between gap-2">
-				<p class="inline-flex flex-col gap-1 rounded-full py-1 text-sm font-medium">
+				<p class="inline-flex flex-col gap-1 rounded-full py-1 text-sm font-medium text-foreground">
 					{#if isIncluded('date')}
 						<span>
 							{new Date(adData.timestamp).toLocaleDateString('en-GB', {
@@ -154,24 +154,26 @@
 					{#if isIncluded('observer')}
 						<!-- Observer code is the last 6 digits before the last digit, uppercase -->
 						{@const activationCode = parseActivationCode(adData.observer)}
-						<span class="inline-block text-xs font-extralight">Seen by</span>
+						<span class="inline-block text-xs text-muted-foreground">Seen by</span>
 						<a
 							href={withBase(`mobile-observations/observer?observer_id=${adData.observer}`)}
-							class="inline-block w-fit max-w-[12ch] overflow-hidden text-ellipsis text-nowrap rounded-full bg-zinc-300 px-1 text-xs font-light hover:underline dark:bg-zinc-700"
+							class="inline-block w-24 overflow-hidden text-ellipsis text-nowrap rounded-full bg-muted px-2 py-0.5 text-xs font-medium no-underline hover:underline"
 						>
 							{activationCode}
 						</a>
 					{/if}
 					<div>
-						<Button variant="outline" class="size-fit p-1.5" size="icon" onclick={onExpand}>
-							<ScanSearch />
+						<Button variant="outline" class="size-8" size="icon" onclick={onExpand}>
+							<ScanSearch class="size-4" />
 						</Button>
 					</div>
 				</div>
 			</div>
 			<div class="flex items-center gap-2">
-				<span class="text-2xs font-extralight">Ad ID:</span>
-				<span class="text-2xs font-light">{adData.adId}</span>
+				<span class="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground"
+					>Ad ID</span
+				>
+				<span class="font-mono text-[10px] text-muted-foreground">{adData.adId}</span>
 			</div>
 		</div>
 
@@ -182,7 +184,7 @@
 			<div class="flex w-fit flex-wrap gap-1 text-sm">
 				{#each fullTypes as type}
 					<div
-						class="flex items-center gap-2 rounded-full bg-zinc-300 px-2 py-1 text-xs font-light dark:bg-zinc-700"
+						class="flex items-center gap-2 rounded-full bg-muted px-2 py-1 text-xs font-medium text-muted-foreground"
 					>
 						<span>
 							{type.label}
@@ -192,9 +194,7 @@
 				{/each}
 				<!-- CCL availability badge -->
 				{#if cclLoading}
-					<div
-						class="inline-flex items-center gap-1 rounded-full bg-zinc-200 px-2 py-1 dark:bg-zinc-700"
-					>
+					<div class="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1">
 						<LoaderCircle class="h-3 w-3 animate-spin text-muted-foreground" />
 						<span class="text-xs text-muted-foreground">CCL...</span>
 					</div>
@@ -202,24 +202,24 @@
 					<div
 						class="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium {cclIsAvailable
 							? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300'
-							: 'bg-zinc-200 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400'}"
+							: 'bg-muted text-muted-foreground'}"
 					>
 						<span
 							class="h-2 w-2 rounded-full {cclIsAvailable
 								? 'bg-green-600 dark:bg-green-400'
-								: 'bg-zinc-400 dark:bg-zinc-500'}"
+								: 'bg-muted-foreground/50'}"
 						></span>
 						{cclIsAvailable ? 'CCL Available' : 'No CCL'}
 					</div>
 				{/if}
-				</div>
-				<div class="flex w-fit max-w-full flex-wrap items-center gap-2 text-sm">
+			</div>
+			<div class="flex w-fit flex-wrap items-center gap-2 text-sm">
 				{#each appliedTags as t}
 					{@render tag(t)}
 				{/each}
 			</div>
 			{#if mainClassifications.length > 0}
-				<div class="flex w-fit max-w-full flex-wrap items-center gap-1 text-sm">
+				<div class="flex w-fit flex-wrap items-center gap-1 text-sm">
 					{#each mainClassifications as classification}
 						<span
 							class="inline-flex items-center gap-1 rounded-full bg-brand/10 px-2 py-0.5 text-xs font-medium text-brand hover:bg-brand/20"
@@ -238,7 +238,7 @@
 									{otherClassifications.length} more... <ChevronRightIcon size={12} />
 								</Button>
 							</HoverCard.Trigger>
-							<HoverCard.Content class="w-fit max-w-sm">
+							<HoverCard.Content class="w-80 rounded-xl">
 								<h3 class="mb-2 text-base font-semibold">Classifications</h3>
 								<p class="mb-4 text-sm text-muted-foreground">
 									The classifications are generated by an AI model and indicate the likely content

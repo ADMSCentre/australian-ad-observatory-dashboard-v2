@@ -1,8 +1,6 @@
 <script lang="ts">
-	import Input from '$lib/components/ui/input/input.svelte';
-	import { onMount, untrack } from 'svelte';
+	import { untrack } from 'svelte';
 	import type { Query } from '../query';
-	import { getLocalTimeZone } from '@internationalized/date';
 
 	let {
 		query = $bindable(),
@@ -28,7 +26,6 @@
 			minute: '2-digit',
 			second: '2-digit'
 		}).format(date);
-		console.log('dateStr', dateStr);
 		return dateStr;
 	};
 
@@ -54,7 +51,7 @@
 
 <input
 	type="datetime-local"
-	class="border-b bg-transparent text-sm outline-none"
+	class="h-8 rounded-md border border-border bg-background px-2 text-sm outline-none transition-colors focus:border-amber-300 disabled:opacity-50"
 	bind:this={datePicker}
 	step="60"
 	bind:value

@@ -1,15 +1,12 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { auth } from '$lib/api/auth/auth.svelte';
 	import type { TeamMember } from 'mobile-observations/projects/types';
 	import { CrownIcon, TrashIcon, UserIcon, X } from 'lucide-svelte';
 	import { PROJECT_MANAGER, ProjectManager } from 'mobile-observations/projects/manager.svelte';
 	import { getContext } from 'svelte';
 	import Dropdown from '$lib/components/dropdown/dropdown.svelte';
 	import { session } from '$lib/api/session/session.svelte';
-	import * as Popover from '$lib/components/ui/popover';
 	import * as HoverCard from '$lib/components/ui/hover-card';
-	import { fade } from 'svelte/transition';
 
 	const { member }: { member: TeamMember } = $props();
 
@@ -34,9 +31,10 @@
 			// Cancel deletion
 			isDeleting = false;
 		}}
-		class="size-6"
+		class="size-7"
+		aria-label="Cancel removal"
 	>
-		<X />
+		<X class="size-4" />
 	</Button>
 	<Button
 		variant="destructive"
@@ -47,27 +45,26 @@
 			project.team = project.team.filter((m) => m.username !== member.username);
 			projectManager.update();
 		}}
-		class="size-6"
+		class="size-7"
+		aria-label="Confirm removal"
 	>
-		<TrashIcon />
+		<TrashIcon class="size-4" />
 	</Button>
 {/snippet}
 
 {#if project}
 	<div class="contents">
-		<span class="inline-flex items-center gap-2">
+		<span class="inline-flex min-w-0 items-center gap-2 text-sm">
 			{#if isOwner}
-				<CrownIcon size={20} />
+				<CrownIcon class="size-4 shrink-0 text-amber-600" />
 			{:else}
-				<UserIcon size={20} />
+				<UserIcon class="size-4 shrink-0 text-muted-foreground" />
 			{/if}
 			<HoverCard.Root openDelay={200}>
-				<HoverCard.Trigger
-					class="inline-block max-w-32 items-start gap-2 overflow-hidden text-ellipsis whitespace-nowrap no-underline"
-				>
-					{linkedUser?.fullname}
+				<HoverCard.Trigger class="inline-block min-w-0 truncate no-underline">
+					{linkedUser?.fullname || member.username}
 				</HoverCard.Trigger>
-				<HoverCard.Content class="flex w-fit flex-col gap-2">
+				<HoverCard.Content class="flex w-fit flex-col gap-1 rounded-xl">
 					<p class="text-sm font-semibold">{linkedUser?.fullname}</p>
 					<p class="text-xs text-muted-foreground">{linkedUser?.username}</p>
 				</HoverCard.Content>
@@ -75,7 +72,8 @@
 		</span>
 		<Dropdown
 			selected={member.role}
-			triggerClass="w-full p-1 h-fit"
+			triggerClass="w-full h-8 px-2 text-xs"
+			contentClass="w-32"
 			disabled={!projectManager.currentUser.isAdmin}
 			options={[
 				{
@@ -96,7 +94,7 @@
 				projectManager.update();
 			}}
 		/>
-		<div class="flex">
+		<div class="flex items-center justify-end">
 			{#if member.username !== project.ownerId && projectManager.currentUser.isAdmin}
 				{#if !isDeleting}
 					<Button
@@ -105,12 +103,13 @@
 						onclick={() => {
 							isDeleting = true;
 						}}
-						class="size-6"
+						class="size-7"
+						aria-label="Remove member"
 					>
-						<TrashIcon />
+						<TrashIcon class="size-4" />
 					</Button>
-					<Button size="icon" class="invisible size-6" disabled>
-						<TrashIcon />
+					<Button size="icon" class="invisible size-7" disabled>
+						<TrashIcon class="size-4" />
 					</Button>
 				{:else}
 					{@render deleteConfirm()}

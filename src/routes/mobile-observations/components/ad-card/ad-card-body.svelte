@@ -149,7 +149,7 @@
 	<!-- Main image -->
 	<div
 		class={twMerge(
-			'group/image flex min-h-40 w-full max-w-full flex-auto transform flex-col gap-2 overflow-hidden rounded border-4 border-transparent shadow-lg transition-transform hover:border-inherit dark:shadow-zinc-800',
+			'group/image flex min-h-40 w-full flex-auto transform flex-col gap-2 overflow-hidden rounded-lg bg-muted/30 transition-colors hover:bg-muted/50',
 			className
 		)}
 	>
@@ -157,11 +157,15 @@
 		{#if frames && frames.length && frames.length > 0}
 			<ImagesGif images={frames} bind:completed bind:currentIndex bind:autoPlay />
 		{:else if loading}
-			<div class="flex h-full w-full items-center justify-center bg-foreground text-white">
+			<div
+				class="flex h-full w-full items-center justify-center bg-muted text-sm text-muted-foreground"
+			>
 				Loading...
 			</div>
 		{:else}
-			<div class="flex size-full items-center justify-center bg-foreground text-white">
+			<div
+				class="flex size-full items-center justify-center bg-muted text-sm text-muted-foreground"
+			>
 				<span class="text-center"> No frames available. </span>
 			</div>
 		{/if}
@@ -189,21 +193,21 @@
 								<Braces class="!size-5 drop-shadow-strong" />
 							</Button>
 						</Dialog.Trigger>
-						<Dialog.Content class="max-w-2xl">
+						<Dialog.Content class="rounded-xl">
 							<Dialog.Header>
-								<Dialog.Title>JSON Content</Dialog.Title>
+								<Dialog.Title>JSON content</Dialog.Title>
 								<Dialog.Description>
 									<div class="flex flex-col gap-2">
 										<Codemirror
-											class=" max-h-[75vh] overflow-auto text-left"
+											class="max-h-[75vh] overflow-auto rounded-xl bg-muted/30 text-left"
 											lang={json()}
 											lineWrapping
 											value={fullJson}
 											readonly
 										/>
 										<div class="flex w-full justify-between">
-											<Button onclick={downloadJson}>
-												<Download /> Download
+											<Button class="h-9 gap-2" onclick={downloadJson}>
+												<Download class="size-4" /> Download
 											</Button>
 										</div>
 									</div>
@@ -226,7 +230,7 @@
 										{/if}
 									</Button>
 								</Popover.Trigger>
-								<Popover.Content align="start" class="flex flex-col gap-4">
+								<Popover.Content align="start" class="flex flex-col gap-4 rounded-xl">
 									<TagsSelector bind:adData />
 								</Popover.Content>
 							</Popover.Root>
@@ -279,11 +283,11 @@
 
 	<!-- Controls -->
 	{#if frames && frames.length > 1}
-		<div class="flex w-full gap-2 pr-2">
+		<div class="flex w-full items-center gap-2 pr-2">
 			<Button
 				variant="ghost"
 				size="icon"
-				class="p-2"
+				class="size-8 p-2"
 				onclick={() => {
 					// Toggle autoplay if not completed, otherwise replay
 					if (completed) {
@@ -294,9 +298,9 @@
 				}}
 			>
 				{#if autoPlay && !completed}
-					<Pause />
+					<Pause class="size-4" />
 				{:else}
-					<Play />
+					<Play class="size-4" />
 				{/if}
 			</Button>
 			<Slider

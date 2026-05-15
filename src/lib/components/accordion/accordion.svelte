@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { ChevronDown } from 'lucide-svelte';
-	import { slide } from 'svelte/transition';
+	import { twMerge } from 'tailwind-merge';
 
 	let {
 		open = $bindable(false),
@@ -24,7 +23,7 @@
 	});
 </script>
 
-<div class={className}>
+<div class={twMerge('text-sm', className)}>
 	<button
 		type="button"
 		aria-expanded={open}
