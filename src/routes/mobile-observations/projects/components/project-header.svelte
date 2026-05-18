@@ -62,8 +62,10 @@
 				</div>
 			</label>
 			<div class="flex items-center gap-1.5 text-sm text-muted-foreground">
-				<span>Owned by {getMemberName(project.ownerId)}. {accessibleSummary()}.</span>
-				<span>Click the "Manage Team" button to add more collaborators to this project.</span>
+				<span
+					>Owned by {getMemberName(project.ownerId)}. {accessibleSummary()}. Click the "Manage Team"
+					button to add more collaborators to this project.</span
+				>
 			</div>
 
 			<Tiptap

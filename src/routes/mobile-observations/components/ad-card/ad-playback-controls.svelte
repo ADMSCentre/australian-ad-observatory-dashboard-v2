@@ -1,16 +1,33 @@
 <script lang="ts">
-	import { Pause, Play, RotateCcw } from 'lucide-svelte';
+	import { Play, RotateCcw } from 'lucide-svelte';
 	import type { Snippet } from 'svelte';
 	import type { PlaybackController } from './playback-controller.svelte';
 
 	type Props = {
 		playback: PlaybackController;
 		frameCount: number;
+		variant?: 'card' | 'modal';
 		children?: Snippet;
 	};
 
-	const { playback, frameCount, children }: Props = $props();
+	const { playback, frameCount, variant = 'card', children }: Props = $props();
 
+	const iconClass = $derived(variant === 'modal' ? 'size-4' : 'size-3.5');
+	const pauseClass = $derived(
+		variant === 'modal'
+			? 'flex size-4 items-center justify-center text-xs font-bold'
+			: 'flex size-3.5 items-center justify-center text-[10px] font-bold'
+	);
+	const counterClass = $derived(
+		variant === 'modal'
+			? 'text-xs tabular-nums text-white/70'
+			: 'text-[10px] tabular-nums text-white/70'
+	);
+	const rowClass = $derived(
+		variant === 'modal'
+			? 'mt-2 flex items-center justify-between'
+			: 'mt-1.5 flex items-center justify-between'
+	);
 	const actionLabel = $derived(
 		playback.isPlaying ? 'Pause' : playback.hasPlayed && playback.isAtEnd ? 'Replay' : 'Play'
 	);
@@ -44,7 +61,7 @@
 	</div>
 {/if}
 
-<div class="mt-1.5 flex items-center justify-between">
+<div class={rowClass}>
 	{#if frameCount > 1}
 		<div class="flex items-center gap-2">
 			<button
@@ -58,16 +75,14 @@
 				aria-label={actionLabel}
 			>
 				{#if playback.isPlaying}
-					<Pause class="size-3.5" />
+					<span class={pauseClass}>| |</span>
 				{:else if playback.hasPlayed && playback.isAtEnd}
-					<RotateCcw class="size-3.5" />
+					<RotateCcw class={iconClass} />
 				{:else}
-					<Play class="size-3.5" />
+					<Play class={iconClass} />
 				{/if}
 			</button>
-			<span class="text-[10px] tabular-nums text-white/70">
-				{playback.currentFrame + 1}/{frameCount}
-			</span>
+			<span class={counterClass}>{playback.currentFrame + 1}/{frameCount}</span>
 		</div>
 	{:else}
 		<span></span>
