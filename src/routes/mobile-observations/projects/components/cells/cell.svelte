@@ -24,10 +24,14 @@
 	const hideHeader = $derived(cell.type === 'text' && !active);
 </script>
 
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
 	class={twMerge(
-		'group/cell relative size-full flex-1 overflow-hidden rounded-xl border bg-card text-card-foreground shadow-sm transition-colors duration-200 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/20',
-		cell.hasChanges ? 'border-brand/80 ring-1 ring-brand/20' : 'border-border'
+		'group/cell relative size-full flex-1 overflow-hidden rounded-xl border bg-card text-card-foreground transition-colors duration-200 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/20',
+		cell.hasChanges ? 'border-brand/80 ring-1 ring-brand/20' : 'border-border',
+		cell.type === 'text' &&
+			!active &&
+			'border-transparent focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/20 hover:border-border'
 	)}
 	onfocusin={onActivate}
 	onmousedown={onActivate}

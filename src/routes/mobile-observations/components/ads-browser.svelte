@@ -410,7 +410,7 @@
 	const maxAdsInGroup = $derived(Math.max(...(groupedAds?.map(([, ads]) => ads.length) || [])));
 
 	let clientWidth = $state(0);
-	const MAX_AD_WIDTH = 384; // px
+	const MAX_AD_WIDTH = 324; // px
 	const PADDING = 40; // px
 
 	let resizeTimeout = $state<NodeJS.Timeout | null>(null);
@@ -464,9 +464,7 @@
 
 <div class="relative flex flex-col gap-4 py-4" bind:clientWidth>
 	<!-- Controls (grouping, ordering) -->
-	<div
-		class="flex flex-col gap-3 text-sm lg:flex-row lg:items-center lg:justify-between"
-	>
+	<div class="flex flex-col gap-3 text-sm lg:flex-row lg:items-center lg:justify-between">
 		<div class="relative flex flex-wrap items-center gap-2">
 			<HoverCard.Root>
 				<HoverCard.Trigger class="no-underline">
@@ -642,9 +640,7 @@
 	</div>
 
 	{#if !groupedAds || groupedAds.length === 0}
-		<div
-			class="flex h-full min-h-32 w-full items-center justify-center p-6 text-center"
-		>
+		<div class="flex h-full min-h-32 w-full items-center justify-center p-6 text-center">
 			<p class="text-sm leading-6 text-muted-foreground">
 				There are {ads.length} ad{ads.length > 1 ? 's' : ''} in the sample, but none match the filters.
 				Try changing the filters to see the ads.
