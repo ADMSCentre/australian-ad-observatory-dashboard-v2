@@ -40,6 +40,13 @@
 	let projectSearch = $state('');
 	let debouncedProjectSearch = $state('');
 	let projectSearchInput = $state<HTMLInputElement | null>(null);
+	let isMac = $state(false);
+
+	$effect(() => {
+		if (typeof navigator !== 'undefined') {
+			isMac = navigator.platform.toLowerCase().includes('mac');
+		}
+	});
 
 	const isAdmin = $derived(auth.currentUser?.role === 'admin');
 
@@ -241,10 +248,15 @@
 			<Input
 				bind:ref={projectSearchInput}
 				bind:value={projectSearch}
-				class="pl-9"
+				class="pl-9 pr-14"
 				placeholder="Search by title, owner, or description"
 				aria-label="Search projects"
 			/>
+			<kbd
+				class="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 items-center gap-0.5 rounded-md border border-border bg-muted/50 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground/60 sm:flex"
+			>
+				<span class="text-xs">{isMac ? '⌘' : 'Ctrl'}</span>+<span class="text-xs">F</span>
+			</kbd>
 		</div>
 
 		<Tabs.Root bind:value={activeTab}>
