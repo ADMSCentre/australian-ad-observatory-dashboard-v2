@@ -56,7 +56,7 @@
 	<div class="contents">
 		<span class="inline-flex min-w-0 items-center gap-2 text-sm">
 			{#if isOwner}
-				<CrownIcon class="size-4 shrink-0 text-amber-600" />
+				<CrownIcon class="size-4 shrink-0 text-brand" />
 			{:else}
 				<UserIcon class="size-4 shrink-0 text-muted-foreground" />
 			{/if}

@@ -51,7 +51,7 @@
 
 <input
 	type="datetime-local"
-	class="h-8 rounded-md border border-border bg-background px-2 text-sm outline-none transition-colors focus:border-amber-300 disabled:opacity-50"
+	class="h-8 rounded-md border border-border bg-background px-2 text-sm outline-none transition-colors focus:border-brand/20 disabled:opacity-50"
 	bind:this={datePicker}
 	step="60"
 	bind:value

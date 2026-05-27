@@ -39,7 +39,7 @@
 		onclick={toggleLightMode}
 		aria-label="Toggle theme"
 		class={twMerge(
-			'flex h-8 w-16 flex-row items-center rounded-full border border-border bg-muted/60 p-1 transition-all duration-200 hover:border-amber-300'
+			'flex h-8 w-16 flex-row items-center rounded-full border border-border bg-muted/60 p-1 transition-all duration-200 hover:border-brand/20'
 		)}
 	>
 		<div
@@ -52,7 +52,7 @@
 				class="flex size-6 cursor-pointer items-center justify-center rounded-full border border-border bg-background p-1 shadow-sm"
 			>
 				{#if theme.mode === 'light'}
-					<Sun class="size-4 text-amber-600" />
+					<Sun class="size-4 text-brand" />
 				{:else}
 					<Moon class="size-4 text-foreground" />
 				{/if}

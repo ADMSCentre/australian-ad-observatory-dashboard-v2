@@ -271,7 +271,7 @@
 
 <div
 	class={twMerge(
-		'relative flex size-full flex-col rounded-xl border border-border bg-card text-sm shadow-none transition-colors duration-200 focus-within:border-amber-300',
+		'relative flex size-full flex-col rounded-xl border border-border bg-card text-sm shadow-none transition-colors duration-200 focus-within:border-brand/20',
 		className
 	)}
 >

@@ -672,7 +672,7 @@
 							</span>
 							<!-- Ad count bar background -->
 							<div
-								class="absolute left-0 top-0 h-full bg-gradient-to-r from-amber-100 to-transparent"
+								class="absolute left-0 top-0 h-full bg-gradient-to-r from-brand/10 to-transparent"
 								style={`width: ${adCountBarWidth}`}
 							></div>
 						</div>

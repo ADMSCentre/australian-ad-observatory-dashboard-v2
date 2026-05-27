@@ -150,7 +150,7 @@
 		{disabled}
 	>
 		<div
-			class="flex min-h-10 items-center justify-between gap-3 rounded-lg border border-border bg-background p-2 text-sm shadow-none transition-colors duration-200 hover:border-amber-300"
+			class="flex min-h-10 items-center justify-between gap-3 rounded-lg border border-border bg-background p-2 text-sm shadow-none transition-colors duration-200 hover:border-brand/20"
 		>
 			<div class="flex min-w-0 flex-1 flex-col gap-2">
 				{#if selected.length > 0}

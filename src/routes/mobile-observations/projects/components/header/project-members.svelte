@@ -353,7 +353,7 @@
 												}}
 											>
 												{#if isOwner}
-													<CrownIcon class="size-3 shrink-0 text-amber-600" />
+													<CrownIcon class="size-3 shrink-0 text-brand" />
 												{:else}
 													<UserIcon class="size-3 shrink-0 text-muted-foreground" />
 												{/if}

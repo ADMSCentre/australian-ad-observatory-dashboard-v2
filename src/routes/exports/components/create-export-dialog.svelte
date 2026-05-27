@@ -306,12 +306,12 @@
 				</div>
 
 				{#if includeImages}
-					<Alert.Root variant="default" class="border-amber-500 bg-amber-50 dark:bg-amber-950">
-						<AlertTriangle class="size-4 text-amber-600" />
-						<Alert.Title class="text-amber-800 dark:text-amber-200"
+					<Alert.Root variant="default" class="border-warning bg-warning/10 dark:bg-warning/95">
+						<AlertTriangle class="size-4 text-warning" />
+						<Alert.Title class="text-warning/90 dark:text-warning/30"
 							>Large Export Warning</Alert.Title
 						>
-						<Alert.Description class="text-amber-700 dark:text-amber-300">
+						<Alert.Description class="text-warning/80 dark:text-warning/40">
 							<span class="contents">
 								Including images will significantly increase the size of the export file and the
 								time taken to generate it. Only enable this if you specifically need the ad images.

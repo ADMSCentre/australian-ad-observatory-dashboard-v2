@@ -49,7 +49,7 @@
 			<Button
 				variant="outline"
 				class={cn(
-					'h-9 w-full justify-between gap-2 rounded-md border-border bg-background px-3 text-left text-sm font-normal shadow-none hover:border-amber-300',
+					'h-9 w-full justify-between gap-2 rounded-md border-border bg-background px-3 text-left text-sm font-normal shadow-none hover:border-brand/20',
 					triggerClass
 				)}
 				{...props}

@@ -31,7 +31,7 @@
 	<Dialog.Root open>
 		<Dialog.Content class="flex max-w-lg flex-col gap-y-5 rounded-xl">
 			<h2 class="flex items-center gap-2 text-xl font-semibold tracking-normal">
-				<ConstructionIcon class="size-5 text-amber-600" />
+				<ConstructionIcon class="size-5 text-warning" />
 				Maintenance Notice
 			</h2>
 			<p class="text-sm leading-6 text-muted-foreground">
@@ -40,13 +40,13 @@
 				the maintenance is complete.
 			</p>
 			<div
-				class="flex flex-col items-center gap-2 rounded-xl border border-amber-200 bg-amber-50/80 p-4 text-amber-950"
+				class="flex flex-col items-center gap-2 rounded-xl border border-warning/20 bg-warning/10 p-4 text-warning/90"
 			>
-				<span class="w-full text-xs font-semibold uppercase tracking-widest text-amber-700">
+				<span class="w-full text-xs font-semibold uppercase tracking-widest text-warning/80">
 					Time remaining
 				</span>
 				<Timer
-					class="select-none text-2xl text-amber-950"
+					class="select-none text-2xl text-warning/90"
 					exp={currentMaintenance.endDate.getTime()}
 				/>
 			</div>
