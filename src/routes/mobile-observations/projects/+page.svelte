@@ -12,7 +12,7 @@
 	import { flip } from 'svelte/animate';
 	import Tiptap from '$lib/components/tiptap.svelte';
 	import { scale } from 'svelte/transition';
-	import { untrack } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { auth } from '$lib/api/auth/auth.svelte';
 	import PageLoader from '$lib/components/page-loader/page-loader.svelte';
 
@@ -41,6 +41,18 @@
 	let debouncedProjectSearch = $state('');
 	let projectSearchInput = $state<HTMLInputElement | null>(null);
 	let isMac = $state(false);
+
+	// On mount, set the activeTab to the first available tab with projects, prioritizing owned, then shared, then other (if admin).
+	// This ensures that when users visit the page, they see projects immediately without needing to click on a tab
+	$effect(() => {
+		if (session.projects.owned.length > 0) {
+			activeTab = 'owned';
+		} else if (session.projects.shared.length > 0) {
+			activeTab = 'shared';
+		} else if (session.projects.other.length > 0) {
+			activeTab = 'other';
+		}
+	});
 
 	$effect(() => {
 		if (typeof navigator !== 'undefined') {
@@ -115,6 +127,7 @@
 		return () => clearTimeout(timeout);
 	});
 
+	// Whenever the visible tabs or the active tab changes, ensure the active tab is valid and has results if possible.
 	$effect(() => {
 		if (!visibleTabs.some((tab) => tab.value === activeTab)) {
 			activeTab = visibleTabs[0]?.value ?? 'owned';
@@ -122,9 +135,13 @@
 		}
 		const firstTab = visibleTabs[0];
 		const secondTab = visibleTabs[1];
+		// If the first tab has results, ensure we select it (unless we already selected a fallback tab,
+		// to avoid jumping back and forth between tabs when searching)
 		if (firstTab && filteredProjectGroups[firstTab.value].length > 0) {
 			didSelectFallbackTab = false;
 		}
+		// If the first tab has no results but the second tab has results, and we haven't already switched to the fallback tab,
+		// switch to the second tab
 		if (
 			!debouncedProjectSearch.trim() &&
 			!didSelectFallbackTab &&
