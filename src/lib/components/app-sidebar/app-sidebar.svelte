@@ -20,7 +20,8 @@
 		EyeOff,
 		Camera,
 		Tags,
-		Package
+		Package,
+		House
 	} from 'lucide-svelte';
 	import { auth } from '$lib/api/auth/auth.svelte';
 	import { Button } from '../ui/button';
@@ -49,6 +50,12 @@
 	let manuallyExpandedSection = $state<string | null | undefined>(undefined);
 
 	const itemsDef: NavItem[] = $derived([
+		{
+			title: 'Home',
+			url: withBase('/'),
+			icon: House,
+			visible: true
+		},
 		{
 			title: 'Mobile Ads',
 			// url: mobileObservationsPath,
@@ -189,12 +196,12 @@
 </script>
 
 <Sidebar.Root class="border-r border-sidebar-border/40">
-	<Sidebar.Header class="flex flex-col items-center gap-3 border-b border-white/10 px-3 py-4">
+	<Sidebar.Header class="flex flex-col items-center gap-3 px-3 py-4">
 		<div class="inline-flex flex-wrap items-center justify-center gap-2">
-			<AppLogos logoClass="h-12 w-auto" />
+			<AppLogos logoClass="h-16 w-auto" />
 		</div>
 		<a href={withBase('/')} class="flex flex-col items-center text-center no-underline">
-			<h1 class="text-sm font-semibold leading-5 tracking-normal text-white">
+			<h1 class="text-lg font-semibold leading-5 tracking-normal text-sidebar-foreground">
 				Australian Ad Observatory
 			</h1>
 		</a>
@@ -209,7 +216,7 @@
 								<Sidebar.MenuItem>
 									<Sidebar.MenuButton
 										isActive={item.proxyActive}
-										class="h-10 rounded-md px-3 text-sidebar-foreground/70 transition-colors duration-150 hover:bg-white/5 hover:text-white data-[active=true]:bg-transparent data-[active=true]:text-sidebar-foreground"
+										class="h-10 rounded-md px-3 text-sidebar-foreground/70 transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-transparent data-[active=true]:text-sidebar-foreground"
 									>
 										{#snippet child({ props })}
 											{@const href = item.url ?? item.subItems?.[0].url ?? '#'}
@@ -230,7 +237,7 @@
 														event.stopPropagation();
 														toggleSection(item.title);
 													}}
-													class="ml-auto inline-flex size-6 items-center justify-center rounded text-sidebar-foreground/60 hover:bg-white/10 hover:text-sidebar-foreground"
+													class="ml-auto inline-flex size-6 items-center justify-center rounded text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
 												>
 													{#if expandedSection === item.title}
 														<ChevronDown class="size-4 shrink-0" />
@@ -247,7 +254,7 @@
 												<Sidebar.MenuSubItem class="relative">
 													<Sidebar.MenuSubButton
 														isActive={sub.active}
-														class="h-9 rounded-none border-l-2 border-transparent py-2 pl-10 pr-3 text-sidebar-foreground/70 transition-colors duration-150 hover:bg-white/5 hover:text-sidebar-foreground data-[active=true]:border-[hsl(var(--brand))] data-[active=true]:bg-[hsl(var(--brand)/0.14)] data-[active=true]:font-medium data-[active=true]:text-[hsl(var(--brand))]"
+														class="h-9 rounded-none border-l-2 border-transparent py-2 pl-10 pr-3 text-sidebar-foreground/70 transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:border-[hsl(var(--brand))] data-[active=true]:bg-[hsl(var(--brand)/0.14)] data-[active=true]:font-medium data-[active=true]:text-[hsl(var(--brand))]"
 													>
 														{#snippet child({ props })}
 															<a
@@ -271,7 +278,7 @@
 							<Sidebar.MenuItem>
 								<Sidebar.MenuButton
 									isActive={item.active}
-									class="h-10 rounded-md px-3 text-sidebar-foreground/70 transition-colors duration-150 hover:bg-white/5 hover:text-white data-[active=true]:bg-[hsl(var(--brand)/0.14)] data-[active=true]:font-medium data-[active=true]:text-[hsl(var(--brand))]"
+									class="h-10 rounded-md px-3 text-sidebar-foreground/70 transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-[hsl(var(--brand)/0.14)] data-[active=true]:font-medium data-[active=true]:text-[hsl(var(--brand))]"
 								>
 									{#snippet child({ props })}
 										<a href={item.url} {...props}>
@@ -287,12 +294,10 @@
 			</Sidebar.GroupContent>
 		</Sidebar.Group>
 	</Sidebar.Content>
-	<Sidebar.Footer class="gap-3 border-t border-white/10 p-3">
+	<Sidebar.Footer class="gap-3 p-3">
 		<MaintenanceAlert />
 		{#if auth.currentUser}
-			<div
-				class="flex items-center justify-between gap-2 rounded-lg border border-white/10 bg-white/5 p-2 text-sm"
-			>
+			<div class="flex items-center justify-between gap-2 rounded-lg p-2 text-sm">
 				<div class="flex min-w-0 items-center gap-2">
 					<User class="size-4 shrink-0 text-sidebar-foreground/70" />
 					<span class="truncate font-medium">{auth.currentUser.full_name}</span>
@@ -300,7 +305,7 @@
 				<Button
 					variant="ghost"
 					size="icon"
-					class="size-8 shrink-0 text-sidebar-foreground hover:bg-white/10 hover:text-white"
+					class="size-8 shrink-0 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
 					href={withBase('users/self')}
 					aria-label="Edit profile"
 				>

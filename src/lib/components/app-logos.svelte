@@ -1,6 +1,9 @@
 <script lang="ts">
 	const { logoClass = 'size-24' } = $props();
-	import AIOLogoDark from '$lib/components/images/aio-logo-dark.png';
+	import AIOLogo from '$lib/components/images/aio-logo.svg';
+	import ADMSLogo from '$lib/components/images/adms-logo.png';
+	import { twMerge } from 'tailwind-merge';
+	import { theme } from '$lib/states/theme.svelte';
 </script>
 
 <a
@@ -10,9 +13,9 @@
 	class="inline-flex rounded-md ring-1 ring-transparent transition-all duration-200 hover:ring-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
 >
 	<img
-		src="https://australian-ad-observatory.s3.us-east-2.amazonaws.com/static/img/brand_logo_1.png"
+		src={ADMSLogo}
 		alt="ADM+S Logo"
-		class={logoClass}
+		class={twMerge(logoClass, theme.mode === 'dark' && 'invert')}
 	/>
 </a>
 <a
@@ -21,5 +24,9 @@
 	rel="noopener noreferrer"
 	class="inline-flex rounded-md ring-1 ring-transparent transition-all duration-200 hover:ring-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
 >
-	<img src={AIOLogoDark} alt="AIO Logo" class={logoClass} />
+	<img
+		src={AIOLogo}
+		alt="AIO Logo"
+		class={twMerge(logoClass, 'p-2', theme.mode === 'dark' && 'invert')}
+	/>
 </a>
