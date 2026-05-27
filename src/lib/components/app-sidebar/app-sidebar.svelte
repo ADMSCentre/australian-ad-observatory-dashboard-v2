@@ -216,7 +216,7 @@
 								<Sidebar.MenuItem>
 									<Sidebar.MenuButton
 										isActive={item.proxyActive}
-										class="h-10 rounded-md px-3 text-sidebar-foreground/70 transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-transparent data-[active=true]:text-sidebar-foreground"
+										class="h-10 rounded-md px-3 text-sidebar-foreground transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-transparent data-[active=true]:text-sidebar-foreground"
 									>
 										{#snippet child({ props })}
 											{@const href = item.url ?? item.subItems?.[0].url ?? '#'}
@@ -254,7 +254,7 @@
 												<Sidebar.MenuSubItem class="relative">
 													<Sidebar.MenuSubButton
 														isActive={sub.active}
-														class="h-9 rounded-none border-l-2 border-transparent py-2 pl-10 pr-3 text-sidebar-foreground/70 transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:border-[hsl(var(--brand))] data-[active=true]:bg-[hsl(var(--brand)/0.14)] data-[active=true]:font-medium data-[active=true]:text-[hsl(var(--brand))]"
+														class="h-9 rounded-none border-l-2 border-transparent py-2 pl-10 pr-3 text-sidebar-foreground transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:border-[hsl(var(--brand))] data-[active=true]:bg-[hsl(var(--brand)/0.14)] data-[active=true]:font-medium data-[active=true]:text-[hsl(var(--brand))]"
 													>
 														{#snippet child({ props })}
 															<a
@@ -278,7 +278,7 @@
 							<Sidebar.MenuItem>
 								<Sidebar.MenuButton
 									isActive={item.active}
-									class="h-10 rounded-md px-3 text-sidebar-foreground/70 transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-[hsl(var(--brand)/0.14)] data-[active=true]:font-medium data-[active=true]:text-[hsl(var(--brand))]"
+									class="h-10 rounded-md px-3 text-sidebar-foreground transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-[hsl(var(--brand)/0.14)] data-[active=true]:font-medium data-[active=true]:text-[hsl(var(--brand))]"
 								>
 									{#snippet child({ props })}
 										<a href={item.url} {...props}>
@@ -299,7 +299,7 @@
 		{#if auth.currentUser}
 			<div class="flex items-center justify-between gap-2 rounded-lg p-2 text-sm">
 				<div class="flex min-w-0 items-center gap-2">
-					<User class="size-4 shrink-0 text-sidebar-foreground/70" />
+					<User class="size-4 shrink-0 text-sidebar-foreground" />
 					<span class="truncate font-medium">{auth.currentUser.full_name}</span>
 				</div>
 				<Button
