@@ -196,16 +196,18 @@
 	</aside>
 
 	<Dialog.Root bind:open={manageTeamOpen}>
-		<Dialog.Content class="sm:max-w-xl">
+		<Dialog.Content class="max-h-[90vh] overflow-y-auto sm:max-w-6xl">
 			<Dialog.Header>
 				<Dialog.Title>Manage Team</Dialog.Title>
 			</Dialog.Header>
 			<div class="flex flex-col gap-4">
 				{#if projectManager.currentUser.isAdmin}
 					<div class="border-b border-border pb-4">
-						<div class="space-y-1 mb-3">
+						<div class="mb-3 space-y-1">
 							<h3 class="text-sm font-semibold text-foreground">Add Collaborator</h3>
-							<p class="text-xs leading-5 text-muted-foreground">Use the form below to add a new collaborator to this project.</p>
+							<p class="text-xs leading-5 text-muted-foreground">
+								Use the form below to add a new collaborator to this project.
+							</p>
 						</div>
 						<div class="flex flex-col gap-2 sm:flex-row">
 							<div class="relative flex-1">
