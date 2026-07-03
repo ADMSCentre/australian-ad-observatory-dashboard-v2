@@ -555,34 +555,7 @@
 						</Dialog.Header>
 					</div>
 
-					<div class="grid grid-cols-2 divide-x border-b bg-muted/30 sm:grid-cols-4">
-						<div class="px-5 py-3">
-							<p class="text-xs text-muted-foreground">Frames</p>
-							<p class="mt-1 text-xl font-semibold tabular-nums text-foreground">
-								{frames.length || keyframes.length || 'N/A'}
-							</p>
-						</div>
-						<div class="px-5 py-3">
-							<p class="text-xs text-muted-foreground">OCR detections</p>
-							<p class="mt-1 text-xl font-semibold tabular-nums text-foreground">
-								{textValues.length}
-							</p>
-						</div>
-						<div class="px-5 py-3">
-							<p class="text-xs text-muted-foreground">Classifications</p>
-							<p class="mt-1 text-xl font-semibold tabular-nums text-foreground">
-								{sortedClassifications.length}
-							</p>
-						</div>
-						<div class="px-5 py-3">
-							<p class="text-xs text-muted-foreground">Dimensions</p>
-							<p class="mt-1 text-xl font-semibold tabular-nums text-foreground">
-								{adDimension ? `${adDimension.w}x${adDimension.h}` : 'N/A'}
-							</p>
-						</div>
-					</div>
-
-					<div class="min-h-0 flex-1 space-y-3 overflow-y-auto px-6 py-5">
+					<div class="min-h-0 flex-1 space-y-3 overflow-y-auto px-6 py-3">
 						<Collapsible.Root bind:open={generalOpen} class="overflow-hidden rounded-lg">
 							<Collapsible.Trigger class="w-full hover:bg-muted/50">
 								{@render sectionHeader(
