@@ -4,7 +4,15 @@
 	import AdCard, { type Props as AdCardProps, type AdElement } from './ad-card/ad-card.svelte';
 	import { dateToCalendarDate } from '../../../lib/api/session/ads/utils';
 	import Accordion from '$lib/components/accordion/accordion.svelte';
-	import { ChevronRight, FilterIcon, LoaderCircleIcon, SearchIcon } from 'lucide-svelte';
+	import {
+		ChevronRight,
+		Check,
+		EyeOff,
+		FilterIcon,
+		LoaderCircleIcon,
+		SearchIcon,
+		Star
+	} from 'lucide-svelte';
 	import { twMerge } from 'tailwind-merge';
 	import { slide } from 'svelte/transition';
 	import AdRichView from './rich-view/ad-rich-view.svelte';
@@ -223,8 +231,134 @@
 	let selectedTagIds = $state<(string | null)[]>([]);
 	const selectedTagIdSet = $derived(new Set(selectedTagIds));
 
-	let selectedClassifications = $state<string[]>(['Unclassified']);
+	let selectedClassifications = $state<string[]>([]);
 	const selectedClassificationsSet = $derived(new Set(selectedClassifications));
+
+	type FilterTab = 'classifications' | 'tags';
+	let filterSearchInput = $state('');
+	let activeFilterTab = $state<FilterTab>('classifications');
+
+	// Total available tag options (used to detect the "all selected" default state for tags)
+	const allTagOptionCount = $derived(session.tags.all.length + 1); // +1 for "No tag"
+
+	// Cached original number of classification options (including "Unclassified"). Captured once
+	// enrichment completes so the "all selected" default threshold stays stable even if the live
+	// label set changes later.
+	let defaultClassificationCount = $state(0);
+
+	// Whether each filter category is currently in its "no-filter" default state. Both the
+	// "all selected" and "none selected" states count as default — an empty selection is treated
+	// as "show all" so unselecting every option never hides everything. In the default state
+	// checkboxes render unchecked, so checking a single option immediately narrows that category
+	// down to just the selected option. Tags and classifications are tracked independently so
+	// selecting one does not alter the other's state.
+	const isTagDefault = $derived(
+		selectedTagIds.length === 0 || selectedTagIds.length === allTagOptionCount
+	);
+	const isClassificationDefault = $derived(
+		selectedClassifications.length === 0 ||
+			selectedClassifications.length === defaultClassificationCount
+	);
+
+	// Number of ads per tag / classification label, used to render counts next to each option.
+	const filterCounts = $derived.by(() => {
+		const tagCounts = new Map<string | null, number>();
+		const classCounts = new Map<string, number>();
+		for (const ad of ads) {
+			const validAppliedTags =
+				ad.tags?.filter((tagId) => session.tags.getById(tagId) !== undefined) || [];
+			if (validAppliedTags.length === 0) {
+				tagCounts.set(null, (tagCounts.get(null) || 0) + 1);
+			} else {
+				for (const tagId of validAppliedTags) {
+					tagCounts.set(tagId, (tagCounts.get(tagId) || 0) + 1);
+				}
+			}
+			const labels = adClassificationsCache.get(ad.adId);
+			if (!labels || labels.size === 0) {
+				classCounts.set('Unclassified', (classCounts.get('Unclassified') || 0) + 1);
+			} else {
+				for (const label of labels) {
+					classCounts.set(label, (classCounts.get(label) || 0) + 1);
+				}
+			}
+		}
+		return { tagCounts, classCounts };
+	});
+
+	// Tag options (including the synthetic "No tag" entry), filtered by the popover search input
+	const filteredTagOptions = $derived.by(() => {
+		const query = filterSearchInput.trim().toLowerCase();
+		const options = [
+			...session.tags.all.map((t) => ({ id: t.id as string | null, name: t.name, hex: t.hex })),
+			{ id: null as string | null, name: 'No tag', hex: '#9ca3af' }
+		];
+		if (!query) return options;
+		return options.filter((option) => option.name.toLowerCase().includes(query));
+	});
+
+	// Classification labels (including the synthetic "Unclassified" entry), filtered by the popover search input
+	const filteredClassificationOptions = $derived.by(() => {
+		const query = filterSearchInput.trim().toLowerCase();
+		const labels = Array.from(new Set([...uniqueClassificationLabels, 'Unclassified']));
+		if (!query) return labels;
+		return labels.filter((label) => label.toLowerCase().includes(query));
+	});
+
+	const toggleTagFilter = (tagId: string | null) => {
+		// From the default (all-selected) state, checking one option narrows to just that option.
+		if (isTagDefault) {
+			selectedTagIds = [tagId];
+			return;
+		}
+		if (selectedTagIdSet.has(tagId)) {
+			selectedTagIds = selectedTagIds.filter((id) => id !== tagId);
+		} else {
+			selectedTagIds = [...selectedTagIds, tagId];
+		}
+	};
+
+	const toggleClassificationFilter = (label: string) => {
+		if (isClassificationDefault) {
+			selectedClassifications = [label];
+			return;
+		}
+		if (selectedClassificationsSet.has(label)) {
+			selectedClassifications = selectedClassifications.filter((l) => l !== label);
+		} else {
+			selectedClassifications = [...selectedClassifications, label];
+		}
+	};
+
+	// A filter category counts as "active" when it deviates from its default (no-filter) state.
+	// Since an empty selection is treated as "show all", only a partial selection is active — and
+	// the count reflects the number of options the user has actively selected.
+	const activeFilterCount = $derived.by(() => {
+		let count = 0;
+		for (const filter of attributeFilters) {
+			if (filter.attribute === 'hidden' && filter.value !== 'false') count++;
+			if (filter.attribute === 'starred' && filter.value !== 'all') count++;
+		}
+		if (!isTagDefault) {
+			count += selectedTagIds.length;
+		}
+		if (!isClassificationDefault) {
+			count += selectedClassifications.length;
+		}
+		return count;
+	});
+	const hasActiveFilters = $derived(activeFilterCount > 0);
+
+	const clearAllFilters = () => {
+		// Reset to empty (the no-filter "show all" state) for tags and classifications
+		selectedTagIds = [];
+		selectedClassifications = [];
+		attributeFilters = attributeFilters.map((filter) => ({
+			...filter,
+			value: filter.attribute === 'hidden' ? 'false' : 'all'
+		}));
+		filterSearchInput = '';
+	};
 
 	/**
 	 * onMount: kick off fetching of enrichment data (tags, classifications) and build
@@ -273,25 +407,14 @@
 	// NOTE: uniqueClassificationLabels is populated after enrichment finishes (in onMount). We use it to populate the UI.
 
 	$effect(() => {
-		// If tags are available, default to selecting all tags so that the filter initially shows all results
-		if (session.tags.loading) return;
-		untrack(() => {
-			if (selectedTagIds.length === 0) {
-				selectedTagIds = [...session.tags.all.map((t) => t.id), null];
-			}
-		});
-	});
-
-	$effect(() => {
-		// Auto-select all classifications by default once classification labels are cached
+		// Cache the original (default) classification count once labels are available so the
+		// "no-filter" default state can be detected reliably. An empty selection is treated as
+		// "show all", so we no longer auto-select every classification on load.
 		if (loading) return;
 		if (uniqueClassificationLabels.size === 0) return;
 		untrack(() => {
 			const classifications = Array.from(uniqueClassificationLabels);
-			// Select all classifications by default if the only one currently selected is "Unclassified" (which is the default state before enrichment)
-			if (selectedClassifications.length === 1 && selectedClassifications[0] === 'Unclassified') {
-				selectedClassifications = [...classifications, 'Unclassified'];
-			}
+			defaultClassificationCount = classifications.length + 1; // +1 for "Unclassified"
 		});
 	});
 
@@ -356,6 +479,8 @@
 					})
 					// Filter by tags
 					.filter((ad) => {
+						// Empty selection = no tag filter = show all
+						if (selectedTagIdSet.size === 0) return true;
 						// If the tag ids are invalid, remove them
 						const validAppliedTags =
 							ad.tags?.filter((tagId) => session.tags.getById(tagId) !== undefined) || [];
@@ -365,6 +490,8 @@
 					})
 					// Filter by classifications
 					.filter((ad) => {
+						// Empty selection = no classification filter = show all
+						if (selectedClassificationsSet.size === 0) return true;
 						// Membership check using cached sets
 						const adClassifications = adClassificationsCache.get(ad.adId);
 						if (!adClassifications || adClassifications.size === 0)
@@ -462,6 +589,10 @@
 	</div>
 {/snippet}
 
+{#snippet checkIcon()}
+	<Check class="size-3" />
+{/snippet}
+
 <div class="relative flex flex-col gap-4 py-4" bind:clientWidth>
 	<!-- Controls (grouping, ordering) -->
 	<div class="flex flex-col gap-3 text-sm lg:flex-row lg:items-center lg:justify-between">
@@ -506,101 +637,213 @@
 						{:else}
 							<FilterIcon class="size-4" />
 							<span>Filters</span>
-							<ChevronRight class="size-4" />
+							{#if activeFilterCount > 0}
+								<span class="rounded bg-primary px-1.5 text-[10px] text-primary-foreground">
+									{activeFilterCount}
+								</span>
+							{/if}
 						{/if}
 					</Button>
 				</Popover.Trigger>
-				<Popover.Content class="w-80 rounded-xl p-4 shadow-sm">
-					<h2 class="text-lg font-semibold tracking-normal">Filters</h2>
-					<p class="text-sm leading-5 text-muted-foreground">
-						Narrow down the ads displayed with the filters below.
-					</p>
-					<div class="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-3 py-4 text-sm">
-						{#if allowAttributesFilter}
-							{#each attributeFilterOptions as { label, value, attribute } (attribute)}
-								<div class="contents">
-									<span class="font-medium text-muted-foreground">{label}</span>
-									{#if loading}
-										<LoaderCircleIcon class="animate-spin" size={16} />
-									{:else}
-										<Dropdown
-											options={Object.entries(
-												attributeFilterOptions.find((f) => f.attribute === attribute)?.options || {}
-											).map(([key, option]) => ({
-												value: key,
-												label: option.label
-											}))}
-											triggerClass="w-full h-8 text-xs"
-											contentClass="w-fit"
-											disabled={loading}
-											selected={value}
-											onSelected={(option) => {
-												const selectedOption = option as boolean | 'all';
-												attributeFilters = attributeFilters.map((filter) =>
-													filter.attribute === attribute
-														? { ...filter, value: selectedOption }
-														: filter
-												);
-												if (!syncQueryParams) return;
-												if (selectedOption === 'all') $page.url.searchParams.delete(attribute);
-												else $page.url.searchParams.set(attribute, selectedOption.toString());
-												replaceState($page.url, $page.state);
-											}}
-										/>
-									{/if}
+				<Popover.Content class="w-80 p-0" align="end" sideOffset={4}>
+					<div class="flex flex-col">
+						<div class="flex items-center gap-2 border-b border-border px-3 py-2">
+							<SearchIcon class="size-3.5 shrink-0 text-muted-foreground" />
+							<input
+								type="text"
+								bind:value={filterSearchInput}
+								placeholder="Search filters..."
+								class="w-full bg-transparent text-xs text-foreground placeholder:text-muted-foreground focus:outline-none"
+							/>
+						</div>
+
+						<div class="max-h-[24rem] overflow-y-auto">
+							{#if allowAttributesFilter}
+								{#each attributeFilters as { label, value, attribute, options } (attribute)}
+									<div class="border-b border-border px-3 py-2.5">
+										<p
+											class="mb-1.5 flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground"
+										>
+											{#if attribute === 'hidden'}
+												<EyeOff class="size-3" />
+											{:else}
+												<Star class="size-3" />
+											{/if}
+											{label}
+										</p>
+										{#if loading}
+											<div class="flex items-center gap-2 px-1 py-1 text-xs text-muted-foreground">
+												<LoaderCircleIcon class="size-3.5 animate-spin" />
+												Loading...
+											</div>
+										{:else}
+											<div class="flex flex-wrap gap-x-3 gap-y-1">
+												{#each Object.entries(options) as [key, option] (key)}
+													{@const isActive = value === key}
+													<button
+														type="button"
+														class="flex items-center gap-2 rounded px-1 py-1 text-xs transition-colors hover:bg-accent"
+														onclick={() => {
+															attributeFilters = attributeFilters.map((filter) =>
+																filter.attribute === attribute ? { ...filter, value: key } : filter
+															);
+															if (!syncQueryParams) return;
+															if (key === 'all') $page.url.searchParams.delete(attribute);
+															else $page.url.searchParams.set(attribute, key);
+															replaceState($page.url, $page.state);
+														}}
+													>
+														<span
+															class="flex size-3.5 shrink-0 items-center justify-center rounded-full border {isActive
+																? 'border-primary bg-primary'
+																: 'border-input'}"
+														>
+															{#if isActive}
+																<span class="size-1.5 rounded-full bg-primary-foreground"></span>
+															{/if}
+														</span>
+														<span
+															class="text-left {isActive
+																? 'font-medium text-foreground'
+																: 'text-foreground'}">{option.label}</span
+														>
+													</button>
+												{/each}
+											</div>
+										{/if}
+									</div>
+								{/each}
+							{/if}
+
+							<div class="px-3 py-2.5">
+								<div class="mb-2 flex items-center gap-3">
+									<button
+										type="button"
+										class="text-[10px] font-medium uppercase tracking-wide transition-colors {activeFilterTab ===
+										'classifications'
+											? 'text-foreground'
+											: 'text-muted-foreground hover:text-foreground'}"
+										onclick={() => (activeFilterTab = 'classifications')}
+									>
+										Classifications
+										{#if !isClassificationDefault}
+											<span class="ml-0.5 text-primary">({selectedClassifications.length})</span>
+										{/if}
+									</button>
+									<button
+										type="button"
+										class="text-[10px] font-medium uppercase tracking-wide transition-colors {activeFilterTab ===
+										'tags'
+											? 'text-foreground'
+											: 'text-muted-foreground hover:text-foreground'}"
+										onclick={() => (activeFilterTab = 'tags')}
+									>
+										Tags
+										{#if !isTagDefault}
+											<span class="ml-0.5 text-primary">({selectedTagIds.length})</span>
+										{/if}
+									</button>
 								</div>
-							{/each}
+
+								{#if loading}
+									<div class="flex items-center gap-2 px-1 py-2 text-xs text-muted-foreground">
+										<LoaderCircleIcon class="size-3.5 animate-spin" />
+										Preparing filters...
+									</div>
+								{:else if activeFilterTab === 'classifications'}
+									<p class="mb-1.5 text-[10px] text-muted-foreground">
+										Machine-generated labels for the ad.
+									</p>
+									<div class="max-h-36 overflow-y-auto">
+										{#each filteredClassificationOptions as label (label)}
+											{@const isActive =
+												!isClassificationDefault && selectedClassificationsSet.has(label)}
+											<button
+												type="button"
+												class="flex w-full items-center gap-2 rounded px-1 py-1 text-xs transition-colors hover:bg-accent {isActive
+													? 'font-medium text-primary'
+													: 'text-foreground'}"
+												onclick={() => toggleClassificationFilter(label)}
+											>
+												<span
+													class="flex size-3.5 shrink-0 items-center justify-center rounded-sm border {isActive
+														? 'border-primary bg-primary text-primary-foreground'
+														: 'border-input'}"
+												>
+													{#if isActive}
+														{@render checkIcon()}
+													{/if}
+												</span>
+												<span class="min-w-0 flex-1 truncate text-left">{label}</span>
+												<span class="shrink-0 px-0.5 text-[10px] text-muted-foreground">
+													{filterCounts.classCounts.get(label) || 0}
+												</span>
+											</button>
+										{/each}
+										{#if filteredClassificationOptions.length === 0}
+											<p class="px-1 py-2 text-xs text-muted-foreground">
+												{filterSearchInput
+													? 'No matching classifications'
+													: 'No classifications available'}
+											</p>
+										{/if}
+									</div>
+								{:else}
+									<p class="mb-1.5 text-[10px] text-muted-foreground">
+										User-assigned labels for the ad.
+									</p>
+									<div class="max-h-36 overflow-y-auto">
+										{#each filteredTagOptions as tag (tag.id ?? '__no-tag__')}
+											{@const isActive = !isTagDefault && selectedTagIdSet.has(tag.id)}
+											<button
+												type="button"
+												class="flex w-full items-center gap-2 rounded px-1 py-1 text-xs transition-colors hover:bg-accent {isActive
+													? 'font-medium text-primary'
+													: 'text-foreground'}"
+												onclick={() => toggleTagFilter(tag.id)}
+											>
+												<span
+													class="flex size-3.5 shrink-0 items-center justify-center rounded-sm border {isActive
+														? 'border-primary bg-primary text-primary-foreground'
+														: 'border-input'}"
+												>
+													{#if isActive}
+														{@render checkIcon()}
+													{/if}
+												</span>
+												<span
+													class="size-2.5 shrink-0 rounded-full"
+													style="background-color: {tag.hex};"
+												></span>
+												<span class="min-w-0 flex-1 truncate text-left">{tag.name}</span>
+												<span class="shrink-0 px-0.5 text-[10px] text-muted-foreground">
+													{filterCounts.tagCounts.get(tag.id) || 0}
+												</span>
+											</button>
+										{/each}
+										{#if filteredTagOptions.length === 0}
+											<p class="px-1 py-2 text-xs text-muted-foreground">
+												{filterSearchInput ? 'No matching tags' : 'No tags available'}
+											</p>
+										{/if}
+									</div>
+								{/if}
+							</div>
+						</div>
+
+						{#if hasActiveFilters}
+							<div class="border-t border-border px-3 py-2">
+								<button
+									type="button"
+									class="flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+									onclick={clearAllFilters}
+								>
+									Clear all filters
+								</button>
+							</div>
 						{/if}
-
-						<div class="contents">
-							<span>Tags</span>
-							{#if loading}
-								<LoaderCircleIcon class="animate-spin" size={16} />
-							{:else}
-								<Dropdown
-									mode="multiple"
-									options={[
-										...session.tags.all.map((t) => ({ value: t.id, label: t.name })),
-										{ value: null, label: 'No tag' }
-									]}
-									triggerClass="w-full h-8 text-xs"
-									disabled={session.tags.loading}
-									bind:selected={selectedTagIds}
-									clearable={true}
-									searchable={true}
-									allowSelectAll={true}
-								/>
-							{/if}
-						</div>
-
-						<div class="contents">
-							<span class="font-medium text-muted-foreground">Classifications</span>
-							{#if loading}
-								<LoaderCircleIcon class="animate-spin" size={16} />
-							{:else}
-								<Dropdown
-									mode="multiple"
-									options={Array.from(uniqueClassificationLabels)
-										.map((label) => ({
-											value: label,
-											label
-										}))
-										.concat({
-											value: 'Unclassified',
-											label: 'Unclassified'
-										})}
-									disabled={loading}
-									triggerClass="w-full h-8 text-xs"
-									bind:selected={selectedClassifications}
-									clearable={true}
-									searchable={true}
-									allowSelectAll={true}
-									placeholder="Filter by classification..."
-								/>
-							{/if}
-						</div>
-					</div></Popover.Content
-				>
+					</div>
+				</Popover.Content>
 			</Popover.Root>
 		</div>
 		<div class="flex flex-wrap items-center gap-2">
