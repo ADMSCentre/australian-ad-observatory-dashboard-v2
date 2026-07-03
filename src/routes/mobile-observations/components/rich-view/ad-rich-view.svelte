@@ -145,10 +145,20 @@
 	});
 
 	const scaledOcrData = $derived.by(() => {
-		if (!currentKeyframe || !adDimension) return [];
+		if (!currentKeyframe) return [];
 
-		const scale = (value: number, dimension: 'w' | 'h' = 'w') =>
-			(value / (dimension === 'w' ? adDimension.w : adDimension.h)) * 100;
+		const currentKeyframeDimensions = {
+			width: frameImageEl?.naturalWidth ?? adDimension?.w ?? 1,
+			height: frameImageEl?.naturalHeight ?? adDimension?.h ?? 1
+		};
+
+		const scale = (value: number, dimension: 'w' | 'h' = 'w') => {
+			if (dimension === 'w') {
+				return (value / currentKeyframeDimensions.width) * 100;
+			} else {
+				return (value / currentKeyframeDimensions.height) * 100;
+			}
+		};
 
 		return currentKeyframe.ocr_data
 			.map((ocrBox) => ({
@@ -316,6 +326,8 @@
 		const hue = startHue + (endHue - startHue) * confidence;
 		return `hsl(${hue}, 100%, 50%)`;
 	}
+
+	$inspect({ frameImageEl });
 </script>
 
 {#snippet sectionHeader(
