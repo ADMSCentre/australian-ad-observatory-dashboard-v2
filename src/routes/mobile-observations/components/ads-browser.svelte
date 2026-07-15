@@ -162,6 +162,7 @@
 			string,
 			{
 				label: string;
+				description?: string;
 				filter: (value: string | boolean | undefined) => boolean;
 			}
 		>;
@@ -172,24 +173,32 @@
 			value: params.attributes?.hidden || 'false',
 			mode: 'single',
 			options: {
-				all: {
-					label: 'All',
+				overlay: {
+					label: 'Overlay',
+					description: 'Hidden ads are replaced with an overlay and can be revealed at any time',
 					filter: () => true
 				},
-				true: {
-					label: 'True',
-					filter: (value) => {
-						if (value === undefined) return false;
-						if (typeof value === 'boolean') return value;
-						return value.toLowerCase() === 'true';
-					}
+				all: {
+					label: 'Show',
+					description: 'Hidden ads are shown normally with a "Hidden" badge',
+					filter: () => true
 				},
 				false: {
-					label: 'False',
+					label: 'Hide',
+					description: 'Hidden ads are not shown at all',
 					filter: (value) => {
 						if (value === undefined) return true;
 						if (typeof value === 'boolean') return !value;
 						return value.toLowerCase() === 'false';
+					}
+				},
+				true: {
+					label: 'Only hidden',
+					description: 'Only hidden ads are shown',
+					filter: (value) => {
+						if (value === undefined) return false;
+						if (typeof value === 'boolean') return value;
+						return value.toLowerCase() === 'true';
 					}
 				}
 			}
@@ -227,6 +236,13 @@
 	let groupBy = $state(groups.find((g) => g.value === groupParam) || groups[0]);
 	let sortBy = $state(sortOptions.find((s) => s.value === sortParam) || sortOptions[0]);
 	let attributeFilters = $state(attributeFilterOptions);
+	// Display mode for hidden ads, derived from the selected "hidden" filter option:
+	// 'overlay' renders hidden ads as a click-to-reveal placeholder, 'normal' shows them with a badge
+	const hiddenDisplayMode = $derived<'overlay' | 'normal'>(
+		attributeFilters.find((f) => f.attribute === 'hidden')?.value === 'overlay'
+			? 'overlay'
+			: 'normal'
+	);
 	let searchKey = $state(defaultSearchKey);
 	let selectedTagIds = $state<(string | null)[]>([]);
 	const selectedTagIdSet = $derived(new Set(selectedTagIds));
@@ -580,6 +596,7 @@
 					<AdCard
 						adData={ads[getAdIndex(adData)]}
 						{exclude}
+						{hiddenDisplayMode}
 						onExpand={() => onSingleAdExpand(ads[getAdIndex(adData)])}
 						class="grid w-full grid-rows-[auto_384px_auto]"
 					/>
@@ -677,6 +694,7 @@
 												Loading...
 											</div>
 										{:else}
+											{@const activeOption = options[value as string]}
 											<div class="flex flex-wrap gap-x-3 gap-y-1">
 												{#each Object.entries(options) as [key, option] (key)}
 													{@const isActive = value === key}
@@ -710,6 +728,11 @@
 													</button>
 												{/each}
 											</div>
+											{#if activeOption?.description}
+												<p class="ml-6 mt-1.5 text-[10px] leading-tight text-muted-foreground">
+													{activeOption.description}
+												</p>
+											{/if}
 										{/if}
 									</div>
 								{/each}

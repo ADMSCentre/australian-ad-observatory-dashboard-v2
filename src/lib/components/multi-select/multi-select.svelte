@@ -141,7 +141,7 @@
 
 <Popover.Root bind:open>
 	<Popover.Trigger
-		class="cursor-auto"
+		class="w-full cursor-pointer"
 		onclick={(e) => {
 			tick().then(() => {
 				inputRef.focus();
