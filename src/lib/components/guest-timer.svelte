@@ -16,6 +16,8 @@
 </script>
 
 {#if guestTokenDecoded}
-	Your session will end in
-	<Timer exp={guestTokenDecoded.exp * 1000} {onExpire} class={className} />
+	<span class="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+		<span>Your session will end in</span>
+		<Timer exp={guestTokenDecoded.exp * 1000} {onExpire} class={className} />
+	</span>
 {/if}

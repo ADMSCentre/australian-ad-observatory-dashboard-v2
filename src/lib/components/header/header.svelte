@@ -11,7 +11,6 @@
 	import { page } from '$app/stores';
 	import GuestTimer from '../guest-timer.svelte';
 	import AppLogos from '../app-logos.svelte';
-	import MaintenanceAlert from '../maintenance-alert.svelte';
 
 	const onLogout = () => {
 		auth.logout();
@@ -38,7 +37,10 @@
 {#snippet themeModeSwitch()}
 	<button
 		onclick={toggleLightMode}
-		class={twMerge('flex w-16 flex-row items-center rounded-full border-2 p-1 transition-all')}
+		aria-label="Toggle theme"
+		class={twMerge(
+			'flex h-8 w-16 flex-row items-center rounded-full border border-border bg-muted/60 p-1 transition-all duration-200 hover:border-brand/20'
+		)}
 	>
 		<div
 			class={twMerge(
@@ -47,12 +49,12 @@
 			)}
 		>
 			<span
-				class="flex size-6 cursor-pointer items-center justify-center rounded-full border-none bg-background p-1"
+				class="flex size-6 cursor-pointer items-center justify-center rounded-full border border-border bg-background p-1 shadow-sm"
 			>
 				{#if theme.mode === 'light'}
-					<Sun class="text-foreground" />
+					<Sun class="size-4 text-brand" />
 				{:else}
-					<Moon class="text-foreground" />
+					<Moon class="size-4 text-foreground" />
 				{/if}
 			</span>
 		</div>
@@ -61,34 +63,36 @@
 
 <header
 	class={twMerge(
-		'sticky top-0 z-50 flex w-full items-center border-b bg-background bg-opacity-50 p-2 text-foreground backdrop-blur-sm transition duration-300',
+		'sticky top-0 z-50 flex w-full items-center border-b border-border/80 bg-background/90 px-3 py-2 text-foreground shadow-sm shadow-black/[0.02] backdrop-blur-sm transition duration-300 sm:px-4',
 		!headerVisible && ' -translate-y-full transform'
 	)}
 >
 	<div class="flex w-full items-center justify-between">
-		<span class="inline-flex gap-1">
+		<span class="inline-flex min-w-0 items-center gap-2">
 			{#if !auth.isGuest}
 				<Sidebar.Trigger />
 			{:else}
 				<GuestTimer
-					class="font-bold"
+					class="text-foreground"
 					onExpire={() => {
 						location.reload();
 					}}
 				/>
-				<AppLogos logoClass="bg-black h-12" />
+				<AppLogos logoClass="h-10 w-auto rounded bg-slate-950 p-1" />
 			{/if}
 		</span>
-		<div class="flex items-center gap-4">
+		<div class="flex min-w-0 items-center gap-2 sm:gap-3">
 			{@render themeModeSwitch()}
 
 			{#if auth.loading}
-				<div class="flex items-center gap-2">
-					<Circle size="30" color={theme.colors.foreground} />
-					<span> Authenticating... </span>
+				<div class="flex items-center gap-2 text-sm text-muted-foreground">
+					<Circle size="18" color={theme.colors.foreground} />
+					<span>Authenticating...</span>
 				</div>
 			{:else if auth.currentUser && !auth.isGuest}
-				<p>Hello <span class=" font-semibold">{auth.currentUser.full_name}</span>!</p>
+				<p class="hidden max-w-72 truncate text-sm text-muted-foreground sm:block">
+					Hello <span class="font-semibold text-foreground">{auth.currentUser.full_name}</span>
+				</p>
 				<Button variant="outline" type="button" onclick={onLogout}>Logout</Button>
 			{:else}
 				<Button

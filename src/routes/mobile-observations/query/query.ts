@@ -109,7 +109,7 @@ export const METHODS = {
 export type MethodValue = keyof typeof METHODS;
 
 export const DEFAULT_QUERY: Query = {
-	method: 'ANYTHING_CONTAINS',
+	method: 'OBSERVER_ID_CONTAINS',
 	args: []
 };
 

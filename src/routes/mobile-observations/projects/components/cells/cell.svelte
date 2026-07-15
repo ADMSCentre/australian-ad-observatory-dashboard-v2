@@ -7,42 +7,72 @@
 	import TextCell from './text-cell.svelte';
 	import QueryCell from './query-cell.svelte';
 	import CellControls from './cell-controls.svelte';
-	let { cell = $bindable() }: { cell: Cell } = $props();
+	import { AlertTriangle } from 'lucide-svelte';
+	import { twMerge } from 'tailwind-merge';
+	let {
+		cell = $bindable(),
+		active = false,
+		onActivate = () => {},
+		onDeactivate = () => {}
+	}: {
+		cell: Cell;
+		active?: boolean;
+		onActivate?: () => void;
+		onDeactivate?: () => void;
+	} = $props();
 
-	const cellStyles = {
-		text: {
-			border: 'border-l-4 border-l-blue-500 border border-gray-200 dark:border-gray-700',
-			background: 'bg-blue-50/30 dark:bg-transparent',
-			accent: 'text-blue-600 dark:text-blue-400'
-		},
-		query: {
-			border: 'border-l-4 border-l-purple-500 border border-gray-200 dark:border-gray-700',
-			background: 'bg-purple-50/30 dark:bg-transparent',
-			accent: 'text-purple-600 dark:text-purple-400'
-		}
-	};
-
-	const currentStyle = $derived(
-		cellStyles[cell.type as keyof typeof cellStyles] || cellStyles.text
-	);
+	const hideHeader = $derived(cell.type === 'text' && !active);
 </script>
 
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
-	class="relative size-full flex-1 rounded-lg {currentStyle.border} {currentStyle.background} transition-all duration-200 hover:shadow-sm"
+	class={twMerge(
+		'group/cell relative size-full flex-1 overflow-hidden rounded-xl border bg-card text-card-foreground transition-colors duration-200 focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/20',
+		cell.hasChanges ? 'border-brand/80 ring-1 ring-brand/20' : 'border-border',
+		cell.type === 'text' &&
+			!active &&
+			'border-transparent focus-within:border-brand/80 focus-within:ring-1 focus-within:ring-brand/20 hover:border-border'
+	)}
+	onfocusin={onActivate}
+	onmousedown={onActivate}
+	onfocusout={(event) => {
+		const nextTarget = event.relatedTarget;
+		if (nextTarget instanceof Node && event.currentTarget.contains(nextTarget)) return;
+		onDeactivate();
+	}}
+	role="group"
+	aria-label={`${cell.type} cell`}
 >
-	<span
-		class="absolute left-2 top-2 text-2xs font-medium {currentStyle.accent} rounded-full bg-white/80 px-2 py-1 dark:bg-white"
-	>
-		{cell.type.toUpperCase()} • {cell.id}
-	</span>
+	{#if !hideHeader}
+		<div
+			class="flex min-h-11 items-center justify-between gap-3 border-b border-border bg-muted/30 px-3 py-2"
+		>
+			<div class="flex min-w-0 items-center gap-2">
+				<span
+					class={twMerge(
+						'shrink-0 rounded-md px-2 py-0.5 text-[11px] font-semibold capitalize',
+						cell.hasChanges ? 'bg-brand text-white' : 'bg-muted text-muted-foreground'
+					)}
+				>
+					{cell.type}
+				</span>
+				{#if cell.hasChanges}
+					<span class="flex min-w-0 items-center gap-1 text-xs font-medium text-brand">
+						<AlertTriangle class="size-3.5 shrink-0" />
+						<span class="truncate">Want to confirm your changes? Save them before you go.</span>
+					</span>
+				{/if}
+			</div>
 
-	<div class="p-4 pt-8">
+			<CellControls {cell} class="shrink-0" />
+		</div>
+	{/if}
+
+	<div class="p-4">
 		{#if cell.type === 'text'}
-			<TextCell bind:cell={cell as TextCellType} />
+			<TextCell bind:cell={cell as TextCellType} {active} />
 		{:else if cell.type === 'query'}
 			<QueryCell bind:cell={cell as QueryCellType} />
 		{/if}
 	</div>
-
-	<CellControls {cell} class="absolute right-4 top-2" />
 </div>

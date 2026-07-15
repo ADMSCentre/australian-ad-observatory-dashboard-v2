@@ -32,13 +32,13 @@
 		--destructive-foreground: 0 0% 98%;
 		--ring: 240 10% 3.9%;
 		--radius: 0.5rem;
-		--sidebar-background: 210, 11%, 15%;
-		--sidebar-foreground: 0 0% 100%;
+		--sidebar-background: 210 40% 98%;
+		--sidebar-foreground: 215 25% 27%;
 		--sidebar-primary: 240 5.9% 10%;
 		--sidebar-primary-foreground: 0 0% 98%;
-		--sidebar-accent: 240 4.8% 95.9%;
-		--sidebar-accent-foreground: 240 5.9% 10%;
-		--sidebar-border: 220 13% 91%;
+		--sidebar-accent: 214 32% 91%;
+		--sidebar-accent-foreground: 222 47% 11%;
+		--sidebar-border: 214 40% 80%;
 		--sidebar-ring: 217.2 91.2% 59.8%;
 	}
 
@@ -76,7 +76,7 @@
 		--sidebar-primary-foreground: 0 0% 100%;
 		--sidebar-accent: 240 3.7% 15.9%;
 		--sidebar-accent-foreground: 240 4.8% 95.9%;
-		--sidebar-border: 240 3.7% 15.9%;
+		--sidebar-border: 240 10% 35%;
 		--sidebar-ring: 217.2 91.2% 59.8%;
 	}
 }
@@ -86,7 +86,7 @@
 		@apply border-border;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background font-sans text-foreground antialiased;
 	}
 	.dark *[class*=' shadow'] {
 		@apply !shadow-zinc-700;
@@ -100,31 +100,31 @@
 	h4,
 	h5,
 	h6 {
-		@apply font-bold text-primary;
+		@apply font-semibold tracking-normal text-primary;
 	}
 
 	h1 {
-		@apply text-4xl;
-	}
-
-	h2 {
-		@apply text-3xl;
-	}
-
-	h3 {
 		@apply text-2xl;
 	}
 
-	h4 {
+	h2 {
 		@apply text-xl;
 	}
 
-	h5 {
+	h3 {
 		@apply text-lg;
 	}
 
-	h6 {
+	h4 {
 		@apply text-base;
+	}
+
+	h5 {
+		@apply text-sm;
+	}
+
+	h6 {
+		@apply text-xs uppercase tracking-widest;
 	}
 	a {
 		@apply underline;

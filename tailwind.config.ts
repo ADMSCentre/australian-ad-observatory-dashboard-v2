@@ -90,7 +90,7 @@ const config: Config = {
 				'7xs': '8rem'
 			},
 			fontFamily: {
-				sans: [...fontFamily.sans]
+				sans: ['Inter', ...fontFamily.sans]
 			},
 			keyframes: {
 				'accordion-down': {

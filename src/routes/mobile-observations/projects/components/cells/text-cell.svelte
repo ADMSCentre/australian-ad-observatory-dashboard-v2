@@ -4,7 +4,7 @@
 	import type { TextCell } from 'mobile-observations/projects/types';
 	import { getContext } from 'svelte';
 
-	let { cell = $bindable() }: { cell: TextCell } = $props();
+	let { cell = $bindable(), active = false }: { cell: TextCell; active?: boolean } = $props();
 	const projectManager = (getContext(PROJECT_MANAGER) as () => ProjectManager | undefined)();
 	if (!projectManager)
 		throw new Error(
@@ -14,19 +14,17 @@
 	const originalContent = cell.content;
 </script>
 
-<!-- <p>{content}</p> -->
-
 <Tiptap
-	class="h-full rounded border border-transparent leading-loose hover:shadow [&_.tiptap]:bg-transparent"
+	class="min-h-1 border-none bg-transparent shadow-none"
+	editorClasses="border-none p-0"
 	menus={{
 		floating: false,
 		bubble: false,
-		toolbar: true
+		toolbar: active
 	}}
 	placeholder="Enter text (Markdown supported)..."
 	bind:value={cell.content}
 	oninput={(content) => {
-		console.log('TextCell content changed:', content);
 		cell.hasChanges = originalContent !== content;
 	}}
 	disabled={!projectManager.currentUser.isEditor}

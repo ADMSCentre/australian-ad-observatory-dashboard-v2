@@ -78,16 +78,23 @@
 	}
 </script>
 
-<div class="flex h-full flex-col gap-2">
-	<div class="flex w-full items-center gap-2">
+<div class="flex h-full flex-col gap-3">
+	<div
+		class="flex w-full flex-col gap-2 sm:flex-row sm:items-center"
+	>
 		{#if searchable}
 			<div class="relative flex w-full items-center">
-				<Search size={16} class="absolute left-2 text-muted-foreground" />
-				<Input class="pl-8" bind:value={searchTerms} placeholder="Search..." oninput={onSearch} />
+				<Search class="absolute left-3 size-4 text-muted-foreground" />
+				<Input
+					class="h-9 border-border bg-background pl-9 text-sm shadow-none"
+					bind:value={searchTerms}
+					placeholder="Search..."
+					oninput={onSearch}
+				/>
 			</div>
 		{/if}
 		{#if downloadable}
-			<Button onclick={exportGrid} aria-label="Download CSV">
+			<Button class="h-9 shrink-0 gap-2" onclick={exportGrid} aria-label="Download CSV">
 				<DownloadIcon class="size-4" />
 				Export Table
 			</Button>
@@ -96,7 +103,11 @@
 
 	<div
 		bind:this={gridDiv}
-		class={twMerge(theme.mode === 'light' ? 'ag-theme-alpine' : 'ag-theme-alpine-dark', className)}
+		class={twMerge(
+			'overflow-hidden rounded-xl border border-border text-sm shadow-none',
+			theme.mode === 'light' ? 'ag-theme-alpine' : 'ag-theme-alpine-dark',
+			className
+		)}
 		style={styleStr}
 	></div>
 </div>

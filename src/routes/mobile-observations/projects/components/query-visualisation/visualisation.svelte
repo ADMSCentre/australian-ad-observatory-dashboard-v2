@@ -3,12 +3,11 @@
 	import Accordion from '$lib/components/accordion/accordion.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { json } from '@codemirror/lang-json';
-	import { CheckIcon, ChevronDownIcon, ChevronRightIcon, XIcon } from 'lucide-svelte';
+	import { CheckIcon, ChevronRightIcon, XIcon } from 'lucide-svelte';
 	import AdsBrowser from 'mobile-observations/components/ads-browser.svelte';
 	import ObservationsTimeline from 'mobile-observations/components/observations-timeline.svelte';
 	import ObserversTable from 'mobile-observations/components/observers-table.svelte';
 	import { VISUALISATION_TYPES, type QueryResultConfig } from 'mobile-observations/projects/types';
-	import { untrack } from 'svelte';
 	import CodeMirror from 'svelte-codemirror-editor';
 	import { twMerge } from 'tailwind-merge';
 
@@ -18,7 +17,8 @@
 		config = $bindable(),
 		allowDelete = true,
 		onDelete = null,
-		includeObservers = []
+		includeObservers = [],
+		showHeader = true
 	}: {
 		type: (typeof VISUALISATION_TYPES)[number];
 		ads: RichAdData[];
@@ -26,10 +26,11 @@
 		allowDelete?: boolean;
 		onDelete?: (() => void) | null;
 		includeObservers?: string[];
+		showHeader?: boolean;
 	} = $props();
 
 	let isDeleting = $state(false);
-	let reactiveAds = $state<RichAdData[]>(ads);
+	let reactiveAds = $state<RichAdData[]>([]);
 
 	$effect(() => {
 		if (config?.open === undefined) {
@@ -67,86 +68,103 @@
 	}
 </script>
 
-<div class="group/visualisation relative">
+{#snippet visualisationContent()}
+	{#if shouldShowVisualisation(type, ads)}
+		{#if type === 'timeline'}
+			<ObservationsTimeline {ads} />
+		{/if}
+
+		{#if type === 'observer-table'}
+			<ObserversTable {ads} {includeObservers} />
+		{/if}
+
+		{#if type === 'ads-browser'}
+			<AdsBrowser bind:ads={reactiveAds} syncQueryParams={false} open={false} />
+		{/if}
+
+		{#if type === 'raw'}
+			<CodeMirror
+				value={JSON.stringify(ads, null, 2)}
+				readonly
+				lang={json()}
+				class="w-full overflow-hidden rounded-xl bg-muted/30"
+				lineWrapping
+				useTab={false}
+			/>
+		{/if}
+	{:else}
+		<div class="flex h-24 items-center justify-center rounded-xl bg-muted/30">
+			<span class="text-sm text-muted-foreground">No data available for this visualisation.</span>
+		</div>
+	{/if}
+{/snippet}
+
+<div class="group/visualisation relative rounded-xl">
 	{#if allowDelete}
-		<div class="absolute right-1 top-1 z-10">
+		<div class="absolute right-2 top-2 z-10">
 			{#if !isDeleting}
 				<Button
-					class="size-fit p-0.5 opacity-5 transition-opacity group-hover/visualisation:opacity-100"
+					class="size-7 opacity-0 transition-opacity duration-200 group-hover/visualisation:opacity-100"
 					variant="destructive"
+					size="icon"
+					aria-label="Delete visualisation"
 					onclick={() => {
 						isDeleting = true;
 					}}
 				>
-					<XIcon />
+					<XIcon class="size-4" />
 				</Button>
 			{:else}
 				<div
-					class="flex items-center gap-1 rounded bg-muted text-xs font-light text-muted-foreground"
+					class="flex items-center gap-1 rounded-lg bg-background p-1 text-xs text-muted-foreground shadow-sm"
 				>
-					<span> Delete this visualisation? </span>
+					<span class="px-1">Delete?</span>
 					<Button
 						variant="ghost"
-						class="size-fit p-0.5 opacity-25 transition-opacity group-hover/visualisation:opacity-100"
+						size="icon"
+						class="size-7"
+						aria-label="Cancel delete visualisation"
 						onclick={() => {
 							isDeleting = false;
 						}}
 					>
-						<XIcon />
+						<XIcon class="size-4" />
 					</Button>
 					<Button
-						class="size-fit p-0.5 opacity-25 transition-opacity group-hover/visualisation:opacity-100"
+						class="size-7"
 						variant="destructive"
+						size="icon"
+						aria-label="Confirm delete visualisation"
 						onclick={() => {
 							isDeleting = false;
 							if (onDelete) onDelete();
 						}}
 					>
-						<CheckIcon />
+						<CheckIcon class="size-4" />
 					</Button>
 				</div>
 			{/if}
 		</div>
 	{/if}
 
-	<Accordion bind:open={config.open as boolean}>
-		{#snippet summary(open)}
-			<div class="flex w-full items-center justify-between pb-2 text-sm font-light">
-				<span class="inline-flex items-center gap-1 text-muted-foreground">
-					<ChevronRightIcon
-						class={twMerge('size-3 transition', open ? 'rotate-90 transform' : '')}
-					/>
-					<span class=" underline">{labels[type]}</span>
-				</span>
-			</div>
-		{/snippet}
-		{#if shouldShowVisualisation(type, ads)}
-			{#if type === 'timeline'}
-				<ObservationsTimeline {ads} />
-			{/if}
-
-			{#if type === 'observer-table'}
-				<ObserversTable {ads} {includeObservers} />
-			{/if}
-
-			{#if type === 'ads-browser'}
-				<AdsBrowser bind:ads={reactiveAds} syncQueryParams={false} open={false} />
-			{/if}
-
-			{#if type === 'raw'}
-				<CodeMirror
-					value={JSON.stringify(ads, null, 2)}
-					readonly
-					lang={json()}
-					class="w-full"
-					lineWrapping
-					useTab={false}
-				/>
-			{/if}
-		{:else}
-			<div class="flex h-24 items-center justify-center rounded bg-muted">
-				<span class="text-sm text-muted-foreground">No data available for this visualisation.</span>
-			</div>
-		{/if}
-	</Accordion>
+	{#if showHeader}
+		<Accordion bind:open={config.open as boolean}>
+			{#snippet summary(open)}
+				<div class="flex w-full items-center justify-between border-b border-border pb-2 text-sm">
+					<span class="inline-flex items-center gap-2 font-medium text-foreground">
+						<ChevronRightIcon
+							class={twMerge(
+								'size-4 text-muted-foreground transition',
+								open ? 'rotate-90 transform' : ''
+							)}
+						/>
+						<span>{labels[type]}</span>
+					</span>
+				</div>
+			{/snippet}
+			{@render visualisationContent()}
+		</Accordion>
+	{:else}
+		{@render visualisationContent()}
+	{/if}
 </div>

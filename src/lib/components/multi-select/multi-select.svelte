@@ -137,16 +137,11 @@
 		);
 		toggleSelection(match ? match.value : searchValue);
 	}
-
-	$inspect({
-		searchTerm,
-		filteredOptions
-	});
 </script>
 
 <Popover.Root bind:open>
 	<Popover.Trigger
-		class="cursor-auto"
+		class="w-full cursor-pointer"
 		onclick={(e) => {
 			tick().then(() => {
 				inputRef.focus();
@@ -154,11 +149,13 @@
 		}}
 		{disabled}
 	>
-		<div class="flex items-center justify-between gap-2 rounded-md border border-border p-2">
-			<div class="flex w-full flex-col gap-2">
+		<div
+			class="flex min-h-10 items-center justify-between gap-3 rounded-lg border border-border bg-background p-2 text-sm shadow-none transition-colors duration-200 hover:border-brand/20"
+		>
+			<div class="flex min-w-0 flex-1 flex-col gap-2">
 				{#if selected.length > 0}
 					<div class="flex flex-wrap gap-2">
-						{#each selected as value}
+						{#each selected as value (normalise(value))}
 							{@const option = options.find(
 								(option) => normalise(option.value) === normalise(value)
 							)}
@@ -176,12 +173,12 @@
 						{placeholder}
 					</div>
 				{/if}
-				<div class="flex w-fit items-center gap-2">
+				<div class="flex w-fit flex-wrap items-center gap-1.5">
 					{#if clearable && selected.length > 0 && !disabled}
-						<div class="flex w-full items-center gap-2">
+						<div class="flex w-full items-center gap-2 sm:w-auto">
 							<Button
 								variant="ghost"
-								class="size-fit px-1 py-0.5 text-xs font-medium"
+								class="size-fit h-7 px-2 py-0.5 text-xs font-medium text-muted-foreground hover:text-foreground"
 								onclick={(e) => {
 									e.stopPropagation();
 									selected = [];
@@ -196,7 +193,8 @@
 					<!-- Copy button -->
 					<Button
 						variant="ghost"
-						class="size-fit px-1 py-0.5 text-xs font-medium"
+						class="size-fit h-7 px-2 py-0.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+						aria-label="Copy selected items"
 						onclick={async (e) => {
 							e.stopPropagation();
 							const items = selected.map((value) => {
@@ -225,7 +223,8 @@
 					{#if allowPasting && !disabled}
 						<Button
 							variant="ghost"
-							class="size-fit px-1 py-0.5 text-xs font-medium"
+							class="size-fit h-7 px-2 py-0.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+							aria-label="Paste items from clipboard"
 							onclick={async (e) => {
 								e.stopPropagation();
 								const rawItems = (await parseClipboard()).filter((i) => i.trim() !== '');
@@ -253,17 +252,17 @@
 				</div>
 			</div>
 			{#if !disabled}
-				<ChevronDownIcon size={20} />
+				<ChevronDownIcon class="size-4 shrink-0 text-muted-foreground" />
 			{/if}
 		</div>
 		<Popover.Content
 			onOpenAutoFocus={(e) => e.preventDefault()}
-			class={twMerge('p-0', contentClass)}
+			class={twMerge('rounded-xl border-border p-1 shadow-sm', contentClass)}
 		>
 			<Command.Root shouldFilter={false}>
 				{#if searchable}
 					<Command.Input
-						class="w-full"
+						class="h-9 w-full text-sm"
 						placeholder="Select an option..."
 						bind:ref={inputRef}
 						minlength={1}
@@ -279,6 +278,7 @@
 								keywords={caseSensitive
 									? [searchValue]
 									: [searchValue, searchValue.toLocaleLowerCase()]}
+								class="text-sm"
 								onSelect={selectSearchValue}
 								onclick={(e) => {
 									e.stopPropagation();
@@ -293,11 +293,12 @@
 					{/if}
 					<!-- <Command.Empty>No results found.</Command.Empty> -->
 					<Command.Group>
-						{#each filteredOptions as option}
+						{#each filteredOptions as option (normalise(option.value))}
 							{@const label = strip(option.label)}
 							<Command.Item
 								value={strip(option.value)}
 								keywords={caseSensitive ? [label] : [label, label.toLocaleLowerCase()]}
+								class="text-sm"
 								onSelect={() => {
 									toggleSelection(option.value);
 								}}
@@ -308,12 +309,13 @@
 								}}
 							>
 								<Check class={cn('mr-2 size-4', !isSelected(option.value) && 'text-transparent')} />
-								<span>{label}</span>
+								<span class="truncate">{label}</span>
 							</Command.Item>
 						{/each}
 						{#if clearable && selected.length > 0 && !disabled}
 							<Command.Item
 								value="clear"
+								class="text-sm text-destructive"
 								onSelect={() => {
 									selected = [];
 									onSelected?.(selected);

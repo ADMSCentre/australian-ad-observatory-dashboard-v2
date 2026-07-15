@@ -25,13 +25,16 @@
 </script>
 
 {#if latestMaintenance && isFuture}
-	<Alert.Root variant="warning" class="text-sm">
-		<Alert.Title class="flex items-center justify-between gap-2">
+	<Alert.Root
+		variant="warning"
+		class="rounded-xl border-warning/20 bg-warning/10 text-sm text-warning/90 shadow-none"
+	>
+		<Alert.Title class="flex items-center justify-between gap-3 text-sm font-semibold">
 			Maintenance Notice
-			<ConstructionIcon class="size-4" />
+			<ConstructionIcon class="size-4 shrink-0 text-warning/80" />
 		</Alert.Title>
-		<div class="flex flex-col gap-1 text-xs">
-			<p>
+		<div class="mt-2 flex flex-col gap-1.5 text-xs leading-5 text-warning/80">
+			<p class="leading-5">
 				A scheduled maintenance is coming up. Please avoid using the dashboard during the period
 				stated below.
 			</p>

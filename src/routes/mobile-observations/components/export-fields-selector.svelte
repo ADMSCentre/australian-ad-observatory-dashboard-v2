@@ -62,17 +62,21 @@
 	};
 </script>
 
-<div class="flex flex-col gap-4">
-	{#each FIELD_GROUPS as group}
-		<Accordion class="flex flex-col gap-4" open={group.open}>
+<div class="flex flex-col gap-3 rounded-xl border border-border bg-muted/20 p-4">
+	{#each FIELD_GROUPS as group (group.name)}
+		<Accordion class="flex flex-col gap-3" open={group.open}>
 			{#snippet summary(open)}
-				<span class="flex items-center gap-2 border-b text-left font-semibold">
-					<ChevronRight class={twMerge('transition-transform', open && 'rotate-90 transform')} />
+				<span
+					class="flex items-center gap-2 border-b border-border pb-2 text-left text-sm font-semibold"
+				>
+					<ChevronRight
+						class={twMerge('size-4 transition-transform', open && 'rotate-90 transform')}
+					/>
 					{group.name}
 				</span>
 			{/snippet}
-			<div class="flex flex-wrap gap-x-4 gap-y-2" transition:slide={{ duration: 200 }}>
-				<label class="flex items-center gap-1">
+			<div class="flex flex-wrap gap-x-4 gap-y-2 text-sm" transition:slide={{ duration: 200 }}>
+				<label class="flex items-center gap-2">
 					<input
 						type="checkbox"
 						onchange={(event) => {
@@ -86,10 +90,10 @@
 								.map(([key]) => key);
 						}}
 					/>
-					<span>All</span>
+					<span class="font-medium">All</span>
 				</label>
-				{#each group.fields as field}
-					<label class="flex items-center gap-1">
+				{#each group.fields as field (field.key)}
+					<label class="flex items-center gap-2 text-muted-foreground">
 						<input
 							type="checkbox"
 							checked={keys[field.key]}
@@ -102,15 +106,19 @@
 			</div>
 		</Accordion>
 	{/each}
-	<Accordion class="flex flex-col gap-4">
+	<Accordion class="flex flex-col gap-3">
 		{#snippet summary(open)}
-			<span class="flex items-center gap-2 border-b text-left font-semibold">
-				<ChevronRight class={twMerge('transition-transform', open && 'rotate-90 transform')} />
+			<span
+				class="flex items-center gap-2 border-b border-border pb-2 text-left text-sm font-semibold"
+			>
+				<ChevronRight
+					class={twMerge('size-4 transition-transform', open && 'rotate-90 transform')}
+				/>
 				Other Fields
 			</span>
 		{/snippet}
-		<div class="flex flex-wrap gap-x-4 gap-y-2" transition:slide={{ duration: 200 }}>
-			<label class="flex items-center gap-1">
+		<div class="flex flex-wrap gap-x-4 gap-y-2 text-sm" transition:slide={{ duration: 200 }}>
+			<label class="flex items-center gap-2">
 				<input
 					type="checkbox"
 					onchange={(event) => {
@@ -124,10 +132,10 @@
 							.map(([key]) => key);
 					}}
 				/>
-				<span>All</span>
+				<span class="font-medium">All</span>
 			</label>
-			{#each otherFields as [key]}
-				<label class="flex items-center gap-1">
+			{#each otherFields as [key] (key)}
+				<label class="flex items-center gap-2 text-muted-foreground">
 					<input type="checkbox" checked={keys[key]} onchange={() => toggleKey(key)} {disabled} />
 					<span>{key}</span>
 				</label>

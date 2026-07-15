@@ -18,18 +18,20 @@
 	{@render children?.()}
 {:else if alternative}
 	<Tooltip.Root>
-		<Tooltip.Trigger class=" size-auto">
+		<Tooltip.Trigger class="size-auto">
 			{@render alternative?.()}
 		</Tooltip.Trigger>
 		<Tooltip.Content>
-			<p class="max-w-sm text-wrap text-left text-xs font-normal text-muted-foreground">
+			<p class="max-w-sm text-wrap text-left text-xs font-normal leading-5 text-muted-foreground">
 				The feature <strong>{context.feature?.name}</strong> is currently disabled. Please contact the
 				Australian Ad Observatory team for more information.
 			</p>
 		</Tooltip.Content>
 	</Tooltip.Root>
 {:else}
-	<div class="text-center text-gray-500">
+	<div
+		class="rounded-xl border border-border bg-muted/30 p-3 text-center text-sm text-muted-foreground"
+	>
 		Feature <strong>{context.feature?.name}</strong> is disabled
 	</div>
 {/if}

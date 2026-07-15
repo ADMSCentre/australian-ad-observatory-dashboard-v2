@@ -49,17 +49,17 @@
 	});
 </script>
 
-<div class="flex flex-row items-center gap-2">
+<div class="flex flex-col gap-2 sm:flex-row sm:items-center">
 	<CodeMirror
 		bind:value={queryStr}
-		class={twMerge('w-full', className)}
+		class={twMerge('w-full overflow-hidden rounded-xl border border-border text-sm', className)}
 		lineWrapping
 		on:change={onChange}
 		useTab={false}
 		readonly={disabled}
 	/>
 	<Button
-		class="size-fit px-2 py-1 text-xs"
+		class="h-9 shrink-0 px-3 text-xs font-medium"
 		size="sm"
 		onclick={onSave}
 		disabled={!isValid || !isEditing}>Save</Button
