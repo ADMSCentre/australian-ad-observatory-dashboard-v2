@@ -553,7 +553,7 @@
 	const maxAdsInGroup = $derived(Math.max(...(groupedAds?.map(([, ads]) => ads.length) || [])));
 
 	let clientWidth = $state(0);
-	const MAX_AD_WIDTH = 324; // px
+	const MAX_AD_WIDTH = 288; // px
 	const PADDING = 40; // px
 
 	let resizeTimeout = $state<NodeJS.Timeout | null>(null);
