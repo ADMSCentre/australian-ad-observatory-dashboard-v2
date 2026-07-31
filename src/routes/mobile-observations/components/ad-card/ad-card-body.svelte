@@ -6,7 +6,7 @@
 	import { auth } from '$lib/api/auth/auth.svelte';
 	import type { ExpandType, RichAdData } from '$lib/api/session/ads/types';
 	import { session } from '$lib/api/session/session.svelte';
-	import { untrack } from 'svelte';
+	import { onDestroy, untrack } from 'svelte';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import TagsSelector from './tags-selector.svelte';
 	import AdPlaybackControls from './ad-playback-controls.svelte';
@@ -64,6 +64,19 @@
 	});
 
 	$effect(() => {
+		const frameCount = frames?.length ?? 0;
+		const isVisible = visible;
+
+		untrack(() => {
+			if (isVisible && frameCount > 1) {
+				playback.play();
+			} else {
+				playback.stop();
+			}
+		});
+	});
+
+	$effect(() => {
 		if (!frames || frames.length === 0) {
 			playback.reset();
 			return;
@@ -71,6 +84,10 @@
 		if (currentIndex > frames.length - 1) {
 			playback.setCurrentFrame(frames.length - 1);
 		}
+	});
+
+	onDestroy(() => {
+		playback.stop();
 	});
 
 	async function setAttribute(key: string, value: any) {
