@@ -131,7 +131,7 @@
 	</span>
 {/snippet}
 
-<IntersectionObserverSvelte {element} threshold={0.25} once bind:intersecting>
+<IntersectionObserverSvelte {element} threshold={0.25} bind:intersecting>
 	{#if showPlaceholder}
 		<!-- Hidden ad placeholder (overlay mode) -->
 		<article
